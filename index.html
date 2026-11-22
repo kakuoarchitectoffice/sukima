@@ -753,6 +753,150 @@
         #scr-wani .hc-hud{margin-bottom:8px;}
       }
 
+      /* ---------- Boxing ---------- */
+      .box-stage{display:flex;flex-direction:column;gap:10px;}
+      .box-zone{padding:12px 12px 14px;}
+      .box-hp{
+        position:relative;height:20px;border-radius:999px;background:var(--line);
+        border:1px solid var(--line-strong);overflow:hidden;margin-bottom:6px;
+      }
+      .box-hp-fill{position:absolute;inset:0;width:100%;border-radius:999px;transition:width .18s ease;}
+      .box-hp-fill.f1{background:var(--p1);}
+      .box-hp-fill.f2{background:var(--p2);}
+      .box-hp-fill.low{background:#b3553f;}
+      .box-hp-num{
+        position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+        font-family:"Manrope",sans-serif;font-size:11.5px;font-weight:800;letter-spacing:.08em;
+        color:#fff;mix-blend-mode:difference;
+      }
+      .box-st{height:7px;border-radius:999px;background:var(--line);overflow:hidden;margin-bottom:8px;}
+      .box-st-fill{height:100%;width:100%;background:#b98a1d;border-radius:999px;transition:width .1s linear;}
+      .box-st-fill.tired{background:#b3553f;}
+      .box-chance{
+        min-height:25px;font-weight:800;font-size:16px;letter-spacing:.1em;color:#b98a1d;visibility:hidden;
+      }
+      .box-chance.on{visibility:visible;animation:boxChancePulse .45s ease-in-out infinite alternate;}
+      @keyframes boxChancePulse{from{transform:scale(1);}to{transform:scale(1.13);}}
+      .box-btns{display:flex;gap:8px;}
+      .box-punch{flex:1.6;width:auto;font-size:19px;min-height:58px;touch-action:none;}
+      .box-guardbtn{
+        flex:1;border-radius:8px;font-weight:700;font-size:14.5px;letter-spacing:.05em;line-height:1.25;
+        background:var(--card);color:var(--ink);border:1.5px solid var(--line-strong);min-height:58px;touch-action:none;
+      }
+      .box-guardbtn small{display:block;font-size:10.5px;font-weight:500;color:var(--ink-soft);}
+      .box-guardbtn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+      .box-guardbtn.on small{color:inherit;opacity:.8;}
+      @media (prefers-color-scheme: dark){ .box-guardbtn.on{color:#161615;} }
+      .box-arena{
+        position:relative;background:var(--card);border:1px solid var(--line-strong);border-radius:var(--radius);
+        box-shadow:var(--shadow);min-height:216px;padding:14px 10px;
+        display:flex;flex-direction:column;align-items:center;justify-content:space-between;overflow:hidden;
+      }
+      .box-arena::before{
+        content:"";position:absolute;inset:10px;border:1.5px dashed var(--line);border-radius:8px;pointer-events:none;
+      }
+      .box-fighter{position:relative;display:flex;flex-direction:column;align-items:center;gap:2px;z-index:2;}
+      .box-face{display:flex;}
+      .box-glove{width:44px;height:44px;display:block;will-change:transform;}
+      .box-glove svg{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 2px rgba(0,0,0,.25));}
+      .box-glove.chance svg{filter:drop-shadow(0 0 7px #d9a92c) drop-shadow(0 2px 2px rgba(0,0,0,.25));}
+      .box-fighter.guarding .box-glove{transform:scale(1.2);}
+      .box-fighter.hit{animation:boxHit .3s ease;}
+      @keyframes boxHit{0%{transform:translateX(0);}25%{transform:translateX(-6px) rotate(-3deg);}55%{transform:translateX(5px) rotate(2deg);}100%{transform:none;}}
+      .box-fighter.ko{animation:boxKo .7s ease forwards;}
+      @keyframes boxKo{to{transform:rotate(72deg) translateY(10px);opacity:.75;filter:grayscale(.6);}}
+      .box-stars{
+        position:absolute;top:-17px;left:50%;transform:translateX(-50%);white-space:nowrap;
+        font-size:15px;color:#b98a1d;letter-spacing:2px;visibility:hidden;z-index:3;
+      }
+      .box-stars.on{visibility:visible;animation:boxStarsSpin 1s ease-in-out infinite;}
+      @keyframes boxStarsSpin{0%,100%{transform:translateX(-50%) rotate(-10deg);}50%{transform:translateX(-50%) rotate(10deg) translateY(-3px);}}
+      .box-status{
+        font-weight:800;font-size:19px;letter-spacing:.08em;text-align:center;z-index:2;min-height:28px;
+        font-family:"Manrope","Noto Sans JP",sans-serif;
+      }
+      .box-status.ko{font-size:40px;color:#b3553f;}
+      .box-pop{
+        position:absolute;z-index:4;transform:translate(-50%,-50%);pointer-events:none;
+        font-weight:800;font-size:16px;letter-spacing:.04em;color:var(--ink);white-space:nowrap;
+        text-shadow:0 1px 0 var(--card),0 0 6px var(--card);
+      }
+      .box-pop.crit{font-size:21px;color:#b98a1d;}
+      .box-pop.guard{color:var(--accent);}
+      .box-stage.shake{animation:pirshk .4s ease;}
+      #boxConfetti, #swpConfetti, #shtConfetti{z-index:60;}
+      @media (orientation: landscape){
+        #scr-boxing .box-stage{flex-direction:row;align-items:stretch;}
+        #scr-boxing .box-zone{flex:1 1 0;min-width:0;display:flex;flex-direction:column;justify-content:center;}
+        #scr-boxing .zone.p2{transform:none;}
+        #scr-boxing .box-arena{flex:1.15 1 0;flex-direction:row;min-height:250px;}
+        #scr-boxing .box-fighter{flex-direction:row;}
+        body:has(#scr-boxing.active) .app{max-width:920px;}
+      }
+      @media (prefers-reduced-motion: reduce){
+        .box-chance.on, .box-stars.on, .box-fighter.hit, .box-stage.shake{animation:none;}
+        .box-fighter.ko{animation:none;opacity:.75;}
+      }
+
+      /* ---------- Swipe slash ---------- */
+      .swp-area{
+        position:relative;height:430px;border-radius:var(--radius);overflow:hidden;touch-action:none;
+        background:linear-gradient(180deg,#f8f7f3 0%,#f1efe9 100%);
+        border:1px solid var(--line-strong);
+      }
+      @media (prefers-color-scheme: dark){ .swp-area{background:linear-gradient(180deg,#23231f 0%,#1b1b18 100%);} }
+      .swp-area.bombshake{animation:pirshk .32s ease;}
+      .swp-fruit{position:absolute;left:0;top:0;will-change:transform;pointer-events:none;z-index:2;}
+      .swp-fruit svg{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.2));}
+      .swp-half{position:absolute;left:0;top:0;will-change:transform;pointer-events:none;z-index:2;}
+      .swp-half svg{width:100%;height:100%;display:block;}
+      .swp-slash{position:absolute;inset:0;width:100%;height:100%;z-index:5;pointer-events:none;}
+      .swp-slash polyline{fill:none;stroke:var(--accent);stroke-width:4;stroke-linecap:round;stroke-linejoin:round;opacity:.85;filter:drop-shadow(0 0 5px rgba(46,74,63,.55));}
+      @media (prefers-color-scheme: dark){ .swp-slash polyline{stroke:#c2d6ca;} }
+      .swp-big{
+        position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:6;pointer-events:none;
+        font-family:"Manrope",sans-serif;font-size:56px;font-weight:800;color:var(--ink);letter-spacing:.05em;
+      }
+      .swp-pop{
+        position:absolute;z-index:6;transform:translate(-50%,-50%);pointer-events:none;
+        font-family:"Manrope",sans-serif;font-weight:800;font-size:17px;color:var(--ink);white-space:nowrap;
+      }
+      .swp-pop.neg{color:#b3553f;}
+      .swp-pop.gold{color:#b98a1d;}
+
+      /* ---------- Shooting ---------- */
+      .sht-wrap{margin-bottom:12px;}
+      .sht-wrap .sht-label{font-weight:700;font-size:13px;letter-spacing:.08em;display:flex;align-items:center;gap:7px;margin-bottom:7px;}
+      .sht-label .sht-combo{margin-left:auto;font-family:"Manrope",sans-serif;font-weight:800;font-size:13px;color:#b98a1d;letter-spacing:.03em;}
+      .sht-field{
+        position:relative;height:238px;border-radius:10px;overflow:hidden;cursor:pointer;touch-action:none;
+        background:linear-gradient(180deg,var(--accent-soft),var(--card));border:1px solid var(--line-strong);
+      }
+      .sht-target{position:absolute;will-change:left,top;pointer-events:none;z-index:2;}
+      .sht-target svg{width:100%;height:100%;display:block;filter:drop-shadow(0 2px 3px rgba(0,0,0,.2));}
+      .sht-target.pop-in{animation:shtPop .18s ease;}
+      @keyframes shtPop{from{transform:scale(.4);}to{transform:scale(1);}}
+      .sht-wolf{
+        display:flex;align-items:center;justify-content:center;width:100%;height:100%;
+        background:var(--card);border:2px solid var(--line-strong);border-radius:50%;
+      }
+      .sht-particle{position:absolute;width:7px;height:7px;border-radius:50%;pointer-events:none;z-index:6;}
+      .sht-pop{
+        position:absolute;z-index:7;transform:translate(-50%,-50%);pointer-events:none;
+        font-family:"Manrope",sans-serif;font-weight:800;font-size:16px;color:var(--ink);white-space:nowrap;
+        text-shadow:0 1px 0 var(--card),0 0 6px var(--card);
+      }
+      .sht-pop.neg{color:#b3553f;}
+      .sht-pop.gold{color:#b98a1d;}
+      @media (orientation: landscape){
+        #scr-shoot .sht-fields{display:flex;gap:14px;align-items:flex-start;}
+        #scr-shoot .sht-wrap{flex:1 1 0;min-width:0;margin-bottom:0;}
+        #scr-shoot #shtField2{transform:none !important;}
+        #scr-shoot .sht-field{height:300px;}
+        body:has(#scr-shoot.active) .app{max-width:920px;}
+      }
+      @media (prefers-reduced-motion: reduce){ .sht-target.pop-in{animation:none;} .swp-area.bombshake{animation:none;} }
+
       /* ---------- Pirate barrel ---------- */
       .pir-stage{position:relative;overflow:hidden;}
       .pir-pirate{
@@ -1165,7 +1309,7 @@
       .zone, .tug-track, .tim-track, .hc-area, .wani-field, .shk-stage, .tilt-maze,
       .rev-board, .c4-board, .c4-cols, .gm-board, .ch-board, .man-grid, .mem-grid,
       .sugo-board, .pir-stage, .sev-table, .hand-row, .kb, .quiz-choices, .jk-choices,
-      .wari-face{touch-action:none;}
+      .wari-face, .box-arena, .swp-area, .sht-field{touch-action:none;}
       html.in-game, html.in-game body{overscroll-behavior:none;}
     </style>
     <script>document.documentElement.classList.add("js");try{if(sessionStorage.getItem("sukima-gate-ok")==="1")document.documentElement.classList.add("unlocked");}catch(e){}</script>
@@ -1253,13 +1397,13 @@
           <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 44 52"><defs><clipPath id="bmTop"><rect x="0" y="0" width="44" height="24"/></clipPath><clipPath id="bmBot"><rect x="0" y="28" width="44" height="24"/></clipPath></defs><g font-family="Manrope, sans-serif" font-weight="800" font-size="46" fill="var(--ink)"><g class="bm-half bm-top"><text x="22" y="40" text-anchor="middle" clip-path="url(#bmTop)">S</text></g><g class="bm-half bm-bot"><text x="22" y="40" text-anchor="middle" clip-path="url(#bmBot)">S</text></g></g></svg></div>
           <h1 aria-label="SUKIMA"><span class="brand-logo" aria-hidden="true"><span class="bl">S</span><span class="bl">U</span><span class="bl">K</span><span class="bl">I</span><span class="bl">M</span><span class="bl bl-a">A</span></span></h1>
           <p class="brand-tagline">時間と空間のすきまに生まれる、小さな遊びの集まり</p>
-          <p class="home-desc">スマホ1台をふたりで囲んでも、離れていてもオンラインでも遊べます。<br />チェスやマンカラなどの本格ボードゲームから、じゃんけんやサイコロ、ワニたたき、お会計を決める遊び、4人で囲むトランプゲーム、端末を振ったり傾けたりして遊ぶゲームまで、全27ゲーム。ガチで戦う？ それとも息を合わせて協力する？</p>
+          <p class="home-desc">スマホ1台をふたりで囲んでも、離れていてもオンラインでも遊べます。<br />チェスやマンカラなどの本格ボードゲームから、じゃんけんやサイコロ、ワニたたき、お会計を決める遊び、4人で囲むトランプゲーム、端末を振ったり傾けたりして遊ぶゲームまで、全30ゲーム。ガチで戦う？ それとも息を合わせて協力する？</p>
         </div>
 
         <div class="marquee" aria-hidden="true">
           <div class="marquee-track">
-            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span></div>
-            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span></div>
+            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>ボクシング対決</span><span class="mq-sep"></span><span>シューティングマニア</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span><span>スワイプ早斬り</span><span class="mq-sep"></span></div>
+            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>ボクシング対決</span><span class="mq-sep"></span><span>シューティングマニア</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span><span>スワイプ早斬り</span><span class="mq-sep"></span></div>
           </div>
         </div>
 
@@ -1360,6 +1504,26 @@
           <span class="go">あそぶ ›</span>
         </button>
 
+        <button class="game-card" data-go="boxing">
+          <span class="icon c3"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2.5c3.7 0 6 2.7 6 6.6 0 2.2-.8 3.9-2.1 4.9v1.7H8.4V14C7.1 13 6.3 11.3 6.3 9.1c0-3.9 2.2-6.6 5.7-6.6z" fill="#2e4a3f"/><rect x="7.6" y="17.4" width="9.4" height="4" rx="1.2" fill="#1b1b18"/></svg></span>
+          <span class="gc-body">
+            <h3>ボクシング対決</h3>
+            <p>向かい合って同時バトル！ パンチとガード（長押し）の読み合い。「チャンス！」中の命中は3ダメージのクリティカル。先に相手のHPを0にした方の勝ち。</p>
+            <span class="record" id="rec-boxing">まだ対戦なし</span>
+          </span>
+          <span class="go">あそぶ ›</span>
+        </button>
+
+        <button class="game-card" data-go="shoot">
+          <span class="icon c4"><svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="8.6" stroke="#1b1b18" stroke-width="1.8"/><circle cx="12" cy="12" r="5" fill="#2e4a3f"/><circle cx="12" cy="12" r="1.8" fill="#f5f4f0"/></svg></span>
+          <span class="gc-body">
+            <h3>シューティングマニア</h3>
+            <p>自分のフィールドに現れる的をタップで撃とう！ 大きい的10点、小さく速い的30点、金の的50点。連続命中でコンボ倍率アップ。自分のキャラを撃つと−20点。45秒勝負。</p>
+            <span class="record" id="rec-shoot">まだ対戦なし</span>
+          </span>
+          <span class="go">あそぶ ›</span>
+        </button>
+
         <div class="section-title"><span class="tag phone">携帯</span> 携帯で遊ぶ</div>
 
         <button class="game-card" data-go="shake">
@@ -1378,6 +1542,16 @@
             <h3>傾けボール</h3>
             <p>スマホを傾けてボールを転がし、迷路のゴールを目指すタイムアタック。交代で挑戦して速い方の勝ち。センサーが使えない端末ではドラッグで動かせます。</p>
             <span class="record" id="rec-tilt">まだ対戦なし</span>
+          </span>
+          <span class="go">あそぶ ›</span>
+        </button>
+
+        <button class="game-card" data-go="swipe">
+          <span class="icon c5"><svg viewBox="0 0 24 24" fill="none"><circle cx="10" cy="14.5" r="6.2" fill="#b3553f"/><path d="M10 8.5c.2-1.8 1.2-3 3-3.6" stroke="#5a4632" stroke-width="1.6" stroke-linecap="round"/><path d="M3.5 20.5 20.5 3.5" stroke="#2e4a3f" stroke-width="2.2" stroke-linecap="round"/></svg></span>
+          <span class="gc-body">
+            <h3>スワイプ早斬り</h3>
+            <p>飛んでくるフルーツを指のスワイプで斬ろう！ 金のフルーツは3点、爆弾を斬ると−3点。斬り続けるとコンボボーナス。1台を交代で40秒ずつ、スコア勝負。</p>
+            <span class="record" id="rec-swipe">まだ対戦なし</span>
           </span>
           <span class="go">あそぶ ›</span>
         </button>
@@ -2203,6 +2377,97 @@
           </div>
         </div>
       </section>
+
+      <!-- ============ 28. BOXING ============ -->
+      <section class="screen" id="scr-boxing">
+        <div class="game-head"><button class="back-btn" data-home>‹ ホーム</button><h2>ボクシング対決</h2><span class="spacer"></span></div>
+        <div class="howto">向かい合って<b>同時バトル！</b> パンチが当たると<b>1ダメージ</b>。相手のパンチは<b>ガード（長押し）</b>で防ごう。パンチを連打するとスタミナが切れて少し打てなくなるよ。「<b>チャンス！</b>」の間に当てると<b>3ダメージのクリティカル</b>。先に相手のHPを0にした方の勝ち！</div>
+        <div class="box-stage" id="boxStage">
+          <div class="zone p2 flip box-zone">
+            <div class="z-label">プレイヤー2（あお）</div>
+            <div class="box-hp"><div class="box-hp-fill f2" id="boxHpFill2"></div><span class="box-hp-num" id="boxHpNum2">HP 20</span></div>
+            <div class="box-st"><div class="box-st-fill" id="boxStFill2"></div></div>
+            <div class="box-chance" id="boxChance2">チャンス！</div>
+            <div class="box-btns">
+              <button class="big-btn btn-p2 box-punch" id="boxPunch2" type="button">パンチ</button>
+              <button class="box-guardbtn" id="boxGuard2" type="button">ガード<small>長押し</small></button>
+            </div>
+          </div>
+          <div class="box-arena" id="boxArena">
+            <div class="box-fighter f2" id="boxFighter2">
+              <span class="box-stars" id="boxStars2">★ ★ ★</span>
+              <span class="box-face" id="boxFace2"></span>
+              <span class="box-glove" id="boxGlove2"></span>
+            </div>
+            <div class="box-status" id="boxStatus">スタートを押してね</div>
+            <div class="box-fighter f1" id="boxFighter1">
+              <span class="box-glove" id="boxGlove1"></span>
+              <span class="box-face" id="boxFace1"></span>
+              <span class="box-stars" id="boxStars1">★ ★ ★</span>
+            </div>
+          </div>
+          <div class="zone p1 box-zone">
+            <div class="z-label">プレイヤー1（あか）</div>
+            <div class="box-hp"><div class="box-hp-fill f1" id="boxHpFill1"></div><span class="box-hp-num" id="boxHpNum1">HP 20</span></div>
+            <div class="box-st"><div class="box-st-fill" id="boxStFill1"></div></div>
+            <div class="box-chance" id="boxChance1">チャンス！</div>
+            <div class="box-btns">
+              <button class="big-btn btn-p1 box-punch" id="boxPunch1" type="button">パンチ</button>
+              <button class="box-guardbtn" id="boxGuard1" type="button">ガード<small>長押し</small></button>
+            </div>
+          </div>
+        </div>
+        <button class="big-btn btn-green" id="boxStart" type="button" style="margin-top:12px;">ゲームスタート</button>
+        <p class="sub-text" style="text-align:center;margin-top:8px;" id="boxNote">向かい合って持ってね。上がプレイヤー2、下がプレイヤー1だよ</p>
+        <div class="bab-confetti" id="boxConfetti" aria-hidden="true"></div>
+      </section>
+
+      <!-- ============ 29. SWIPE ============ -->
+      <section class="screen" id="scr-swipe">
+        <div class="game-head"><button class="back-btn" data-home>‹ ホーム</button><h2>スワイプ早斬り</h2><span class="spacer"></span></div>
+        <div class="howto">飛んでくる<b>フルーツを指でなぞって斬ろう！</b> ふつうのフルーツ1点、<b>金のフルーツは3点</b>。黒い<b>爆弾を斬ると−3点</b>（落とせばセーフ）。斬り続けるとコンボが伸びてボーナス点も入るよ。1台を交代で使って、40秒ずつ挑戦！</div>
+        <div class="turn-banner p1" id="swpTurn">あかの番です</div>
+        <div class="hc-hud">
+          <div class="hud-box"><small>スコア</small><span id="swpScoreNow">0</span></div>
+          <div class="hud-box"><small>コンボ</small><span id="swpComboNow">—</span></div>
+          <div class="hud-box"><small>のこり</small><span id="swpTimeNow">40</span>秒</div>
+        </div>
+        <div class="swp-area" id="swpArea">
+          <svg class="swp-slash" aria-hidden="true"><polyline id="swpTrailLine" points="" /></svg>
+          <div class="swp-big" id="swpBig"></div>
+        </div>
+        <div class="status-text" id="swpStatus" style="margin-top:10px;">あかからスタート！</div>
+        <button class="big-btn btn-green" id="swpStart" type="button" style="margin-top:10px;">スタート</button>
+        <div class="score-row">
+          <span class="score-chip p1">あか <span id="swpScore1">-</span></span>
+          <span class="score-chip p2">あお <span id="swpScore2">-</span></span>
+        </div>
+        <div class="bab-confetti" id="swpConfetti" aria-hidden="true"></div>
+      </section>
+
+      <!-- ============ 30. SHOOTING ============ -->
+      <section class="screen" id="scr-shoot">
+        <div class="game-head"><button class="back-btn" data-home>‹ ホーム</button><h2>シューティングマニア</h2><span class="spacer"></span></div>
+        <div class="howto">自分のフィールドに現れる<b>的をタップで撃とう！</b> 大きい的<b>10点</b>、小さくて速い的<b>30点</b>、<b>金の的は50点</b>。連続命中でコンボ倍率アップ、外すとコンボが途切れるよ。ときどき顔を出す<b>自分のキャラを撃つと−20点</b>だから気をつけて。45秒勝負！</div>
+        <div class="hc-hud">
+          <div class="hud-box"><small>のこり時間</small><span id="shtTime">45</span>秒</div>
+          <div class="hud-box"><small>あか</small><span id="shtScore1">0</span>点</div>
+          <div class="hud-box"><small>あお</small><span id="shtScore2">0</span>点</div>
+        </div>
+        <div class="sht-fields" id="shtFields">
+          <div class="sht-wrap" id="shtWrap2">
+            <div class="sht-label" id="shtLabel2">プレイヤー2（あお）</div>
+            <div class="sht-field" id="shtField2" style="transform:rotate(180deg);"></div>
+          </div>
+          <div class="sht-wrap" id="shtWrap1">
+            <div class="sht-label" id="shtLabel1">プレイヤー1（あか）</div>
+            <div class="sht-field" id="shtField1"></div>
+          </div>
+        </div>
+        <button class="big-btn btn-green" id="shtStart">ゲームスタート</button>
+        <p class="sub-text" style="text-align:center;margin-top:8px;" id="shtNote">スタートを押すと的が出てくるよ</p>
+        <div class="bab-confetti" id="shtConfetti" aria-hidden="true"></div>
+      </section>
     </div>
 
     <!-- ============ RESULT ============ -->
@@ -2400,7 +2665,7 @@
         switch(m.t){
           case "hello": case "bye": case "retry": case "tugGo": case "hcStart": return {t:m.t};
           case "nav": {
-            var games = ["home","tug","haya","timing","sync","heart","ptimer","reversi","connect4","gomoku","janken","dice","chess","checkers","mancala","memory","sugoroku","quiz","moji","wani","pirate","warikan","amida","sevens","baba","daifugo","shake","tilt"];
+            var games = ["home","tug","haya","timing","sync","heart","ptimer","reversi","connect4","gomoku","janken","dice","chess","checkers","mancala","memory","sugoroku","quiz","moji","wani","pirate","warikan","amida","sevens","baba","daifugo","shake","tilt","boxing","swipe","shoot"];
             return games.indexOf(m.game) >= 0 ? {t:"nav", game:m.game} : null;
           }
           case "chMove": return {t:"chMove", p:netPlayer(m.p), from:Math.round(netNum(m.from, 0, 63, -1)), to:Math.round(netNum(m.to, 0, 63, -1)), promo:Math.round(netNum(m.promo, 0, 4, 0))};
@@ -2558,7 +2823,10 @@
         baba:   { p1:0, p2:0 },
         daifugo:{ p1:0, p2:0 },
         shake:  { p1:0, p2:0 },
-        tilt:   { p1:0, p2:0 }
+        tilt:   { p1:0, p2:0 },
+        boxing: { p1:0, p2:0 },
+        swipe:  { p1:0, p2:0 },
+        shoot:  { p1:0, p2:0 }
       };
       function versusText(r){
         if(r.p1===0 && r.p2===0) return "まだ対戦なし";
@@ -2590,6 +2858,9 @@
         var rdf=$("rec-daifugo"); if(rdf) rdf.innerHTML = versusText(records.daifugo);
         var rsh=$("rec-shake"); if(rsh) rsh.innerHTML = versusText(records.shake);
         var rti=$("rec-tilt"); if(rti) rti.innerHTML = versusText(records.tilt);
+        var rbx=$("rec-boxing"); if(rbx) rbx.innerHTML = versusText(records.boxing);
+        var rsw=$("rec-swipe"); if(rsw) rsw.innerHTML = versusText(records.swipe);
+        var rst=$("rec-shoot"); if(rst) rst.innerHTML = versusText(records.shoot);
       }
 
       /* ---------- decorate static player labels with the chosen icons ----------
@@ -6870,6 +7141,17 @@
           case "shakeHit": tone(300 + Math.min(600, (opt || 0) * 18), 200, 0.05, "square", 0.10); noiseBurst(0.03, 0.12, 0, 2000); break;
           case "bump": tone(160, 90, 0.07, "sine", 0.25); break;
           case "goal": [659, 784, 988, 1319].forEach(function(fr, i){ tone(fr, fr, 0.15, "triangle", 0.22, i * 0.08); }); break;
+          case "punch": tone(170, 60, 0.13, "sine", 0.38); noiseBurst(0.07, 0.28, 0, 620); break;
+          case "whoosh": noiseBurst(0.08, 0.16, 0, 1500); break;
+          case "guard": tone(1320, 1320, 0.06, "square", 0.10); tone(1980, 1980, 0.08, "sine", 0.12, 0.03); noiseBurst(0.03, 0.12, 0, 3400); break;
+          case "crit": tone(880, 160, 0.28, "sawtooth", 0.16); noiseBurst(0.14, 0.30, 0, 800); tone(1568, 1568, 0.12, "square", 0.10, 0.05); break;
+          case "ko": tone(620, 70, 0.65, "sawtooth", 0.18); noiseBurst(0.4, 0.22, 0, 400); [1047, 1319, 1568].forEach(function(fr, i){ tone(fr, fr, 0.14, "triangle", 0.16, 0.55 + i * 0.09); }); break;
+          case "slash": noiseBurst(0.06, 0.26, 0, 3600); tone(1200, 2400, 0.05, "sine", 0.05); break;
+          case "sparkle": [1319, 1760, 2349].forEach(function(fr, i){ tone(fr, fr, 0.10, "sine", 0.16, i * 0.06); }); break;
+          case "bombS": tone(130, 38, 0.42, "sine", 0.45); noiseBurst(0.32, 0.34, 0, 320); break;
+          case "shot": noiseBurst(0.045, 0.20, 0, 1000); tone(760, 240, 0.06, "square", 0.07); break;
+          case "pop": tone(480, 920, 0.07, "sine", 0.20); noiseBurst(0.04, 0.16, 0, 2100); break;
+          case "bad": tone(233, 110, 0.26, "sawtooth", 0.16); tone(220, 104, 0.26, "sawtooth", 0.12, 0.07); break;
         }
       }
       var sndBtn = $("sndToggle");
@@ -6908,7 +7190,7 @@
          ブラウザ差があるため、ピンチ開始（gesturestart）とプレイ領域上の
          touchmove をJSでも止める。ホームでは何もしない。
       ================================================================ */
-      var PLAY_AREA_SEL = ".zone, .tug-track, .tim-track, .hc-area, .wani-field, .shk-stage, .tilt-maze, .rev-board, .c4-board, .c4-cols, .gm-board, .ch-board, .man-grid, .mem-grid, .sugo-board, .pir-stage, .sev-table, .hand-row, .kb, .quiz-choices, .jk-choices, .wari-face";
+      var PLAY_AREA_SEL = ".zone, .tug-track, .tim-track, .hc-area, .wani-field, .shk-stage, .tilt-maze, .rev-board, .c4-board, .c4-cols, .gm-board, .ch-board, .man-grid, .mem-grid, .sugo-board, .pir-stage, .sev-table, .hand-row, .kb, .quiz-choices, .jk-choices, .wari-face, .box-arena, .swp-area, .sht-field";
       function inGameNow(){ return typeof currentGame !== "undefined" && currentGame !== "home"; }
       document.addEventListener("gesturestart", function(e){ if(inGameNow()) e.preventDefault(); }, { passive:false });
       document.addEventListener("gesturechange", function(e){ if(inGameNow()) e.preventDefault(); }, { passive:false });
@@ -7359,6 +7641,673 @@
       /* 許可が不要な端末では、最初からセンサーを受け付ける */
       if(!sensorPermNeeded()) sensorAttach();
       refreshSensorUI();
+
+      /* ---------- 紙吹雪（ババ抜きの babConfetti と同じ仕組み・各ゲーム専用コンテナ） ---------- */
+      function fxConfetti(boxId){
+        if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var boxEl = $(boxId); if(!boxEl) return;
+        var colors = ["#1b1b18", "#2e4a3f", "#b98a1d", "#c9c5ba", "#86a391"];
+        var html = "";
+        for(var i = 0; i < 30; i++){
+          var w = (5 + Math.random() * 5).toFixed(0), h = (8 + Math.random() * 6).toFixed(0);
+          html += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;width:' + w + 'px;height:' + h + 'px;background:' +
+            colors[i % colors.length] + ';--dx:' + (Math.random() * 120 - 60).toFixed(0) + 'px;--rot:' + (Math.random() * 720 - 360).toFixed(0) +
+            'deg;animation-duration:' + (1.1 + Math.random() * 0.9).toFixed(2) + 's;animation-delay:' + (Math.random() * 0.25).toFixed(2) + 's;"></i>';
+        }
+        boxEl.innerHTML = html;
+        later(function(){ boxEl.innerHTML = ""; }, 2600);
+      }
+
+      /* ================================================================
+         28. ボクシング対決（1台・上下／左右分割の同時対戦）
+         パンチはグローブが約0.25秒で相手に届き、その瞬間に相手が
+         ガードを長押ししていれば無効化。スタミナ制で連打を抑える。
+      ================================================================ */
+      var BOX_HP = 20, BOX_COST = 34;
+      var box = { phase:"idle", hp:{1:BOX_HP, 2:BOX_HP}, st:{1:100, 2:100}, guard:{1:false, 2:false},
+        busy:{1:false, 2:false}, chance:{1:0, 2:0}, nextChance:{1:0, 2:0}, lastTs:0 };
+      function boxGloveSvg(p){
+        var fill = p === 1 ? "#2b2b26" : "#2e4a3f";
+        var cuff = p === 1 ? "#6f6f68" : "#86a391";
+        return '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 4c7.4 0 12.4 5.6 12.4 13.6 0 4.5-1.7 7.9-4.2 9.9V31H16.2v-3.5C13.7 25.5 12 22.1 12 17.6 12 9.6 16.9 4 24 4z" fill="' + fill + '"/><ellipse cx="19" cy="12" rx="3.6" ry="5" fill="rgba(255,255,255,.22)" transform="rotate(-16 19 12)"/><rect x="14.6" y="33" width="19" height="8" rx="2.4" fill="' + cuff + '"/><path d="M18.5 36.2h11M18.5 38.8h11" stroke="rgba(255,255,255,.55)" stroke-width="1.4" stroke-linecap="round"/></svg>';
+      }
+      function boxHud(){
+        [1, 2].forEach(function(p){
+          var fill = $("boxHpFill" + p);
+          fill.style.width = (box.hp[p] / BOX_HP * 100) + "%";
+          fill.classList.toggle("low", box.hp[p] <= 6);
+          $("boxHpNum" + p).textContent = "HP " + box.hp[p];
+          var st = $("boxStFill" + p);
+          st.style.width = box.st[p] + "%";
+          st.classList.toggle("tired", box.st[p] < BOX_COST);
+          $("boxPunch" + p).disabled = box.phase !== "run" || box.busy[p] || box.st[p] < BOX_COST;
+        });
+      }
+      function boxFaces(){
+        $("boxFace1").innerHTML = wolf(1, "wolf-52");
+        $("boxFace2").innerHTML = wolf(2, "wolf-52");
+        $("boxGlove1").innerHTML = boxGloveSvg(1);
+        $("boxGlove2").innerHTML = boxGloveSvg(2);
+      }
+      function boxPop(x, y, text, cls){
+        var s = document.createElement("span");
+        s.className = "box-pop" + (cls ? " " + cls : "");
+        s.textContent = text;
+        s.style.left = x + "px"; s.style.top = y + "px";
+        $("boxArena").appendChild(s);
+        if(s.animate) s.animate([{ transform:"translate(-50%,-50%)", opacity:1 }, { transform:"translate(-50%,-160%)", opacity:0 }], { duration:700, easing:"ease-out" });
+        later(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 730);
+      }
+      function boxPunch(p){
+        if(box.phase !== "run" || box.busy[p]) return;
+        if(box.st[p] < BOX_COST) return;
+        box.st[p] -= BOX_COST;
+        box.busy[p] = true;
+        var now = performance.now();
+        var crit = now < box.chance[p];
+        if(crit) box.chance[p] = 0;
+        var def = p === 1 ? 2 : 1;
+        var glove = $("boxGlove" + p), target = $("boxFighter" + def);
+        var gr = glove.getBoundingClientRect(), tr = target.getBoundingClientRect();
+        var dx = (tr.left + tr.width / 2) - (gr.left + gr.width / 2);
+        var dy = (tr.top + tr.height / 2) - (gr.top + gr.height / 2);
+        sfx("whoosh");
+        if(glove.animate){
+          glove.animate([
+            { transform:"translate(0,0)" },
+            { transform:"translate(" + dx + "px," + dy + "px) scale(1.18)" }
+          ], { duration:250, easing:"cubic-bezier(.35,.6,.6,1)" });
+        }
+        boxHud();
+        later(function(){
+          if(currentGame !== "boxing"){ box.busy[p] = false; return; }
+          if(box.phase === "run") boxResolve(p, def, crit);
+          if(glove.animate){
+            glove.animate([
+              { transform:"translate(" + dx + "px," + dy + "px) scale(1.18)" },
+              { transform:"translate(0,0)" }
+            ], { duration:170, easing:"ease-out" });
+          }
+          later(function(){ box.busy[p] = false; boxHud(); }, 180);
+        }, 250);
+      }
+      function boxResolve(atk, def, crit){
+        var fEl = $("boxFighter" + def);
+        var fr = fEl.getBoundingClientRect(), ar = $("boxArena").getBoundingClientRect();
+        var px = fr.left + fr.width / 2 - ar.left, py = fr.top + fr.height / 2 - ar.top;
+        if(box.guard[def]){
+          sfx("guard");
+          boxPop(px, py, "ガード！", "guard");
+          return;
+        }
+        var dmg = crit ? 3 : 1;
+        box.hp[def] = Math.max(0, box.hp[def] - dmg);
+        sfx(crit ? "crit" : "punch");
+        fEl.classList.remove("hit"); void fEl.offsetWidth; fEl.classList.add("hit");
+        boxPop(px, py, crit ? "クリティカル！ -" + dmg : "-" + dmg, crit ? "crit" : "");
+        if(navigator.vibrate){ try{ navigator.vibrate(crit ? 45 : 15); }catch(e){} }
+        boxHud();
+        if(box.hp[def] <= 0) boxKO(atk, def);
+      }
+      function boxLoop(ts){
+        if(box.phase !== "run") return;
+        if(!box.lastTs) box.lastTs = ts;
+        var dt = Math.min(0.05, (ts - box.lastTs) / 1000); box.lastTs = ts;
+        var now = performance.now();
+        [1, 2].forEach(function(p){
+          box.st[p] = Math.min(100, box.st[p] + 42 * dt);
+          if(now >= box.nextChance[p] && now >= box.chance[p]){
+            box.chance[p] = now + 2200;
+            box.nextChance[p] = now + 6500 + Math.random() * 4500;
+            sfx("sparkle");
+          }
+          var active = now < box.chance[p];
+          $("boxChance" + p).classList.toggle("on", active);
+          $("boxGlove" + p).classList.toggle("chance", active);
+        });
+        boxHud();
+        setRaf("boxing", requestAnimationFrame(boxLoop));
+      }
+      function boxStartMatch(){
+        if(box.phase === "count" || box.phase === "run") return;
+        box.hp = {1:BOX_HP, 2:BOX_HP}; box.st = {1:100, 2:100};
+        box.guard = {1:false, 2:false}; box.busy = {1:false, 2:false};
+        box.chance = {1:0, 2:0};
+        var now = performance.now();
+        box.nextChance = {1: now + 2600 + Math.random() * 1500, 2: now + 3600 + Math.random() * 1500};
+        [1, 2].forEach(function(p){
+          $("boxFighter" + p).classList.remove("ko", "hit", "guarding");
+          $("boxStars" + p).classList.remove("on");
+          $("boxChance" + p).classList.remove("on");
+          $("boxGuard" + p).classList.remove("on");
+        });
+        $("boxStage").classList.remove("shake");
+        $("boxStatus").classList.remove("ko");
+        $("boxStart").style.display = "none";
+        $("boxNote").textContent = "パンチで攻撃！ 相手のパンチはガード（長押し）で防ごう";
+        box.phase = "count";
+        boxHud();
+        var n = 3;
+        $("boxStatus").textContent = n;
+        sfx("count");
+        var cd = every(function(){
+          n--;
+          if(n > 0){ $("boxStatus").textContent = n; sfx("count"); }
+          else if(n === 0){ $("boxStatus").textContent = "ファイト！"; sfx("go"); }
+          else {
+            clearInterval(cd);
+            box.phase = "run"; box.lastTs = 0;
+            boxHud();
+            setRaf("boxing", requestAnimationFrame(boxLoop));
+            later(function(){ if(box.phase === "run") $("boxStatus").textContent = ""; }, 650);
+          }
+        }, 540);
+      }
+      function boxKO(winner, loser){
+        box.phase = "ko";
+        box.guard = {1:false, 2:false};
+        $("boxFighter" + loser).classList.add("ko");
+        $("boxStars" + loser).classList.add("on");
+        var stage = $("boxStage");
+        stage.classList.remove("shake"); void stage.offsetWidth; stage.classList.add("shake");
+        var status = $("boxStatus");
+        status.textContent = "K.O.！";
+        status.classList.add("ko");
+        sfx("ko");
+        if(winner === 1) records.boxing.p1++; else records.boxing.p2++;
+        fxConfetti("boxConfetti");
+        boxHud();
+        later(function(){
+          if(currentGame !== "boxing") return;
+          showResult((winner === 1 ? "あか（プレイヤー1）" : "あお（プレイヤー2）") + "のKO勝ち！",
+            "通算成績は あか " + records.boxing.p1 + "勝 ／ あお " + records.boxing.p2 + "勝",
+            function(){ boxReset(); boxStartMatch(); }, winner);
+        }, 2000);
+      }
+      function boxReset(){
+        box.phase = "idle";
+        box.hp = {1:BOX_HP, 2:BOX_HP}; box.st = {1:100, 2:100};
+        box.guard = {1:false, 2:false}; box.busy = {1:false, 2:false}; box.chance = {1:0, 2:0};
+        [1, 2].forEach(function(p){
+          $("boxFighter" + p).classList.remove("ko", "hit", "guarding");
+          $("boxStars" + p).classList.remove("on");
+          $("boxChance" + p).classList.remove("on");
+          $("boxGuard" + p).classList.remove("on");
+        });
+        $("boxStage").classList.remove("shake");
+        var status = $("boxStatus");
+        status.textContent = "スタートを押してね";
+        status.classList.remove("ko");
+        $("boxStart").style.display = "";
+        $("boxNote").textContent = "向かい合って持ってね。上がプレイヤー2、下がプレイヤー1だよ";
+        boxFaces();
+        boxHud();
+      }
+      function boxInit(){ boxReset(); }
+      inits.boxing = boxInit;
+      $("boxStart").addEventListener("click", boxStartMatch);
+      [1, 2].forEach(function(p){
+        $("boxPunch" + p).addEventListener("pointerdown", function(e){ e.preventDefault(); boxPunch(p); });
+        var g = $("boxGuard" + p);
+        g.addEventListener("pointerdown", function(e){
+          e.preventDefault();
+          box.guard[p] = true;
+          g.classList.add("on");
+          $("boxFighter" + p).classList.add("guarding");
+        });
+        var off = function(){
+          box.guard[p] = false;
+          g.classList.remove("on");
+          $("boxFighter" + p).classList.remove("guarding");
+        };
+        g.addEventListener("pointerup", off);
+        g.addEventListener("pointercancel", off);
+        g.addEventListener("pointerleave", off);
+        g.addEventListener("contextmenu", function(e){ e.preventDefault(); });
+      });
+
+      /* ================================================================
+         29. スワイプ早斬り（1台を交代で使用・40秒×2人）
+         フルーツは放物線で飛び、スワイプの軌跡（最新150ms）に触れると
+         斬れて2つに割れる。爆弾は斬ると−3点、落とせばセーフ。
+      ================================================================ */
+      var SWP_TIME = 40, SWP_G = 1650;
+      var swp = { phase:"idle", turn:1, score:0, combo:0, scores:{1:null, 2:null},
+        items:[], trail:[], drawing:false, pointerId:null, lastTs:0, spawnAcc:0, runStart:0 };
+      function swpName(p){ return p === 1 ? "あか" : "あお"; }
+      function swpFruitSvg(kind){
+        if(kind === "bomb"){
+          return '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="23" cy="29" r="14.5" fill="#2b2b26"/><ellipse cx="18" cy="24" rx="4.4" ry="3" fill="rgba(255,255,255,.28)" transform="rotate(-24 18 24)"/><rect x="19.5" y="10.5" width="7" height="5.5" rx="1.5" fill="#6f6f68"/><path d="M23 10.5c0-3.2 2.8-4.4 5-5.2" stroke="#6f6f68" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M29.5 1.5l1.1 2.5 2.7.9-2.3 1.5.5 2.7-2.2-1.6-2.1 1.8.4-2.8-2.3-1.4 2.7-.8z" fill="#d9a92c"/></svg>';
+        }
+        var fill = kind === "gold" ? "#d9a92c" : kind === "melon" ? "#3f6b52" : kind === "orange" ? "#d18a2d" : "#b3553f";
+        var stripe = kind === "melon" ? '<path d="M16 15c-2.6 3.6-2.6 20 0 24M24 12.5c-1.8 4-1.8 19 0 23.5M32 15c2.6 3.6 2.6 20 0 24" stroke="rgba(255,255,255,.28)" stroke-width="1.8" fill="none"/>' : "";
+        return '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="27" r="16" fill="' + fill + '"/>' + stripe + '<ellipse cx="18" cy="21" rx="5" ry="3.2" fill="rgba(255,255,255,.35)" transform="rotate(-24 18 21)"/><path d="M24 12c.2-3.2 1.8-5.2 4.6-6.2" stroke="#5a4632" stroke-width="2.4" fill="none" stroke-linecap="round"/><path d="M27.5 6.2c2.8-1.8 6.2-1 7.8.2-1 2.8-4 4.4-7 4-1.2-.2-1.6-3-.8-4.2z" fill="#3f6b52"/></svg>';
+      }
+      function swpRender(){
+        var b = $("swpTurn");
+        b.className = "turn-banner p" + swp.turn;
+        b.innerHTML = wolf(swp.turn, "wolf-24") + " " + swpName(swp.turn) + "の番です<small>40秒で何点とれるかな？</small>";
+        $("swpScore1").textContent = swp.scores[1] === null ? "-" : swp.scores[1] + "点";
+        $("swpScore2").textContent = swp.scores[2] === null ? "-" : swp.scores[2] + "点";
+      }
+      function swpHud(){
+        $("swpScoreNow").textContent = swp.score;
+        $("swpComboNow").textContent = swp.combo > 1 ? swp.combo + "コンボ" : "—";
+        $("swpTimeNow").textContent = Math.max(0, Math.ceil(swp.timeLeft));
+      }
+      function swpSetControls(){ $("swpStart").style.display = swp.phase === "idle" ? "" : "none"; }
+      function swpDrawTrail(){
+        $("swpTrailLine").setAttribute("points", swp.trail.map(function(p){ return p.x + "," + p.y; }).join(" "));
+      }
+      function swpClearItems(){
+        swp.items.forEach(function(it){ if(it.el.parentNode) it.el.parentNode.removeChild(it.el); });
+        swp.items = []; swp.trail = []; swp.drawing = false; swp.pointerId = null;
+        swpDrawTrail();
+      }
+      function swpInit(){
+        swp.phase = "idle"; swp.turn = 1; swp.score = 0; swp.combo = 0;
+        swp.scores = {1:null, 2:null}; swp.timeLeft = SWP_TIME;
+        swpClearItems();
+        $("swpBig").textContent = "";
+        $("swpStatus").textContent = "あかからスタート！ フルーツをスワイプで斬ろう";
+        swpRender(); swpHud(); swpSetControls();
+      }
+      inits.swipe = swpInit;
+      function swpSpawn(){
+        var area = $("swpArea"), W = area.clientWidth, H = area.clientHeight;
+        if(!W || !H) return;
+        var r = Math.random();
+        var kind = r < 0.13 ? "bomb" : r < 0.21 ? "gold" : ["apple", "melon", "orange"][Math.floor(Math.random() * 3)];
+        var rad = 27 + Math.random() * 5;
+        var x = rad + 8 + Math.random() * Math.max(10, W - rad * 2 - 16);
+        var peak = H * (0.42 + Math.random() * 0.38);
+        var vy = -Math.sqrt(2 * SWP_G * peak);
+        var vx = (W / 2 - x) * (0.18 + Math.random() * 0.3) + (Math.random() * 60 - 30);
+        var el = document.createElement("div");
+        el.className = "swp-fruit";
+        el.style.width = el.style.height = (rad * 2) + "px";
+        el.innerHTML = swpFruitSvg(kind);
+        area.appendChild(el);
+        swp.items.push({ el:el, kind:kind, x:x, y:H + rad + 4, vx:vx, vy:vy, rot:0, vr:(Math.random() * 160 - 80), r:rad, sliced:false, half:false });
+      }
+      function swpPop(x, y, text, cls){
+        var s = document.createElement("span");
+        s.className = "swp-pop" + (cls ? " " + cls : "");
+        s.textContent = text;
+        s.style.left = x + "px"; s.style.top = y + "px";
+        $("swpArea").appendChild(s);
+        if(s.animate) s.animate([{ transform:"translate(-50%,-50%)", opacity:1 }, { transform:"translate(-50%,-150%)", opacity:0 }], { duration:650, easing:"ease-out" });
+        later(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 680);
+      }
+      function swpSlice(it){
+        it.sliced = true;
+        var area = $("swpArea");
+        if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+        if(it.kind === "bomb"){
+          swp.score = Math.max(0, swp.score - 3);
+          swp.combo = 0;
+          sfx("bombS");
+          area.classList.remove("bombshake"); void area.offsetWidth; area.classList.add("bombshake");
+          swpPop(it.x, it.y, "-3", "neg");
+          if(navigator.vibrate){ try{ navigator.vibrate(35); }catch(e){} }
+          swpHud();
+          return;
+        }
+        swp.combo++;
+        var bonus = Math.min(3, Math.floor(swp.combo / 5));
+        var pts = (it.kind === "gold" ? 3 : 1) + bonus;
+        swp.score += pts;
+        sfx(it.kind === "gold" ? "sparkle" : "slash");
+        swpPop(it.x, it.y, "+" + pts, it.kind === "gold" ? "gold" : "");
+        for(var s = -1; s <= 1; s += 2){
+          var h = document.createElement("div");
+          h.className = "swp-half";
+          h.style.width = h.style.height = (it.r * 2) + "px";
+          h.style.clipPath = s < 0 ? "inset(0 50% 0 0)" : "inset(0 0 0 50%)";
+          h.innerHTML = swpFruitSvg(it.kind);
+          area.appendChild(h);
+          swp.items.push({ el:h, kind:"half", x:it.x, y:it.y, vx:it.vx + s * 85, vy:it.vy * 0.22 - 30, rot:it.rot, vr:s * 210, r:it.r, sliced:true, half:true });
+        }
+        swpHud();
+      }
+      function swpDistSeg(px, py, x1, y1, x2, y2){
+        var dx = x2 - x1, dy = y2 - y1, l2 = dx * dx + dy * dy;
+        var t = l2 ? ((px - x1) * dx + (py - y1) * dy) / l2 : 0;
+        t = Math.max(0, Math.min(1, t));
+        var ex = x1 + t * dx - px, ey = y1 + t * dy - py;
+        return Math.sqrt(ex * ex + ey * ey);
+      }
+      function swpTrailPoint(x, y){
+        var prev = swp.trail.length ? swp.trail[swp.trail.length - 1] : null;
+        swp.trail.push({ x:x, y:y, t:performance.now() });
+        if(prev && swp.phase === "run"){
+          for(var i = swp.items.length - 1; i >= 0; i--){
+            var it = swp.items[i];
+            if(it.sliced) continue;
+            if(swpDistSeg(it.x, it.y, prev.x, prev.y, x, y) < it.r + 8) swpSlice(it);
+          }
+        }
+        swpDrawTrail();
+      }
+      function swpPoint(e){
+        var rect = $("swpArea").getBoundingClientRect();
+        return { x: e.clientX - rect.left, y: e.clientY - rect.top };
+      }
+      $("swpArea").addEventListener("pointerdown", function(e){
+        if(swp.phase !== "run") return;
+        e.preventDefault();
+        swp.drawing = true; swp.pointerId = e.pointerId; swp.trail = [];
+        var p = swpPoint(e); swpTrailPoint(p.x, p.y);
+      });
+      $("swpArea").addEventListener("pointermove", function(e){
+        if(!swp.drawing || e.pointerId !== swp.pointerId) return;
+        var p = swpPoint(e); swpTrailPoint(p.x, p.y);
+      });
+      function swpPointerEnd(e){
+        if(e.pointerId === swp.pointerId){ swp.drawing = false; swp.pointerId = null; }
+      }
+      $("swpArea").addEventListener("pointerup", swpPointerEnd);
+      $("swpArea").addEventListener("pointercancel", swpPointerEnd);
+      function swpLoop(ts){
+        if(swp.phase !== "run") return;
+        if(!swp.lastTs) swp.lastTs = ts;
+        var dt = Math.min(0.05, (ts - swp.lastTs) / 1000); swp.lastTs = ts;
+        var area = $("swpArea"), H = area.clientHeight;
+        swp.timeLeft = Math.max(0, SWP_TIME - (Date.now() - swp.runStart) / 1000);
+        var elapsed = SWP_TIME - swp.timeLeft;
+        swp.spawnAcc += dt;
+        var interval = 0.88 - Math.min(0.36, elapsed * 0.009);
+        if(swp.spawnAcc >= interval){
+          swp.spawnAcc = 0;
+          swpSpawn();
+          if(Math.random() < 0.3) swpSpawn();
+        }
+        for(var i = swp.items.length - 1; i >= 0; i--){
+          var it = swp.items[i];
+          it.vy += SWP_G * dt; it.x += it.vx * dt; it.y += it.vy * dt; it.rot += it.vr * dt;
+          it.el.style.transform = "translate(" + (it.x - it.r) + "px," + (it.y - it.r) + "px) rotate(" + it.rot + "deg)";
+          if(it.y - it.r > H + 30){
+            if(!it.sliced && it.kind !== "bomb"){ swp.combo = 0; swpHud(); }
+            if(it.el.parentNode) it.el.parentNode.removeChild(it.el);
+            swp.items.splice(i, 1);
+          }
+        }
+        var now = performance.now();
+        swp.trail = swp.trail.filter(function(p){ return now - p.t < 150; });
+        swpDrawTrail();
+        swpHud();
+        if(swp.timeLeft <= 0){ swpEndTurn(); return; }
+        setRaf("swipe", requestAnimationFrame(swpLoop));
+      }
+      function swpStartTurn(){
+        if(swp.phase === "count" || swp.phase === "run") return;
+        swp.score = 0; swp.combo = 0; swp.timeLeft = SWP_TIME; swp.phase = "count";
+        swpClearItems();
+        swpRender(); swpHud(); swpSetControls();
+        $("swpStatus").textContent = "よーい…";
+        var n = 3;
+        $("swpBig").textContent = n;
+        sfx("count");
+        var cd = every(function(){
+          n--;
+          if(n > 0){ $("swpBig").textContent = n; sfx("count"); }
+          else if(n === 0){ $("swpBig").textContent = "GO!"; sfx("go"); }
+          else { clearInterval(cd); swpBeginRun(); }
+        }, 620);
+      }
+      function swpBeginRun(){
+        swp.phase = "run"; swp.runStart = Date.now(); swp.lastTs = 0; swp.spawnAcc = 0.4;
+        $("swpStatus").textContent = "スワイプで斬れ！ 爆弾は斬らずに落としてね";
+        later(function(){ if(swp.phase === "run") $("swpBig").textContent = ""; }, 450);
+        setRaf("swipe", requestAnimationFrame(swpLoop));
+      }
+      function swpEndTurn(){
+        swp.phase = "end";
+        swp.scores[swp.turn] = swp.score;
+        sfx("stop");
+        $("swpBig").textContent = "終了！";
+        swp.timeLeft = 0;
+        swpRender(); swpHud(); swpSetControls();
+        if(swp.turn === 1){
+          $("swpStatus").textContent = "あかは " + swp.score + "点！ 次は あお の番だよ";
+          later(function(){
+            if(currentGame !== "swipe") return;
+            $("passIcon").innerHTML = wolf(2, "wolf-52");
+            $("passTitle").textContent = "あかは " + swp.scores[1] + "点でした";
+            $("passBody").textContent = "次は あお の番です。スマホを あお に渡してね。準備ができたらボタンを押してスタート！";
+            $("passBtn").textContent = "あおの番をはじめる";
+            passCb = function(){
+              swp.turn = 2; swp.score = 0; swp.combo = 0; swp.timeLeft = SWP_TIME; swp.phase = "idle";
+              swpClearItems();
+              $("swpBig").textContent = "";
+              $("swpStatus").textContent = "あおの番！ スタートを押して挑戦";
+              swpRender(); swpHud(); swpSetControls();
+            };
+            $("passOverlay").classList.add("show");
+          }, 900);
+        } else {
+          var a = swp.scores[1], b = swp.scores[2];
+          var title, w = 0;
+          if(a === b) title = "引き分け！";
+          else if(a > b){ title = "あか（プレイヤー1）の勝ち！"; w = 1; records.swipe.p1++; }
+          else { title = "あお（プレイヤー2）の勝ち！"; w = 2; records.swipe.p2++; }
+          $("swpStatus").textContent = "対決終了！";
+          if(w) fxConfetti("swpConfetti");
+          later(function(){
+            if(currentGame !== "swipe") return;
+            showResult(title,
+              "スコアは あか <b>" + a + "点</b> ／ あお <b>" + b + "点</b> でした。" +
+              (w ? "<br />通算成績は あか " + records.swipe.p1 + "勝 ／ あお " + records.swipe.p2 + "勝" : ""),
+              swpInit, w);
+          }, 900);
+        }
+      }
+      $("swpStart").addEventListener("click", swpStartTurn);
+
+      /* ================================================================
+         30. シューティングマニア（1台=上下2フィールド同時対戦・45秒）
+         的はポップアップ／横流れで出現。タップで撃ち、大きさと速さで
+         得点が変わる。自分のキャラを撃つと−20点。
+      ================================================================ */
+      function shtSvg(kind, seed){
+        if(kind === "star" || kind === "gold"){
+          var fill = kind === "gold" ? "#d9a92c" : "#d18a2d";
+          return '<svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 3.5l6 12.8 14 1.7-10.3 9.6 2.7 13.8L24 34.6l-12.4 6.8 2.7-13.8L4 18l14-1.7z" fill="' + fill + '" stroke="#b98a1d" stroke-width="1.6" stroke-linejoin="round"/><circle cx="24" cy="23" r="5.2" fill="#f5f4f0" opacity=".5"/></svg>';
+        }
+        if(kind === "disc"){
+          return '<svg viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="21" fill="#f5f4f0" stroke="#1b1b18" stroke-width="2"/><circle cx="24" cy="24" r="14.5" fill="#2e4a3f"/><circle cx="24" cy="24" r="8" fill="#f5f4f0"/><circle cx="24" cy="24" r="3.6" fill="#b3553f"/></svg>';
+        }
+        var fill = ["#b3553f", "#3f6b52", "#d18a2d"][seed % 3];
+        return '<svg viewBox="0 0 48 48" aria-hidden="true"><ellipse cx="24" cy="19" rx="14.5" ry="16" fill="' + fill + '"/><ellipse cx="19" cy="13" rx="4.6" ry="6.4" fill="rgba(255,255,255,.35)" transform="rotate(-18 19 13)"/><path d="M21.5 35.5h5l-2.5 4z" fill="' + fill + '"/><path d="M24 39.5c-2 2.4 2 3.6 0 6" stroke="#6f6f68" stroke-width="1.7" fill="none" stroke-linecap="round"/></svg>';
+      }
+      var sht = { playing:false, over:false, scores:{1:0, 2:0}, combo:{1:0, 2:0}, timeLeft:45, lastTs:0, spawnAcc:[0.2, 0.45], targets:[[], []] };
+      function shtMult(p){ return Math.min(5, 1 + Math.floor(sht.combo[p] / 4)); }
+      function shtHud(){
+        $("shtTime").textContent = Math.max(0, Math.ceil(sht.timeLeft));
+        $("shtScore1").textContent = sht.scores[1];
+        $("shtScore2").textContent = sht.scores[2];
+      }
+      function shtLabels(){
+        [1, 2].forEach(function(p){
+          var c = sht.combo[p];
+          $("shtLabel" + p).innerHTML = wolf(p, "wolf-24") + "<span>プレイヤー" + p + "（" + (p === 1 ? "あか" : "あお") + "）</span>" +
+            '<span class="sht-combo">' + (c >= 4 ? "コンボ ×" + shtMult(p) : c >= 2 ? "コンボ " + c : "") + "</span>";
+        });
+      }
+      function shtPlace(t){
+        t.el.style.left = (t.cx - t.r) + "px";
+        t.el.style.top = (t.cy - t.r) + "px";
+      }
+      function shtRemove(f, t){
+        var arr = sht.targets[f];
+        var i = arr.indexOf(t);
+        if(i >= 0) arr.splice(i, 1);
+        if(t.el.parentNode) t.el.parentNode.removeChild(t.el);
+      }
+      function shtClearField(f){
+        while(sht.targets[f].length) shtRemove(f, sht.targets[f][0]);
+      }
+      function shtSpawn(f){
+        var field = $("shtField" + (f + 1));
+        var W = field.clientWidth, H = field.clientHeight;
+        if(!W || !H) return;
+        if(sht.targets[f].length >= 4) return;
+        var r = Math.random();
+        var kind, rad, pts, motion, life, vx = 0;
+        if(r < 0.09){ kind = "wolf"; rad = 27; pts = -20; motion = "pop"; life = 1500; }
+        else if(r < 0.16){ kind = "gold"; rad = 21; pts = 50; motion = Math.random() < 0.5 ? "pop" : "drift"; life = motion === "pop" ? 1200 : 3200; vx = (Math.random() < 0.5 ? -1 : 1) * 65; }
+        else if(r < 0.50){ kind = "small"; rad = 15 + Math.random() * 4; pts = 30; motion = "drift"; life = 4200; vx = (Math.random() < 0.5 ? -1 : 1) * (115 + Math.random() * 60); }
+        else { kind = "big"; rad = 30 + Math.random() * 6; pts = 10; motion = Math.random() < 0.55 ? "pop" : "drift"; life = motion === "pop" ? 1700 + Math.random() * 500 : 4600; vx = (Math.random() < 0.5 ? -1 : 1) * (34 + Math.random() * 26); }
+        var cx = rad + 6 + Math.random() * Math.max(10, W - rad * 2 - 12);
+        var cy = rad + 6 + Math.random() * Math.max(10, H - rad * 2 - 12);
+        var el = document.createElement("div");
+        el.className = "sht-target pop-in";
+        el.style.width = el.style.height = (rad * 2) + "px";
+        if(kind === "wolf"){
+          el.innerHTML = '<span class="sht-wolf">' + wolf(f + 1, "wolf-36") + "</span>";
+        } else if(kind === "gold"){
+          el.innerHTML = shtSvg("gold", 0);
+        } else if(kind === "big"){
+          el.innerHTML = shtSvg(Math.random() < 0.5 ? "balloon" : "disc", Math.floor(Math.random() * 3));
+        } else {
+          el.innerHTML = shtSvg(["balloon", "disc", "star"][Math.floor(Math.random() * 3)], Math.floor(Math.random() * 3));
+        }
+        field.appendChild(el);
+        var t = { el:el, cx:cx, cy:cy, r:rad, kind:kind, pts:pts, motion:motion, vx:vx, until:performance.now() + life };
+        sht.targets[f].push(t);
+        shtPlace(t);
+      }
+      function shtBurst(f, t){
+        var field = $("shtField" + (f + 1));
+        var color = t.kind === "gold" ? "#d9a92c" : t.kind === "wolf" ? "#b3553f" : t.kind === "small" ? "#d18a2d" : "#2e4a3f";
+        for(var i = 0; i < 8; i++){
+          var s = document.createElement("span");
+          s.className = "sht-particle";
+          s.style.background = color;
+          s.style.left = (t.cx - 3.5) + "px"; s.style.top = (t.cy - 3.5) + "px";
+          field.appendChild(s);
+          var ang = (Math.PI * 2 * i) / 8 + Math.random() * 0.5;
+          var dist = 22 + Math.random() * 26;
+          if(s.animate) s.animate([
+            { transform:"translate(0,0)", opacity:1 },
+            { transform:"translate(" + (Math.cos(ang) * dist) + "px," + (Math.sin(ang) * dist) + "px)", opacity:0 }
+          ], { duration:430, easing:"ease-out" });
+          (function(el){ later(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, 460); })(s);
+        }
+      }
+      function shtPop(f, x, y, text, cls){
+        var s = document.createElement("span");
+        s.className = "sht-pop" + (cls ? " " + cls : "");
+        s.textContent = text;
+        s.style.left = x + "px"; s.style.top = y + "px";
+        $("shtField" + (f + 1)).appendChild(s);
+        if(s.animate) s.animate([{ transform:"translate(-50%,-50%)", opacity:1 }, { transform:"translate(-50%,-150%)", opacity:0 }], { duration:620, easing:"ease-out" });
+        later(function(){ if(s.parentNode) s.parentNode.removeChild(s); }, 650);
+      }
+      function shtTap(f, e){
+        if(!sht.playing || sht.over) return;
+        var field = $("shtField" + (f + 1));
+        var rect = field.getBoundingClientRect();
+        var x = e.clientX - rect.left, y = e.clientY - rect.top;
+        if(f === 1 && window.matchMedia("(orientation: portrait)").matches){
+          x = rect.width - x; y = rect.height - y;
+        }
+        var p = f + 1;
+        sfx("shot");
+        var arr = sht.targets[f];
+        for(var i = arr.length - 1; i >= 0; i--){
+          var t = arr[i];
+          var dx = x - t.cx, dy = y - t.cy;
+          if(dx * dx + dy * dy <= t.r * t.r){
+            shtBurst(f, t);
+            shtRemove(f, t);
+            if(t.kind === "wolf"){
+              sht.scores[p] = Math.max(0, sht.scores[p] - 20);
+              sht.combo[p] = 0;
+              sfx("bad");
+              shtPop(f, t.cx, t.cy, "-20", "neg");
+            } else {
+              sht.combo[p]++;
+              var pts = t.pts * shtMult(p);
+              sht.scores[p] += pts;
+              sfx(t.kind === "gold" ? "sparkle" : "pop");
+              shtPop(f, t.cx, t.cy, "+" + pts + (shtMult(p) > 1 ? " ×" + shtMult(p) : ""), t.kind === "gold" ? "gold" : "");
+            }
+            shtHud(); shtLabels();
+            return;
+          }
+        }
+        if(sht.combo[p] > 0){ sht.combo[p] = 0; shtLabels(); }
+      }
+      function shtLoop(ts){
+        if(!sht.playing) return;
+        if(!sht.lastTs) sht.lastTs = ts;
+        var dt = Math.min(0.05, (ts - sht.lastTs) / 1000); sht.lastTs = ts;
+        sht.timeLeft -= dt;
+        var now = performance.now();
+        for(var f = 0; f < 2; f++){
+          sht.spawnAcc[f] += dt;
+          var interval = sht.timeLeft > 22 ? 0.82 : 0.6;
+          if(sht.spawnAcc[f] >= interval){ sht.spawnAcc[f] = 0; shtSpawn(f); }
+          var W = $("shtField" + (f + 1)).clientWidth;
+          for(var i = sht.targets[f].length - 1; i >= 0; i--){
+            var t = sht.targets[f][i];
+            if(now > t.until){ shtRemove(f, t); continue; }
+            if(t.motion === "drift" && W){
+              t.cx += t.vx * dt;
+              if(t.cx < t.r + 2){ t.cx = t.r + 2; t.vx = Math.abs(t.vx); }
+              if(t.cx > W - t.r - 2){ t.cx = W - t.r - 2; t.vx = -Math.abs(t.vx); }
+              shtPlace(t);
+            }
+          }
+        }
+        shtHud();
+        if(sht.timeLeft <= 0){ shtEnd(); return; }
+        setRaf("shoot", requestAnimationFrame(shtLoop));
+      }
+      function shtEnd(){
+        if(sht.over) return;
+        sht.over = true; sht.playing = false;
+        shtClearField(0); shtClearField(1);
+        var s1 = sht.scores[1], s2 = sht.scores[2];
+        var title, w = 0;
+        if(s1 === s2) title = "引き分け！";
+        else if(s1 > s2){ title = "あか（プレイヤー1）の勝ち！"; w = 1; records.shoot.p1++; }
+        else { title = "あお（プレイヤー2）の勝ち！"; w = 2; records.shoot.p2++; }
+        if(w) fxConfetti("shtConfetti");
+        later(function(){
+          if(currentGame !== "shoot") return;
+          showResult(title,
+            "最終スコアは あか <b>" + s1 + "点</b> ／ あお <b>" + s2 + "点</b> でした。" +
+            (w ? "<br />通算成績は あか " + records.shoot.p1 + "勝 ／ あお " + records.shoot.p2 + "勝" : ""),
+            shtInit, w);
+        }, 600);
+      }
+      function shtStartGame(){
+        if(sht.playing) return;
+        sht.scores = {1:0, 2:0}; sht.combo = {1:0, 2:0}; sht.timeLeft = 45; sht.lastTs = 0; sht.spawnAcc = [0.25, 0.5];
+        sht.over = false; sht.playing = true;
+        shtClearField(0); shtClearField(1);
+        $("shtStart").disabled = true;
+        $("shtNote").textContent = "自分のフィールドの的をタップ！ 自分のキャラは撃たないでね";
+        shtHud(); shtLabels();
+        setRaf("shoot", requestAnimationFrame(shtLoop));
+      }
+      function shtInit(){
+        sht.playing = false; sht.over = false;
+        sht.scores = {1:0, 2:0}; sht.combo = {1:0, 2:0}; sht.timeLeft = 45;
+        shtClearField(0); shtClearField(1);
+        var st = $("shtStart");
+        st.disabled = false;
+        st.textContent = "ゲームスタート";
+        $("shtNote").textContent = "スタートを押すと的が出てくるよ";
+        shtHud(); shtLabels();
+      }
+      inits.shoot = shtInit;
+      $("shtStart").addEventListener("click", shtStartGame);
+      [0, 1].forEach(function(f){
+        $("shtField" + (f + 1)).addEventListener("pointerdown", function(e){ e.preventDefault(); shtTap(f, e); });
+      });
 
       decoratePlayers();
       renderRecords();
