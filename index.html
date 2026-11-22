@@ -2,7 +2,7 @@
 <html lang="ja">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -1054,6 +1054,98 @@
         body.online[data-game="wani"] #waniFields.single .wani-field{gap:10px;}
         body.online[data-game="wani"] .hc-hud{margin-bottom:10px;}
       }
+
+      /* ---------- 携帯で遊ぶ（センサー系）・設定・共通の小物 ---------- */
+      .tag.phone{background:var(--ink);border-color:var(--ink);color:var(--bg);}
+      .settings-card{
+        background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+        box-shadow:var(--shadow);padding:14px 16px;margin-top:28px;
+        display:flex;align-items:center;gap:14px;
+      }
+      .settings-card .set-txt{flex:1;min-width:0;}
+      .settings-card h3{margin:0 0 3px;font-size:14.5px;font-weight:700;letter-spacing:.05em;}
+      .settings-card p{margin:0;font-size:12px;color:var(--ink-soft);line-height:1.65;}
+      .set-toggle{
+        flex:0 0 auto;min-width:76px;min-height:44px;border-radius:999px;padding:10px 18px;
+        font-weight:700;font-size:14px;letter-spacing:.08em;cursor:pointer;
+        background:var(--card);color:var(--ink);border:1px solid var(--line-strong);
+      }
+      .set-toggle.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+      @media (prefers-color-scheme: dark){ .set-toggle.on{color:#161615;} }
+      .sensor-req-btn{
+        width:100%;margin-top:10px;padding:12px 10px;border-radius:8px;cursor:pointer;
+        background:transparent;color:var(--ink);border:1.5px dashed var(--line-strong);
+        font-weight:700;font-size:14px;letter-spacing:.05em;
+      }
+      .fx-shake{animation:fxShake .3s ease;}
+      @keyframes fxShake{0%,100%{transform:translateX(0);}25%{transform:translateX(-4px);}55%{transform:translateX(3px);}80%{transform:translateX(-2px);}}
+
+      /* シェイク対決 */
+      .shk-stage{
+        background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+        box-shadow:var(--shadow);padding:14px;text-align:center;
+        transition:background .35s ease,color .35s ease;
+      }
+      .shk-stage.heat1{background:var(--accent-soft);}
+      .shk-stage.heat2{background:var(--accent);color:#fff;}
+      @media (prefers-color-scheme: dark){ .shk-stage.heat2{color:#161615;} }
+      .shk-stage.bump{animation:shkBump .16s ease;}
+      @keyframes shkBump{0%{transform:translate(0,0);}30%{transform:translate(-2.5px,1.5px);}65%{transform:translate(2.5px,-1.5px);}100%{transform:translate(0,0);}}
+      .shk-count{
+        font-family:"Manrope",sans-serif;font-size:104px;font-weight:800;line-height:1.05;
+        min-height:112px;letter-spacing:.02em;
+      }
+      .shk-count.pop{animation:shkPop .18s ease;}
+      @keyframes shkPop{0%{transform:scale(1);}35%{transform:scale(1.22) rotate(-1.5deg);}100%{transform:scale(1);}}
+      .shk-unit{font-size:14px;font-weight:700;letter-spacing:.14em;margin-top:-4px;}
+      .shk-timebar{height:10px;border-radius:999px;background:var(--line);overflow:hidden;margin:16px 4px 8px;}
+      .shk-timefill{height:100%;width:100%;background:var(--accent);border-radius:999px;transition:width .1s linear;}
+      .shk-stage.heat2 .shk-timefill{background:#fff;}
+      @media (prefers-color-scheme: dark){ .shk-stage.heat2 .shk-timefill{background:#161615;} }
+      .shk-time{font-family:"Manrope",sans-serif;font-size:19px;font-weight:700;letter-spacing:.06em;min-height:26px;}
+      .shk-stage .status-text{margin-top:8px;}
+
+      /* 傾けボール */
+      .tilt-maze{
+        position:relative;width:100%;aspect-ratio:1;border-radius:8px;overflow:hidden;
+        background:var(--bg);border:1px solid var(--line-strong);touch-action:none;
+      }
+      .tilt-wall{position:absolute;background:var(--ink);opacity:.82;border-radius:3px;}
+      .tilt-goal{
+        position:absolute;border:2.5px solid var(--accent);border-radius:50%;
+        display:flex;align-items:center;justify-content:center;
+        font-size:9px;font-weight:800;letter-spacing:.05em;color:var(--accent);
+        animation:tiltGoalPulse 1.2s ease-in-out infinite alternate;
+      }
+      @keyframes tiltGoalPulse{from{box-shadow:0 0 0 0 rgba(46,74,63,.0);}to{box-shadow:0 0 0 6px rgba(46,74,63,.14);}}
+      .tilt-ball{
+        position:absolute;border-radius:50%;background:var(--p1);z-index:2;
+        box-shadow:0 2px 5px rgba(0,0,0,.35), inset -2px -3px 5px rgba(0,0,0,.28), inset 2px 3px 4px rgba(255,255,255,.35);
+      }
+      .tilt-ball.p2{background:var(--p2);}
+      .tilt-hud{
+        display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;
+        font-size:14px;font-weight:500;
+      }
+      .tilt-hud b{font-family:"Manrope",sans-serif;font-size:19px;}
+      .tilt-hud .tilt-mode{font-size:11.5px;color:var(--ink-soft);font-weight:400;}
+      @media (prefers-reduced-motion: reduce){
+        .shk-count.pop{animation:none;}
+        .shk-stage.bump{animation:none;}
+        .fx-shake{animation:none;}
+        .tilt-goal{animation:none;}
+      }
+
+      /* ---------- ズーム・スクロール抑止（ゲーム画面のみ画面固定） ----------
+         一般UIは manipulation でダブルタップズームだけを抑え、
+         プレイ領域は none で拡大・スクロール・ピンチを一切受け付けない。
+         html.in-game は go() がゲーム画面でのみ付ける（ホームは通常どおり）。 */
+      button, input, select, textarea, a, [role="button"]{touch-action:manipulation;}
+      .zone, .tug-track, .tim-track, .hc-area, .wani-field, .shk-stage, .tilt-maze,
+      .rev-board, .c4-board, .c4-cols, .gm-board, .ch-board, .man-grid, .mem-grid,
+      .sugo-board, .pir-stage, .sev-table, .hand-row, .kb, .quiz-choices, .jk-choices,
+      .wari-face{touch-action:none;}
+      html.in-game, html.in-game body{overscroll-behavior:none;}
     </style>
     <script>document.documentElement.classList.add("js");try{if(sessionStorage.getItem("sukima-gate-ok")==="1")document.documentElement.classList.add("unlocked");}catch(e){}</script>
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -1140,13 +1232,13 @@
           <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 44 52"><defs><clipPath id="bmTop"><rect x="0" y="0" width="44" height="24"/></clipPath><clipPath id="bmBot"><rect x="0" y="28" width="44" height="24"/></clipPath></defs><g font-family="Manrope, sans-serif" font-weight="800" font-size="46" fill="var(--ink)"><g class="bm-half bm-top"><text x="22" y="40" text-anchor="middle" clip-path="url(#bmTop)">S</text></g><g class="bm-half bm-bot"><text x="22" y="40" text-anchor="middle" clip-path="url(#bmBot)">S</text></g></g></svg></div>
           <h1 aria-label="SUKIMA"><span class="brand-logo" aria-hidden="true"><span class="bl">S</span><span class="bl">U</span><span class="bl">K</span><span class="bl">I</span><span class="bl">M</span><span class="bl bl-a">A</span></span></h1>
           <p class="brand-tagline">時間と空間のすきまに生まれる、小さな遊びの集まり</p>
-          <p class="home-desc">スマホ1台をふたりで囲んでも、離れていてもオンラインでも遊べます。<br />チェスやマンカラなどの本格ボードゲームから、じゃんけんやサイコロ、ワニたたき、お会計を決める遊び、4人で囲むトランプゲームまで、全25ゲーム。ガチで戦う？ それとも息を合わせて協力する？</p>
+          <p class="home-desc">スマホ1台をふたりで囲んでも、離れていてもオンラインでも遊べます。<br />チェスやマンカラなどの本格ボードゲームから、じゃんけんやサイコロ、ワニたたき、お会計を決める遊び、4人で囲むトランプゲーム、端末を振ったり傾けたりして遊ぶゲームまで、全27ゲーム。ガチで戦う？ それとも息を合わせて協力する？</p>
         </div>
 
         <div class="marquee" aria-hidden="true">
           <div class="marquee-track">
-            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span></div>
-            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span></div>
+            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span></div>
+            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span></div>
           </div>
         </div>
 
@@ -1241,6 +1333,28 @@
             <h3>ワニたたきパニック</h3>
             <p>穴から顔を出すワニをすかさずタップ！ 金のワニは3点、黒いワニはマイナス2点。40秒の取り合いバトル。</p>
             <span class="record" id="rec-wani">まだ対戦なし</span>
+          </span>
+          <span class="go">あそぶ ›</span>
+        </button>
+
+        <div class="section-title"><span class="tag phone">携帯</span> 携帯で遊ぶ</div>
+
+        <button class="game-card" data-go="shake">
+          <span class="icon c2"><svg viewBox="0 0 24 24" fill="none"><rect x="7" y="2.5" width="10" height="19" rx="2.4" fill="#fff" stroke="#1b1b18" stroke-width="1.7"/><path d="M10.5 18.6h3" stroke="#1b1b18" stroke-width="1.7" stroke-linecap="round"/><path d="M3.2 8.5 1.8 7M3.6 13H1.6M20.8 8.5l1.4-1.5M20.4 13h2" stroke="#2e4a3f" stroke-width="1.8" stroke-linecap="round"/></svg></span>
+          <span class="gc-body">
+            <h3>シェイク対決</h3>
+            <p>制限時間10秒で、スマホを何回振れるか勝負！ 1台を交代で使って回数を競います。センサーが使えない端末ではボタンの連打に切り替わります。</p>
+            <span class="record" id="rec-shake">まだ対戦なし</span>
+          </span>
+          <span class="go">あそぶ ›</span>
+        </button>
+
+        <button class="game-card" data-go="tilt">
+          <span class="icon c3"><svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2.5" fill="#ece5d3" stroke="#c4b995" stroke-width="1.3"/><path d="M3 9h9M12 9v6h9M12 21v-6" stroke="#1b1b18" stroke-width="1.7"/><circle cx="6.5" cy="17.5" r="2.3" fill="#1b1b18"/><circle cx="17.8" cy="6" r="2.1" fill="none" stroke="#2e4a3f" stroke-width="1.7"/></svg></span>
+          <span class="gc-body">
+            <h3>傾けボール</h3>
+            <p>スマホを傾けてボールを転がし、迷路のゴールを目指すタイムアタック。交代で挑戦して速い方の勝ち。センサーが使えない端末ではドラッグで動かせます。</p>
+            <span class="record" id="rec-tilt">まだ対戦なし</span>
           </span>
           <span class="go">あそぶ ›</span>
         </button>
@@ -1450,6 +1564,14 @@
           </span>
           <span class="go">あそぶ ›</span>
         </button>
+
+        <div class="settings-card">
+          <div class="set-txt">
+            <h3>効果音</h3>
+            <p>カードをめくる音、サイコロの音、勝敗の音など、小さな効果音を鳴らします。</p>
+          </div>
+          <button class="set-toggle on" id="sndToggle" type="button" aria-pressed="true">オン</button>
+        </div>
 
         <div class="app-hint">
           <b>アプリみたいに使うには：</b>ブラウザのメニューから「ホーム画面に追加」すると、アイコンからすぐ開けるようになります。iPhoneは共有ボタン→「ホーム画面に追加」、Androidはメニュー（︙）→「ホーム画面に追加」です。
@@ -1786,6 +1908,8 @@
           <div class="sugo-dice-num" id="sugoDice1">-</div>
           <button class="big-btn btn-p1" id="sugoBtn1">サイコロをふる</button>
         </div>
+        <button class="sensor-req-btn" id="sugoSensorBtn" type="button" style="display:none;">センサーを使う（振ってサイコロをふれるようにする）</button>
+        <p class="sub-text" id="sugoShakeHint" style="display:none;text-align:center;margin-top:8px;">端末を振ってもサイコロをふれるよ</p>
       </section>
 
       <!-- ============ 17. QUIZ ============ -->
@@ -1899,6 +2023,8 @@
             <div class="wf-place">金額を入れてスタートしてね</div>
           </div>
           <button class="big-btn btn-main" id="wariStop" style="display:none;margin-top:10px;">ストップ！</button>
+          <button class="sensor-req-btn" id="wariSensorBtn" type="button" style="display:none;">センサーを使う（軽く振って止められるようにする）</button>
+          <p class="sub-text" id="wariShakeHint" style="display:none;text-align:center;margin-top:8px;">ルーレット中は、端末を軽く振っても止められるよ</p>
           <button class="big-btn btn-green" id="wariNextBtn" style="display:none;margin-top:10px;">次へ進む</button>
           <div class="wari-log" id="wariLog"></div>
           <div class="wari-total" id="wariTotals" style="display:none;"></div>
@@ -2013,6 +2139,44 @@
               <button class="big-btn btn-main" id="daiPassBtn">パス</button>
             </div>
             <div class="sub-text" id="daiHint" style="margin-top:8px;">出したいカードをタップで選んでね（同じ数字は複数枚まとめて出せます）</div>
+          </div>
+        </div>
+      </section>
+      <!-- ============ 26. SHAKE ============ -->
+      <section class="screen" id="scr-shake">
+        <div class="game-head"><button class="back-btn" data-home>‹ ホーム</button><h2>シェイク対決</h2><span class="spacer"></span></div>
+        <div class="howto">制限時間<b>10秒</b>のあいだに、スマホを<b>何回振れるか</b>を競います。1台を交代で使って、ふたりの回数を比べよう。センサーが使えない端末では<b>ボタンの連打</b>に切り替わります。</div>
+        <div class="shk-stage" id="shkStage">
+          <div class="turn-banner p1" id="shkTurn">あかの番です</div>
+          <div class="shk-count" id="shkCount">0</div>
+          <div class="shk-unit">回 ふった！</div>
+          <div class="shk-timebar"><div class="shk-timefill" id="shkFill"></div></div>
+          <div class="shk-time" id="shkTime">のこり 10.0 秒</div>
+          <div class="status-text" id="shkStatus">あかからスタート！</div>
+          <button class="big-btn btn-main" id="shkSensorBtn" type="button" style="display:none;margin-top:10px;">センサーを使う</button>
+          <button class="big-btn btn-green" id="shkStart" type="button" style="margin-top:10px;">スタート</button>
+          <button class="big-btn btn-p1" id="shkTapBtn" type="button" style="display:none;margin-top:10px;">連打！</button>
+          <div class="score-row">
+            <span class="score-chip p1">あか <span id="shkScore1">-</span></span>
+            <span class="score-chip p2">あお <span id="shkScore2">-</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 27. TILT ============ -->
+      <section class="screen" id="scr-tilt">
+        <div class="game-head"><button class="back-btn" data-home>‹ ホーム</button><h2>傾けボール</h2><span class="spacer"></span></div>
+        <div class="howto">スマホを<b>傾けて</b>ボールを転がし、右上の<b>ゴール</b>を目指すタイムアタック。交代で挑戦して、速くゴールした方の勝ち。壁に当たると小さく跳ね返ります。センサーが使えない端末では<b>ドラッグ</b>でボールを動かせます。</div>
+        <div class="turn-banner p1" id="tiltTurn">あかの番です</div>
+        <div class="board-card">
+          <div class="tilt-maze" id="tiltMaze"></div>
+          <div class="tilt-hud"><span>タイム <b id="tiltTimeNow">0.0</b> 秒</span><span class="tilt-mode" id="tiltMode"></span></div>
+          <div class="status-text" id="tiltStatus" style="margin-top:8px;">あかからスタート！</div>
+          <button class="big-btn btn-main" id="tiltSensorBtn" type="button" style="display:none;margin-top:10px;">センサーを使う</button>
+          <button class="big-btn btn-green" id="tiltStart" type="button" style="margin-top:10px;">スタート</button>
+          <div class="score-row">
+            <span class="score-chip p1">あか <span id="tiltScore1">-</span></span>
+            <span class="score-chip p2">あお <span id="tiltScore2">-</span></span>
           </div>
         </div>
       </section>
@@ -2150,7 +2314,7 @@
         switch(m.t){
           case "hello": case "bye": case "retry": case "tugGo": case "hcStart": return {t:m.t};
           case "nav": {
-            var games = ["home","tug","haya","timing","sync","heart","ptimer","reversi","connect4","gomoku","janken","dice","chess","checkers","mancala","memory","sugoroku","quiz","moji","wani","pirate","warikan","amida","sevens","baba","daifugo"];
+            var games = ["home","tug","haya","timing","sync","heart","ptimer","reversi","connect4","gomoku","janken","dice","chess","checkers","mancala","memory","sugoroku","quiz","moji","wani","pirate","warikan","amida","sevens","baba","daifugo","shake","tilt"];
             return games.indexOf(m.game) >= 0 ? {t:"nav", game:m.game} : null;
           }
           case "chMove": return {t:"chMove", p:netPlayer(m.p), from:Math.round(netNum(m.from, 0, 63, -1)), to:Math.round(netNum(m.to, 0, 63, -1)), promo:Math.round(netNum(m.promo, 0, 4, 0))};
@@ -2306,7 +2470,9 @@
         pirate: { p1:0, p2:0 },
         sevens: { p1:0, p2:0 },
         baba:   { p1:0, p2:0 },
-        daifugo:{ p1:0, p2:0 }
+        daifugo:{ p1:0, p2:0 },
+        shake:  { p1:0, p2:0 },
+        tilt:   { p1:0, p2:0 }
       };
       function versusText(r){
         if(r.p1===0 && r.p2===0) return "まだ対戦なし";
@@ -2336,6 +2502,8 @@
         var rsv=$("rec-sevens"); if(rsv) rsv.innerHTML = versusText(records.sevens);
         var rbb=$("rec-baba"); if(rbb) rbb.innerHTML = versusText(records.baba);
         var rdf=$("rec-daifugo"); if(rdf) rdf.innerHTML = versusText(records.daifugo);
+        var rsh=$("rec-shake"); if(rsh) rsh.innerHTML = versusText(records.shake);
+        var rti=$("rec-tilt"); if(rti) rti.innerHTML = versusText(records.tilt);
       }
 
       /* ---------- decorate static player labels with the wolves ---------- */
@@ -2382,10 +2550,15 @@
         if(!fromRemote) netSend({t:"nav", game:name});
         currentGame = name;
         document.body.setAttribute("data-game", name);
+        /* ゲーム画面だけ画面固定モード（ズーム・バウンス・引っ張って更新の抑止）。
+           ホームでは通常のスクロール・操作に戻す */
+        document.documentElement.classList.toggle("in-game", name !== "home");
         var screens = document.querySelectorAll(".screen");
         for(var i=0;i<screens.length;i++) screens[i].classList.remove("active");
         $("scr-" + name).classList.add("active");
         window.scrollTo(0,0);
+        /* ゲーム中は画面が自動で消えないようにする（Wake Lock対応端末のみ） */
+        if(name === "home") wakeRelease(); else wakeRequest();
         if(inits[name]) inits[name]();
         if(name==="home") renderRecords();
       }
@@ -2399,6 +2572,8 @@
       /* ---------- result overlay ---------- */
       var retryFn = null;
       function showResult(title, bodyHtml, onRetry, winner){
+        if(winner === 1 || winner === 2) sfx("win");
+        else if(String(title).indexOf("引き分け") >= 0) sfx("draw");
         $("resultTitle").textContent = title;
         $("resultBody").innerHTML = bodyHtml;
         $("resultWolves").innerHTML = (winner === 1 || winner === 2) ? wolf(winner, "wolf-64") : (wolf(1, "wolf-52") + wolf(2, "wolf-52"));
@@ -3550,6 +3725,7 @@
         if(Net.connected && !remote && p !== Net.myPlayer) return;
         if(dice.val[p] !== null || dice.rolling[p]) return;
         dice.rolling[p] = true;
+        sfx("dice");
         diceUpdate();
         var finalVal = remote ? remoteVal : (1 + Math.floor(Math.random() * 6));
         if(Net.connected && !remote) netSend({t:"diceRoll", p:p, v:finalVal});
@@ -3760,6 +3936,7 @@
         var card = mem.cards[i];
         if(card.state !== "down") return;
         card.state = "open";
+        sfx("flip");
         mem.open.push(i);
         memRender();
         if(mem.open.length < 2) return;
@@ -3769,6 +3946,7 @@
           later(function(){
             if(currentGame !== "memory") return;
             a.state = "done"; b.state = "done";
+            sfx("pair");
             mem.pairs[mem.turn]++;
             mem.done++;
             mem.open = []; mem.lock = false;
@@ -3794,6 +3972,7 @@
           later(function(){
             if(currentGame !== "memory") return;
             a.state = "down"; b.state = "down";
+            sfx("miss");
             mem.open = []; mem.lock = false;
             mem.turn = mem.turn===1 ? 2 : 1;
             $("memStatus").textContent = "残念、ペアならず。" + (mem.turn===1 ? "あか" : "あお") + "の番です";
@@ -3864,6 +4043,7 @@
         if(!remote && Net.connected && p !== Net.myPlayer) return;
         var val = remote ? remoteVal : (1 + Math.floor(Math.random() * 6));
         if(!remote && Net.connected) netSend({t:"sugoRoll", p:p, v:val});
+        sfx("dice");
         sugo.rolling = true;
         sugoRender();
         var ticks = 0;
@@ -4790,6 +4970,9 @@
       function wariStop(){
         if(!wari.spinning) return;
         wari.spinning = false;
+        sfx("stop");
+        var wf = $("wariFace");
+        wf.classList.remove("fx-shake"); void wf.offsetWidth; wf.classList.add("fx-shake");
         if(wari.iv){ clearInterval(wari.iv); wari.iv = null; }
         $("wariFace").classList.remove("spinning");
         $("wariStop").style.display = "none";
@@ -5602,6 +5785,7 @@
         /* オンライン対戦中は各自が自分の端末を見るので、受け渡し画面は出さない */
         if(Net.connected){ if(cb) cb(); return; }
         $("passIcon").innerHTML = p4Icon(p, 52);
+        $("passBtn").textContent = "手札を見る";
         $("passTitle").textContent = "次は " + p4Name(st, p) + " さんの番です";
         $("passBody").textContent = "スマホを " + p4Name(st, p) + " さんに渡してね。ボタンを押すと手札が見られます（他の人には見えません）。";
         passCb = cb;
@@ -6505,6 +6689,557 @@
           });
         }
       })();
+
+      /* ================================================================
+         効果音（WebAudioで合成・ファイル不要・音量控えめ）
+         ホームの設定でオン／オフできる（初期状態はオン）
+      ================================================================ */
+      var Snd = { on:true, ctx:null, master:null };
+      function sndCtx(){
+        if(!Snd.on) return null;
+        if(!Snd.ctx){
+          try{
+            var AC = window.AudioContext || window.webkitAudioContext;
+            if(!AC) return null;
+            Snd.ctx = new AC();
+            Snd.master = Snd.ctx.createGain();
+            Snd.master.gain.value = 0.5;
+            Snd.master.connect(Snd.ctx.destination);
+          }catch(e){ return null; }
+        }
+        if(Snd.ctx.state === "suspended"){ try{ Snd.ctx.resume(); }catch(e){} }
+        return Snd.ctx;
+      }
+      function tone(f0, f1, dur, type, vol, delay){
+        var ctx = sndCtx(); if(!ctx) return;
+        var t = ctx.currentTime + (delay || 0);
+        var o = ctx.createOscillator(), g = ctx.createGain();
+        o.type = type || "sine";
+        o.frequency.setValueAtTime(f0, t);
+        if(f1 && f1 !== f0) o.frequency.exponentialRampToValueAtTime(Math.max(30, f1), t + dur);
+        g.gain.setValueAtTime(0, t);
+        g.gain.linearRampToValueAtTime(vol, t + 0.008);
+        g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+        o.connect(g); g.connect(Snd.master);
+        o.start(t); o.stop(t + dur + 0.05);
+      }
+      function noiseBurst(dur, vol, delay, freq){
+        var ctx = sndCtx(); if(!ctx) return;
+        var t = ctx.currentTime + (delay || 0);
+        var len = Math.max(1, Math.floor(ctx.sampleRate * dur));
+        var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+        var ch = buf.getChannelData(0);
+        for(var i = 0; i < len; i++) ch[i] = (Math.random() * 2 - 1) * (1 - i / len);
+        var src = ctx.createBufferSource(); src.buffer = buf;
+        var f = ctx.createBiquadFilter(); f.type = "bandpass"; f.frequency.value = freq || 1800; f.Q.value = 0.8;
+        var g = ctx.createGain(); g.gain.value = vol;
+        src.connect(f); f.connect(g); g.connect(Snd.master);
+        src.start(t);
+      }
+      function sfx(name, opt){
+        if(!Snd.on) return;
+        switch(name){
+          case "flip": tone(520, 940, 0.07, "triangle", 0.20); break;
+          case "pair": tone(784, 784, 0.09, "sine", 0.22); tone(1175, 1175, 0.15, "sine", 0.22, 0.08); break;
+          case "miss": tone(330, 262, 0.12, "triangle", 0.13); break;
+          case "dice": for(var i = 0; i < 5; i++) noiseBurst(0.03, 0.25, i * 0.07, 1400 + Math.random() * 1200); break;
+          case "win": [523, 659, 784, 1047].forEach(function(fr, i){ tone(fr, fr, 0.16, "triangle", 0.22, i * 0.09); }); break;
+          case "draw": tone(523, 523, 0.14, "triangle", 0.20); tone(523, 523, 0.18, "triangle", 0.20, 0.16); break;
+          case "count": tone(440, 440, 0.09, "square", 0.10); break;
+          case "go": tone(880, 880, 0.16, "square", 0.12); break;
+          case "stop": tone(196, 120, 0.14, "sine", 0.30); noiseBurst(0.04, 0.15, 0, 700); break;
+          case "shakeHit": tone(300 + Math.min(600, (opt || 0) * 18), 200, 0.05, "square", 0.10); noiseBurst(0.03, 0.12, 0, 2000); break;
+          case "bump": tone(160, 90, 0.07, "sine", 0.25); break;
+          case "goal": [659, 784, 988, 1319].forEach(function(fr, i){ tone(fr, fr, 0.15, "triangle", 0.22, i * 0.08); }); break;
+        }
+      }
+      var sndBtn = $("sndToggle");
+      if(sndBtn) sndBtn.addEventListener("click", function(){
+        Snd.on = !Snd.on;
+        sndBtn.textContent = Snd.on ? "オン" : "オフ";
+        sndBtn.classList.toggle("on", Snd.on);
+        sndBtn.setAttribute("aria-pressed", Snd.on ? "true" : "false");
+        if(Snd.on) sfx("pair");
+      });
+
+      /* ================================================================
+         Wake Lock：ゲーム中は画面が自動で消えないようにする
+         （対応端末のみ。非対応では何もしない）
+      ================================================================ */
+      var wakeLockObj = null;
+      function wakeRequest(){
+        if(!("wakeLock" in navigator)) return;
+        try{
+          navigator.wakeLock.request("screen").then(function(wl){
+            wakeLockObj = wl;
+            wl.addEventListener("release", function(){ if(wakeLockObj === wl) wakeLockObj = null; });
+          }).catch(function(){});
+        }catch(e){}
+      }
+      function wakeRelease(){
+        if(wakeLockObj){ try{ wakeLockObj.release(); }catch(e){} wakeLockObj = null; }
+      }
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState === "visible" && typeof currentGame !== "undefined" && currentGame !== "home") wakeRequest();
+      });
+
+      /* ================================================================
+         ズーム・スクロール抑止のイベント制御（ゲーム画面のみ）
+         iOS Safariは user-scalable=no を無視し、touch-action の解釈も
+         ブラウザ差があるため、ピンチ開始（gesturestart）とプレイ領域上の
+         touchmove をJSでも止める。ホームでは何もしない。
+      ================================================================ */
+      var PLAY_AREA_SEL = ".zone, .tug-track, .tim-track, .hc-area, .wani-field, .shk-stage, .tilt-maze, .rev-board, .c4-board, .c4-cols, .gm-board, .ch-board, .man-grid, .mem-grid, .sugo-board, .pir-stage, .sev-table, .hand-row, .kb, .quiz-choices, .jk-choices, .wari-face";
+      function inGameNow(){ return typeof currentGame !== "undefined" && currentGame !== "home"; }
+      document.addEventListener("gesturestart", function(e){ if(inGameNow()) e.preventDefault(); }, { passive:false });
+      document.addEventListener("gesturechange", function(e){ if(inGameNow()) e.preventDefault(); }, { passive:false });
+      document.addEventListener("touchmove", function(e){
+        if(!inGameNow()) return;
+        var t = e.target;
+        if(t && t.closest && t.closest(PLAY_AREA_SEL)) e.preventDefault();
+      }, { passive:false });
+
+      /* ================================================================
+         センサー（加速度・傾き）管理
+         iOS等では「センサーを使う」ボタンのタップから許可を取る。
+         許可が不要な端末では最初からリスナーを付ける。
+         振動（navigator.vibrate）はiPhoneのWebでは使えないため、
+         手応えは画面の揺れと効果音で表現する（対応端末では振動も併用）。
+      ================================================================ */
+      var Sensor = { ready:false, motionSeen:false, orientSeen:false, lastGX:0, lastBY:0 };
+      function sensorPermNeeded(){
+        try{
+          return (typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") ||
+                 (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function");
+        }catch(e){ return false; }
+      }
+      var lastMag = null, lastShakeStrong = 0, lastShakeLight = 0;
+      function onMotionEvt(e){
+        var a = e.accelerationIncludingGravity;
+        if(!a || a.x === null || a.x === undefined) return;
+        Sensor.motionSeen = true;
+        var mag = Math.sqrt(a.x * a.x + a.y * a.y + a.z * a.z);
+        if(lastMag === null){ lastMag = mag; return; }
+        var d = Math.abs(mag - lastMag); lastMag = mag;
+        var now = Date.now();
+        if(d > 15 && now - lastShakeStrong > 210){ lastShakeStrong = now; lastShakeLight = now; onShakeEvent(2); }
+        else if(d > 9.5 && now - lastShakeLight > 300){ lastShakeLight = now; onShakeEvent(1); }
+      }
+      function onOrientEvt(e){
+        if(e.gamma === null || e.gamma === undefined) return;
+        Sensor.orientSeen = true;
+        Sensor.lastGX = e.gamma; Sensor.lastBY = e.beta || 0;
+      }
+      function sensorAttach(){
+        if(Sensor.ready) return;
+        Sensor.ready = true;
+        window.addEventListener("devicemotion", onMotionEvt);
+        window.addEventListener("deviceorientation", onOrientEvt);
+        refreshSensorUI();
+      }
+      function sensorEnable(cb){
+        if(Sensor.ready){ cb(true); return; }
+        if(!sensorPermNeeded()){ sensorAttach(); cb(true); return; }
+        var ps = [];
+        try{ if(typeof DeviceMotionEvent !== "undefined" && typeof DeviceMotionEvent.requestPermission === "function") ps.push(DeviceMotionEvent.requestPermission()); }catch(e){}
+        try{ if(typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") ps.push(DeviceOrientationEvent.requestPermission()); }catch(e){}
+        if(!ps.length){ sensorAttach(); cb(true); return; }
+        Promise.all(ps).then(function(rs){
+          var ok = true;
+          rs.forEach(function(r){ if(r !== "granted") ok = false; });
+          if(ok) sensorAttach();
+          cb(ok);
+        }).catch(function(){ cb(false); });
+      }
+      /* 端末を振ったときの振り分け：シェイク対決のカウント、
+         すごろくのサイコロ、お会計ルーレットのストップ */
+      function onShakeEvent(level){
+        if(currentGame === "shake"){ shkCounted(); }
+        else if(currentGame === "sugoroku"){ if(!sugo.over && !sugo.rolling) sugoRoll(sugo.turn, false); }
+        else if(currentGame === "warikan"){ if(wari.spinning) wariStop(); }
+      }
+      function refreshSensorUI(){
+        var showReq = sensorPermNeeded() && !Sensor.ready;
+        ["sugoSensorBtn", "wariSensorBtn"].forEach(function(id){
+          var el = $(id); if(el) el.style.display = showReq ? "" : "none";
+        });
+        var h1 = $("sugoShakeHint"); if(h1) h1.style.display = Sensor.ready ? "" : "none";
+        var h2 = $("wariShakeHint"); if(h2) h2.style.display = Sensor.ready ? "" : "none";
+        if(currentGame === "shake") shkSetControls();
+        if(currentGame === "tilt") tiltSetControls();
+      }
+      ["sugoSensorBtn", "wariSensorBtn"].forEach(function(id){
+        var el = $(id);
+        if(el) el.addEventListener("click", function(){ sensorEnable(function(){ refreshSensorUI(); }); });
+      });
+
+      /* ================================================================
+         26. シェイク対決（10秒で何回振れるか・1台を交代で使用）
+      ================================================================ */
+      var shk = { phase:"idle", turn:1, count:0, scores:{1:null, 2:null}, timeLeft:10, mode:"sensor", lastTap:0, runStart:0, noSensorChecked:false };
+      function shkName(p){ return p === 1 ? "あか" : "あお"; }
+      function shkRender(){
+        var b = $("shkTurn");
+        b.className = "turn-banner p" + shk.turn;
+        b.innerHTML = wolf(shk.turn, "wolf-24") + " " + shkName(shk.turn) + "の番です<small>10秒で何回振れるかな？</small>";
+        $("shkCount").textContent = shk.count;
+        $("shkScore1").textContent = shk.scores[1] === null ? "-" : shk.scores[1] + "回";
+        $("shkScore2").textContent = shk.scores[2] === null ? "-" : shk.scores[2] + "回";
+      }
+      function shkSetControls(){
+        $("shkSensorBtn").style.display = (sensorPermNeeded() && !Sensor.ready) ? "" : "none";
+        $("shkStart").style.display = shk.phase === "idle" ? "" : "none";
+        var tb = $("shkTapBtn");
+        tb.style.display = (shk.phase === "run" && shk.mode === "touch") ? "" : "none";
+        tb.className = "big-btn " + (shk.turn === 1 ? "btn-p1" : "btn-p2");
+        tb.style.marginTop = "10px";
+      }
+      function shkInit(){
+        shk.phase = "idle"; shk.turn = 1; shk.count = 0; shk.scores = {1:null, 2:null}; shk.timeLeft = 10;
+        shk.mode = (typeof DeviceMotionEvent !== "undefined") ? "sensor" : "touch";
+        $("shkStage").className = "shk-stage";
+        $("shkTime").textContent = "のこり 10.0 秒";
+        $("shkFill").style.width = "100%";
+        $("shkStatus").textContent = (sensorPermNeeded() && !Sensor.ready)
+          ? "まず「センサーを使う」を押してね（使えない場合は、そのままスタートで連打モードになります）"
+          : (shk.mode === "touch" ? "この端末では連打モードで遊ぶよ。あかからスタート！" : "あかからスタート！ スマホをしっかり持ってね");
+        shkRender(); shkSetControls();
+      }
+      inits.shake = shkInit;
+      function shkStartTurn(){
+        if(shk.phase === "count" || shk.phase === "run") return;
+        shk.mode = Sensor.ready ? "sensor" : "touch";
+        shk.count = 0; shk.timeLeft = 10; shk.phase = "count"; shk.noSensorChecked = false;
+        $("shkStage").className = "shk-stage";
+        $("shkFill").style.width = "100%";
+        $("shkTime").textContent = "のこり 10.0 秒";
+        shkRender(); shkSetControls();
+        $("shkStatus").textContent = "よーい…";
+        var n = 3;
+        $("shkCount").textContent = n;
+        sfx("count");
+        var cd = every(function(){
+          n--;
+          if(n > 0){ $("shkCount").textContent = n; sfx("count"); }
+          else if(n === 0){ $("shkCount").textContent = "GO!"; sfx("go"); }
+          else { clearInterval(cd); shkBeginRun(); }
+        }, 620);
+      }
+      function shkBeginRun(){
+        shk.phase = "run"; shk.count = 0; shk.timeLeft = 10; shk.runStart = Date.now();
+        $("shkCount").textContent = "0";
+        $("shkStatus").textContent = shk.mode === "touch" ? "連打！ 連打！ 連打！" : "振って！ 振って！ 振って！";
+        shkSetControls();
+        var iv = every(function(){
+          shk.timeLeft = Math.max(0, 10 - (Date.now() - shk.runStart) / 1000);
+          $("shkTime").textContent = "のこり " + shk.timeLeft.toFixed(1) + " 秒";
+          $("shkFill").style.width = (shk.timeLeft * 10) + "%";
+          var st = $("shkStage");
+          st.classList.toggle("heat1", shk.timeLeft <= 5 && shk.timeLeft > 2.5);
+          st.classList.toggle("heat2", shk.timeLeft <= 2.5 && shk.timeLeft > 0);
+          if(!shk.noSensorChecked && shk.mode === "sensor" && shk.timeLeft <= 8.4){
+            shk.noSensorChecked = true;
+            if(!Sensor.motionSeen){
+              shk.mode = "touch";
+              $("shkStatus").textContent = "センサーの反応がないみたい。連打モードに切り替えたよ！";
+              shkSetControls();
+            }
+          }
+          if(shk.timeLeft <= 0){ clearInterval(iv); shkEndTurn(); }
+        }, 100);
+      }
+      function shkCounted(){
+        if(currentGame !== "shake" || shk.phase !== "run") return;
+        var now = Date.now();
+        if(now - shk.lastTap < 110) return;
+        shk.lastTap = now;
+        shk.count++;
+        var c = $("shkCount");
+        c.textContent = shk.count;
+        c.classList.remove("pop"); void c.offsetWidth; c.classList.add("pop");
+        var st = $("shkStage");
+        st.classList.remove("bump"); void st.offsetWidth; st.classList.add("bump");
+        sfx("shakeHit", shk.count);
+        if(navigator.vibrate){ try{ navigator.vibrate(8); }catch(e){} }
+      }
+      function shkEndTurn(){
+        shk.phase = "end";
+        shk.scores[shk.turn] = shk.count;
+        sfx("stop");
+        var st = $("shkStage");
+        st.classList.remove("heat1"); st.classList.remove("heat2");
+        $("shkTime").textContent = "終了！";
+        shkRender(); shkSetControls();
+        if(shk.turn === 1){
+          $("shkStatus").textContent = "あかは " + shk.count + "回！ 次は あお の番だよ";
+          later(function(){
+            if(currentGame !== "shake") return;
+            $("passIcon").innerHTML = wolf(2, "wolf-52");
+            $("passTitle").textContent = "あかは " + shk.scores[1] + "回でした";
+            $("passBody").textContent = "次は あお の番です。スマホを あお に渡してね。準備ができたらボタンを押してスタート！";
+            $("passBtn").textContent = "あおの番をはじめる";
+            passCb = function(){
+              shk.turn = 2; shk.count = 0; shk.timeLeft = 10; shk.phase = "idle";
+              $("shkStage").className = "shk-stage";
+              $("shkTime").textContent = "のこり 10.0 秒";
+              $("shkFill").style.width = "100%";
+              $("shkStatus").textContent = shk.mode === "touch" ? "あおの番！ スタートを押して連打モードで挑戦" : "あおの番！ スマホをしっかり持って、スタートを押してね";
+              shkRender(); shkSetControls();
+            };
+            $("passOverlay").classList.add("show");
+          }, 900);
+        } else {
+          var a = shk.scores[1], b = shk.scores[2];
+          var title, w = 0;
+          if(a === b) title = "引き分け！";
+          else if(a > b){ title = "あか（プレイヤー1）の勝ち！"; w = 1; records.shake.p1++; }
+          else { title = "あお（プレイヤー2）の勝ち！"; w = 2; records.shake.p2++; }
+          $("shkStatus").textContent = "対決終了！";
+          later(function(){
+            if(currentGame !== "shake") return;
+            showResult(title,
+              "シェイク回数は あか <b>" + a + "回</b> ／ あお <b>" + b + "回</b> でした。" +
+              (w ? "<br />通算成績は あか " + records.shake.p1 + "勝 ／ あお " + records.shake.p2 + "勝" : ""),
+              shkInit, w);
+          }, 900);
+        }
+      }
+      $("shkSensorBtn").addEventListener("click", function(){
+        sensorEnable(function(ok){
+          if(ok){ shk.mode = "sensor"; $("shkStatus").textContent = "センサーOK！ あかからスタート！"; }
+          else { shk.mode = "touch"; $("shkStatus").textContent = "センサーの許可が取れなかったので、連打モードで遊ぶよ"; }
+          refreshSensorUI(); shkSetControls();
+        });
+      });
+      $("shkStart").addEventListener("click", shkStartTurn);
+      $("shkTapBtn").addEventListener("pointerdown", function(e){ e.preventDefault(); shkCounted(); });
+
+      /* ================================================================
+         27. 傾けボール（傾けて迷路を抜けるタイムアタック）
+         座標は 320×320 の仮想単位。壁は小さく跳ね返る物理で処理する。
+      ================================================================ */
+      var TILT_SIZE = 320, TILT_R = 11;
+      var TILT_GOAL = { x:285, y:35, r:17 };
+      var TILT_START = { x:32, y:288 };
+      var TILT_WALLS = [
+        {x:0, y:230, w:210, h:12},
+        {x:110, y:150, w:210, h:12},
+        {x:0, y:70, w:210, h:12},
+        {x:70, y:82, w:12, h:68},
+        {x:240, y:162, w:12, h:68}
+      ];
+      var tilt = { phase:"idle", turn:1, times:{1:null, 2:null}, mode:"sensor",
+        bx:TILT_START.x, by:TILT_START.y, vx:0, vy:0, startAt:0, lastTs:0,
+        baseG:0, baseB:0, drag:null, lastBump:0, built:false, noSensorChecked:false };
+      function tiltEvtPos(e){
+        var r = $("tiltMaze").getBoundingClientRect();
+        return { x:(e.clientX - r.left) / r.width * TILT_SIZE, y:(e.clientY - r.top) / r.height * TILT_SIZE };
+      }
+      function tiltBuild(){
+        if(tilt.built) return; tilt.built = true;
+        var mz = $("tiltMaze");
+        TILT_WALLS.forEach(function(w){
+          var d = document.createElement("div");
+          d.className = "tilt-wall";
+          d.style.left = (w.x / TILT_SIZE * 100) + "%";
+          d.style.top = (w.y / TILT_SIZE * 100) + "%";
+          d.style.width = (w.w / TILT_SIZE * 100) + "%";
+          d.style.height = (w.h / TILT_SIZE * 100) + "%";
+          mz.appendChild(d);
+        });
+        var g = document.createElement("div");
+        g.className = "tilt-goal";
+        g.style.left = ((TILT_GOAL.x - TILT_GOAL.r) / TILT_SIZE * 100) + "%";
+        g.style.top = ((TILT_GOAL.y - TILT_GOAL.r) / TILT_SIZE * 100) + "%";
+        g.style.width = (TILT_GOAL.r * 2 / TILT_SIZE * 100) + "%";
+        g.style.height = (TILT_GOAL.r * 2 / TILT_SIZE * 100) + "%";
+        g.textContent = "ゴール";
+        mz.appendChild(g);
+        var b = document.createElement("div");
+        b.className = "tilt-ball"; b.id = "tiltBall";
+        b.style.width = (TILT_R * 2 / TILT_SIZE * 100) + "%";
+        b.style.height = (TILT_R * 2 / TILT_SIZE * 100) + "%";
+        mz.appendChild(b);
+        mz.addEventListener("pointerdown", function(e){
+          if(tilt.phase === "run" && tilt.mode === "touch"){
+            tilt.drag = tiltEvtPos(e);
+            try{ mz.setPointerCapture(e.pointerId); }catch(err){}
+          }
+        });
+        mz.addEventListener("pointermove", function(e){ if(tilt.drag) tilt.drag = tiltEvtPos(e); });
+        mz.addEventListener("pointerup", function(){ tilt.drag = null; });
+        mz.addEventListener("pointercancel", function(){ tilt.drag = null; });
+      }
+      function tiltResetBall(){ tilt.bx = TILT_START.x; tilt.by = TILT_START.y; tilt.vx = 0; tilt.vy = 0; tilt.drag = null; }
+      function tiltRender(){
+        var b = $("tiltTurn");
+        b.className = "turn-banner p" + tilt.turn;
+        b.innerHTML = wolf(tilt.turn, "wolf-24") + " " + (tilt.turn === 1 ? "あか" : "あお") + "の番です<small>傾けてボールをゴールまで運んでね</small>";
+        $("tiltScore1").textContent = tilt.times[1] === null ? "-" : tilt.times[1].toFixed(2) + "秒";
+        $("tiltScore2").textContent = tilt.times[2] === null ? "-" : tilt.times[2].toFixed(2) + "秒";
+        tiltBallRender();
+        $("tiltMode").textContent = tilt.mode === "touch" ? "ドラッグ操作モード" : "傾け操作モード";
+      }
+      function tiltBallRender(){
+        var ball = $("tiltBall");
+        if(ball){
+          ball.className = "tilt-ball" + (tilt.turn === 2 ? " p2" : "");
+          ball.style.left = ((tilt.bx - TILT_R) / TILT_SIZE * 100) + "%";
+          ball.style.top = ((tilt.by - TILT_R) / TILT_SIZE * 100) + "%";
+        }
+      }
+      function tiltSetControls(){
+        $("tiltSensorBtn").style.display = (sensorPermNeeded() && !Sensor.ready) ? "" : "none";
+        $("tiltStart").style.display = tilt.phase === "idle" ? "" : "none";
+      }
+      function tiltInit(){
+        tiltBuild();
+        tilt.phase = "idle"; tilt.turn = 1; tilt.times = {1:null, 2:null};
+        tilt.mode = (typeof DeviceOrientationEvent !== "undefined") ? "sensor" : "touch";
+        tiltResetBall();
+        $("tiltTimeNow").textContent = "0.0";
+        $("tiltStatus").textContent = (sensorPermNeeded() && !Sensor.ready)
+          ? "まず「センサーを使う」を押してね（使えない場合は、そのままスタートでドラッグモードになります）"
+          : (tilt.mode === "touch" ? "この端末ではドラッグでボールを動かすよ。あかからスタート！" : "あかからスタート！ 端末を水平に持ってね");
+        tiltRender(); tiltSetControls();
+      }
+      inits.tilt = tiltInit;
+      function tiltBump(speed){
+        if(speed < 130) return;
+        var now = Date.now();
+        if(now - tilt.lastBump < 130) return;
+        tilt.lastBump = now;
+        sfx("bump");
+        if(navigator.vibrate){ try{ navigator.vibrate(5); }catch(e){} }
+      }
+      function tiltCollideWall(w){
+        var cx = Math.max(w.x, Math.min(tilt.bx, w.x + w.w));
+        var cy = Math.max(w.y, Math.min(tilt.by, w.y + w.h));
+        var dx = tilt.bx - cx, dy = tilt.by - cy;
+        var d2 = dx * dx + dy * dy;
+        if(d2 >= TILT_R * TILT_R) return;
+        var nx, ny, push;
+        if(d2 > 0.0001){
+          var d = Math.sqrt(d2); nx = dx / d; ny = dy / d; push = TILT_R - d;
+        } else {
+          var pl = tilt.bx - w.x, pr = w.x + w.w - tilt.bx, pt = tilt.by - w.y, pb = w.y + w.h - tilt.by;
+          var m = Math.min(pl, pr, pt, pb);
+          if(m === pl){ nx = -1; ny = 0; push = pl + TILT_R; }
+          else if(m === pr){ nx = 1; ny = 0; push = pr + TILT_R; }
+          else if(m === pt){ nx = 0; ny = -1; push = pt + TILT_R; }
+          else { nx = 0; ny = 1; push = pb + TILT_R; }
+        }
+        tilt.bx += nx * push; tilt.by += ny * push;
+        var vn = tilt.vx * nx + tilt.vy * ny;
+        if(vn < 0){
+          tiltBump(-vn);
+          tilt.vx -= 1.38 * vn * nx;
+          tilt.vy -= 1.38 * vn * ny;
+        }
+      }
+      function tiltStep(dt){
+        var ax = 0, ay = 0;
+        if(tilt.mode === "sensor"){
+          ax = (Sensor.lastGX - tilt.baseG) * 55;
+          ay = (Sensor.lastBY - tilt.baseB) * 55;
+          if(!tilt.noSensorChecked && performance.now() - tilt.startAt > 1400){
+            tilt.noSensorChecked = true;
+            if(!Sensor.orientSeen){
+              tilt.mode = "touch";
+              $("tiltStatus").textContent = "センサーの反応がないみたい。ドラッグモードに切り替えたよ！";
+            }
+          }
+        } else if(tilt.drag){
+          ax = (tilt.drag.x - tilt.bx) * 22;
+          ay = (tilt.drag.y - tilt.by) * 22;
+          var am = Math.sqrt(ax * ax + ay * ay);
+          if(am > 1500){ ax = ax / am * 1500; ay = ay / am * 1500; }
+        }
+        tilt.vx += ax * dt; tilt.vy += ay * dt;
+        var damp = Math.pow(0.3, dt);
+        tilt.vx *= damp; tilt.vy *= damp;
+        var sp = Math.sqrt(tilt.vx * tilt.vx + tilt.vy * tilt.vy);
+        if(sp > 320){ tilt.vx = tilt.vx / sp * 320; tilt.vy = tilt.vy / sp * 320; }
+        tilt.bx += tilt.vx * dt; tilt.by += tilt.vy * dt;
+        if(tilt.bx < TILT_R){ tilt.bx = TILT_R; if(tilt.vx < 0){ tiltBump(-tilt.vx); tilt.vx = -tilt.vx * 0.38; } }
+        if(tilt.bx > TILT_SIZE - TILT_R){ tilt.bx = TILT_SIZE - TILT_R; if(tilt.vx > 0){ tiltBump(tilt.vx); tilt.vx = -tilt.vx * 0.38; } }
+        if(tilt.by < TILT_R){ tilt.by = TILT_R; if(tilt.vy < 0){ tiltBump(-tilt.vy); tilt.vy = -tilt.vy * 0.38; } }
+        if(tilt.by > TILT_SIZE - TILT_R){ tilt.by = TILT_SIZE - TILT_R; if(tilt.vy > 0){ tiltBump(tilt.vy); tilt.vy = -tilt.vy * 0.38; } }
+        TILT_WALLS.forEach(function(w){ tiltCollideWall(w); });
+        var gx = tilt.bx - TILT_GOAL.x, gy = tilt.by - TILT_GOAL.y;
+        if(gx * gx + gy * gy < (TILT_GOAL.r - 2) * (TILT_GOAL.r - 2)){ tiltGoal(); return; }
+        tiltBallRender();
+      }
+      function tiltStartTurn(){
+        if(tilt.phase === "run") return;
+        tilt.mode = Sensor.ready ? "sensor" : "touch";
+        tiltResetBall();
+        tilt.baseG = Sensor.lastGX; tilt.baseB = Sensor.lastBY;
+        tilt.phase = "run"; tilt.noSensorChecked = false;
+        tilt.startAt = performance.now(); tilt.lastTs = 0;
+        $("tiltStatus").textContent = tilt.mode === "touch" ? "ドラッグでボールをゴールへ！" : "傾けてボールをゴールへ！";
+        tiltSetControls(); tiltRender();
+        var step = function(ts){
+          if(currentGame !== "tilt" || tilt.phase !== "run") return;
+          if(!tilt.lastTs) tilt.lastTs = ts;
+          var dt = Math.min(0.033, (ts - tilt.lastTs) / 1000); tilt.lastTs = ts;
+          if(dt > 0) tiltStep(dt);
+          if(tilt.phase === "run") $("tiltTimeNow").textContent = ((performance.now() - tilt.startAt) / 1000).toFixed(1);
+          if(tilt.phase === "run") setRaf("tilt", requestAnimationFrame(step));
+        };
+        setRaf("tilt", requestAnimationFrame(step));
+      }
+      function tiltGoal(){
+        tilt.phase = "end";
+        var t = (performance.now() - tilt.startAt) / 1000;
+        tilt.times[tilt.turn] = t;
+        sfx("goal");
+        $("tiltTimeNow").textContent = t.toFixed(1);
+        tiltRender(); tiltSetControls();
+        if(tilt.turn === 1){
+          $("tiltStatus").textContent = "ゴール！ あかは " + t.toFixed(2) + "秒。次は あお の番だよ";
+          later(function(){
+            if(currentGame !== "tilt") return;
+            $("passIcon").innerHTML = wolf(2, "wolf-52");
+            $("passTitle").textContent = "あかは " + tilt.times[1].toFixed(2) + "秒でした";
+            $("passBody").textContent = "次は あお の番です。スマホを あお に渡してね。準備ができたらボタンを押してスタート！";
+            $("passBtn").textContent = "あおの番をはじめる";
+            passCb = function(){
+              tilt.turn = 2; tilt.phase = "idle"; tiltResetBall();
+              $("tiltTimeNow").textContent = "0.0";
+              $("tiltStatus").textContent = tilt.mode === "touch" ? "あおの番！ スタートを押してドラッグで動かしてね" : "あおの番！ 端末を水平に持ってスタートを押してね";
+              tiltRender(); tiltSetControls();
+            };
+            $("passOverlay").classList.add("show");
+          }, 1000);
+        } else {
+          var a = tilt.times[1], b = tilt.times[2];
+          var title, w = 0;
+          if(Math.abs(a - b) < 0.005) title = "引き分け！";
+          else if(a < b){ title = "あか（プレイヤー1）の勝ち！"; w = 1; records.tilt.p1++; }
+          else { title = "あお（プレイヤー2）の勝ち！"; w = 2; records.tilt.p2++; }
+          $("tiltStatus").textContent = "ゴール！ 対決終了";
+          later(function(){
+            if(currentGame !== "tilt") return;
+            showResult(title,
+              "タイムは あか <b>" + a.toFixed(2) + "秒</b> ／ あお <b>" + b.toFixed(2) + "秒</b> でした。" +
+              (w ? "<br />通算成績は あか " + records.tilt.p1 + "勝 ／ あお " + records.tilt.p2 + "勝" : ""),
+              tiltInit, w);
+          }, 1000);
+        }
+      }
+      $("tiltSensorBtn").addEventListener("click", function(){
+        sensorEnable(function(ok){
+          if(ok){ tilt.mode = "sensor"; $("tiltStatus").textContent = "センサーOK！ あかからスタート！"; }
+          else { tilt.mode = "touch"; $("tiltStatus").textContent = "センサーの許可が取れなかったので、ドラッグモードで遊ぶよ"; }
+          refreshSensorUI(); tiltSetControls(); tiltRender();
+        });
+      });
+      $("tiltStart").addEventListener("click", tiltStartTurn);
+
+      /* 許可が不要な端末では、最初からセンサーを受け付ける */
+      if(!sensorPermNeeded()) sensorAttach();
+      refreshSensorUI();
 
       decoratePlayers();
       renderRecords();
