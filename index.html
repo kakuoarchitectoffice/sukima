@@ -1520,14 +1520,14 @@
           <h3>オンラインで遊ぶ（2台のスマホで）</h3>
           <ol class="net-steps">
             <li><b>部屋を作る人</b>が、下の「部屋を作る」を押す</li>
-            <li>出てきた<b>6文字のコード</b>を相手に伝える</li>
+            <li>出てきた<b>4文字のコード</b>を相手に伝える</li>
             <li><b>相手</b>が「コードで入る」からコードを入力すれば接続完了！</li>
           </ol>
-          <p class="net-note">ゲームの内容は、公開の中継サーバー（MQTTブローカー）を経由して相手のスマホへ届きます。スマホ同士を直接つなぐ方式と違い、回線の相性を問わずつながりやすい方式です。通信経路は暗号化されていますが、中継サーバー側で内容を見られる可能性はあります。流れるのは対戦の操作情報だけで、個人情報は送りません。アカウント登録は不要です。接続まで少し時間がかかることがあります。</p>
+          <p class="net-note">ゲームの内容は、対戦ゲーム専用サービス「Playroom Kit」のサーバーを経由して相手のスマホへ届きます。直接つなぐ方式と中継する方式を自動で切り替えるため、回線の相性を問わずつながりやすい仕組みです。流れるのは対戦の操作情報だけで、個人情報は送りません。アカウント登録は不要です。接続まで少し時間がかかることがあります。</p>
           <button class="btn-p1 net-big-btn" id="netCreate">部屋を作る（コード発行）</button>
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
           <div class="net-join" id="netJoinRow" style="display:none;">
-            <input class="net-pass" id="netCodeInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" maxlength="6" placeholder="コード6文字" aria-label="ルームコード" />
+            <input class="net-pass" id="netCodeInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" maxlength="4" placeholder="コード4文字" aria-label="ルームコード" />
             <button class="net-big-btn" id="netJoin" style="background:var(--p2);margin-top:0;">この部屋に入る</button>
           </div>
           <div class="net-code" id="netCodeBox">
@@ -1545,9 +1545,9 @@
             <div class="wait-step" id="waitStep">接続を読み込んでいます</div>
             <div class="wait-sub">初回は30秒ほどかかることがあります。そのまま待っててね</div>
             <div class="wait-diag" aria-label="接続の診断">
-              <div>ライブラリ：<span id="diagLib">読み込み中</span></div>
-              <div>ブローカー接続：<span id="diagBrk">0/4件</span></div>
-              <div>相手との接続：<span id="diagPeer">接続待ち</span></div>
+              <div>SDK：<span id="diagLib">読み込み中</span></div>
+              <div>部屋への入室：<span id="diagBrk">入室待ち</span></div>
+              <div>相手の参加：<span id="diagPeer">参加待ち</span></div>
             </div>
           </div>
           <div class="net-status" id="netStatus">オンラインで遊べます。下のボタンで部屋を作るか、コードで入ってください（部屋に入るまでは1台モードの表示です）</div>
@@ -2696,129 +2696,126 @@
         return '<span class="mark" aria-hidden="true">' + (t === "bandage" ? MARK2 : MARK1) + '</span>';
       }
 
-      /* ---------- Online (MQTT broker relay) ----------
-         Game data is relayed between the two browsers by public MQTT
-         brokers over secure WebSocket (wss). There is no direct
-         peer-to-peer connection and no server of our own: both sides
-         connect to ALL FOUR public brokers at the same time, publish
-         every message to every broker they are connected to, and
-         receive from all of them, so the two sides can talk as long as
-         they share at least one live broker. Duplicates arriving via
-         several brokers are dropped by message ID. All messages use
-         QoS 1. Users only ever handle the 6-char room code.
-         Why a broker relay: WebRTC (PeerJS) repeatedly failed in
-         practice at the ICE/TURN stage on real phones and networks.
-         A broker relay only needs an ordinary wss connection, which
-         works on essentially every network.
-         Room topics are derived from the code with an app-specific
-         prefix, one topic per direction (h2g / g2h), plus one presence
-         topic per side (pres/h, pres/g). Handshake: the guest keeps
-         publishing "join" until the host answers "welcome"; only then
-         do both sides show the connection as established. While
-         connected, both sides exchange heartbeats, and each side sets
-         an MQTT Last Will on its presence topic, so a peer that drops
-         is detected either by its will or by its heartbeats stopping.
-         The game-side interface is unchanged: games keep calling
-         netSend(obj) and registering NetH handlers, and every game
-         message still passes through netSanitize on receive.
-         The library is a classic script loaded from CDN (multiple
-         candidates, tried in order with a timeout). To keep page
-         startup light it is NOT loaded at page open: loading is
-         deferred until the user first touches the online card, or
-         until the page has been shown for 15s and the device is idle.
-         The host shows its code immediately, before the library
-         finishes loading, so the perceived wait stays near zero. */
-      var MQTT_TOPIC_PREFIX = "sukima-7f3k9d/";
-      /* 応答の速いCDNから順に試す。1か所が遅い・落ちていても、タイムアウトで
-         次の候補へ切り替えるので、遅いCDNに当たって待たされ続けない。 */
-      var MQTT_CDNS = [
-        "https://cdn.jsdelivr.net/npm/mqtt@5.10.1/dist/mqtt.min.js",
-        "https://unpkg.com/mqtt@5.10.1/dist/mqtt.min.js",
-        "https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.3.7/mqtt.min.js"
+      /* ---------- Online (Playroom Kit) ----------
+         Multiplayer runs on Playroom Kit, an SDK made for browser
+         versus games. Room hosting, joining and message transport are
+         handled by Playroom's servers, which automatically switch
+         between a direct WebRTC connection and a WebSocket relay, so
+         two phones can connect even on networks where a direct
+         peer-to-peer link cannot be established. There is no server
+         of our own and no account: users only ever handle the room
+         code.
+         Room flow follows the official docs (docs.joinplayroom.com):
+         - Create: insertCoin({ skipLobby: true, maxPlayersPerRoom: 2 })
+           with no roomCode, then read the code with getRoomCode()
+           (Playroom codes are 4 letters) and show it.
+         - Join: insertCoin({ ..., roomCode: <typed code> }).
+         - Host check: isHost() right after entering the room decides
+           myPlayer (host = 1, guest = 2). If a joiner turns out to be
+           the host of an otherwise empty room, the code matched no
+           live room (Playroom creates the room on demand), so we
+           report "room not found" instead of waiting forever.
+         - Connected = onPlayerJoin has seen 2 players. A peer leaving
+           is delivered through that player's onQuit and routed to the
+           usual disconnect handling; losing our own connection is
+           delivered through onDisconnect.
+         Game traffic rides on Playroom RPC under one handler name:
+         sending is RPC.call(name, obj, RPC.Mode.OTHERS) so the
+         sender never receives its own message (same meaning as
+         before), receiving is a single RPC.register handler that
+         feeds the existing receive path. The game-side interface is
+         unchanged: games keep calling netSend(obj) and registering
+         NetH handlers, and every game message still passes through
+         netSanitize on receive.
+         The SDK is a classic script loaded from CDN (multiple
+         candidates serving the same self-contained full build,
+         tried in order with a timeout). To keep page startup light
+         it is NOT loaded at page open: loading is deferred until the
+         user first touches the online card, or until the page has
+         been shown for 15s and the device is idle. */
+      var PR_CDNS = [
+        "https://unpkg.com/playroomkit/multiplayer.full.umd.js",
+        "https://cdn.jsdelivr.net/npm/playroomkit/multiplayer.full.umd.js",
+        "https://cdn.joinplayroom.com/playroomkit/multiplayer.umd.js"
       ];
-      /* 公開MQTTブローカー（セキュアWebSocket）。両側とも全件に同時接続し、
-         接続できている全ブローカーへ送信し、全ブローカーから受信する。
-         両側に共通するブローカーが1件でもあれば通信が成立する。 */
-      var MQTT_BROKERS = [
-        "wss://broker.emqx.io:8084/mqtt",
-        "wss://broker.hivemq.com:8884/mqtt",
-        "wss://test.mosquitto.org:8081",
-        "wss://mqtt.eclipseprojects.io:443/mqtt"
-      ];
-      function netMqttReady(){ return typeof window.mqtt === "object" && !!window.mqtt && typeof window.mqtt.connect === "function"; }
-      var mqttLoading = null;
+      var PR_RPC_NAME = "sukimaMsg";
+      function netPrReady(){ return typeof window.Playroom === "object" && !!window.Playroom && typeof window.Playroom.insertCoin === "function" && !!window.Playroom.RPC; }
+      var prLoading = null;
       function netScriptWithTimeout(url, ms){
         return new Promise(function(resolve, reject){
-          if(netMqttReady()){ resolve(); return; }
+          if(netPrReady()){ resolve(); return; }
           var s = document.createElement("script");
           var done = false;
           var timer = setTimeout(function(){ fail(new Error("cdn timeout")); }, ms);
           function ok(){ if(done) return; done = true; clearTimeout(timer); resolve(); }
           function fail(err){ if(done) return; done = true; clearTimeout(timer); try{ s.remove(); }catch(e){} reject(err); }
           s.src = url; s.async = true;
-          s.onload = function(){ if(netMqttReady()) ok(); else fail(new Error("bad script")); };
+          s.onload = function(){ if(netPrReady()) ok(); else fail(new Error("bad script")); };
           s.onerror = function(){ fail(new Error("cdn error")); };
           document.head.appendChild(s);
         });
       }
-      function netLoadMqtt(){
-        if(netMqttReady()) return Promise.resolve();
-        if(mqttLoading) return mqttLoading;
+      function netLoadSdk(){
+        if(netPrReady()) return Promise.resolve();
+        if(prLoading) return prLoading;
         var chain = Promise.reject(new Error("start"));
-        MQTT_CDNS.forEach(function(url){
+        PR_CDNS.forEach(function(url){
           chain = chain.catch(function(){ return netScriptWithTimeout(url, 9000); });
         });
-        mqttLoading = chain.then(function(){
-          mqttLoading = null;
+        prLoading = chain.then(function(){
+          prLoading = null;
         }).catch(function(err){
-          mqttLoading = null;
+          prLoading = null;
           throw err;
         });
-        return mqttLoading;
+        return prLoading;
       }
-      var Net = { clients:[], isHost:false, myPlayer:0, code:"", connected:false, connecting:false, mode:"", session:0, autoRetries:0, lastJoinAt:0,
-                  myId:"", peerId:"", pubTopic:"", subTopic:"", presTopic:"", presPeerTopic:"", msgSeq:0, seen:{}, seenList:[], lastPeerAt:0, tickTimer:null };
+      var Net = { isHost:false, myPlayer:0, code:"", connected:false, connecting:false, mode:"", session:0, autoRetries:0 };
       var NetH = {};
-      /* 実際にブローカーへ流す送信処理。connected かどうかを見ないので、
-         参加・歓迎・ハートビートなどの接続制御メッセージにも使う。
-         メッセージには送信側ID＋連番のIDを付け、接続中の全ブローカーへ
-         QoS 1 で送る。受信側はこのIDで重複を取り除く。 */
-      function netWireSend(obj){
-        if(!Net.clients.length || !Net.pubTopic) return;
-        Net.msgSeq++;
-        var str;
-        try{ str = JSON.stringify({ id: Net.myId + ":" + Net.msgSeq, m: obj }); }catch(e){ return; }
-        Net.clients.forEach(function(rec){
-          if(!rec.up || !rec.client) return;
-          try{ rec.client.publish(Net.pubTopic, str, { qos: 1 }); }catch(e){}
-        });
+      /* 退出処理（leaveRoom）の完了待ち。再接続・作り直しで、前の部屋を
+         出きる前に次の部屋へ入ってしまう競合を避けるために使う。 */
+      var prLeavePromise = null;
+      /* 今の部屋で見えているプレイヤーID（自分を含む）。onPlayerJoin で
+         増え、onQuit で減る。2人そろった時点で接続成立とする。 */
+      var prPlayerIds = {};
+      /* RPCの受信ハンドラは1つだけ登録する。届いたデータは、接続成立後に
+         限り、既存の受信処理（サニタイズ→NetH）へそのまま渡す。 */
+      var prRpcReady = false;
+      function netSetupRpc(){
+        if(prRpcReady || !netPrReady()) return;
+        try{
+          window.Playroom.RPC.register(PR_RPC_NAME, function(data){
+            if(!Net.connected) return;
+            var clean = netSanitize(data);
+            if(clean && NetH[clean.t]) NetH[clean.t](clean);
+          });
+          prRpcReady = true;
+        }catch(e){}
       }
+      /* 送信は Playroom の RPC で運ぶ。宛先は自分以外（OTHERS）なので、
+         送信側が自分のメッセージを受け取ることはない（従来と同じ意味づけ）。 */
       function netSend(obj){
-        if(!Net.connected) return;
-        netWireSend(obj);
+        if(!Net.connected || !netPrReady()) return;
+        try{
+          var p = window.Playroom.RPC.call(PR_RPC_NAME, obj, window.Playroom.RPC.Mode.OTHERS);
+          if(p && typeof p.catch === "function") p.catch(function(){});
+        }catch(e){}
       }
       function netSetStatus(msg, isErr){ var el=$("netStatus"); if(el){ el.textContent=msg; el.className="net-status"+(isErr?" err":""); } }
       function netShowRetry(show){ var b=$("netRetry"); if(b) b.className = "net-retry" + (show ? " show" : ""); }
       /* ---------- 接続の診断表示（待機パネル内） ----------
          実機で失敗したときに「どの段階で止まっているか」を切り分けるための
-         表示。ブローカー接続は4件の公開ブローカーのうち何件につながって
-         いるか、相手との接続は参加→歓迎のハンドシェイクが済んだかを示す。 */
-      var netDiag = { lib:false, brk:"0/" + MQTT_BROKERS.length + "件", peer:"接続待ち" };
+         表示。SDKの読み込み、部屋への入室、相手の参加状態の3段階を示す。 */
+      var netDiag = { lib:false, room:"入室待ち", peer:"参加待ち" };
       function netDiagUpdate(){
         var a = $("diagLib"), b = $("diagBrk"), d = $("diagPeer");
         if(a) a.textContent = netDiag.lib ? "完了" : "読み込み中";
-        if(b) b.textContent = netDiag.brk;
+        if(b) b.textContent = netDiag.room;
         if(d) d.textContent = netDiag.peer;
-      }
-      function netDiagBrokers(){
-        var up = 0;
-        Net.clients.forEach(function(rec){ if(rec.up) up++; });
-        netDiag.brk = up + "/" + MQTT_BROKERS.length + "件";
-        netDiagUpdate();
       }
       /* ---------- オンライン待機パネル（活動リング＋経過秒数＋接続ステップ） ----------
          接続の読み込み中〜相手の参加待ちの間だけオンライン欄に出す。
-         接続が完了（ハンドシェイク成立）または切断（netTeardown）で消える。 */
+         接続が完了（2人そろった時点）または切断（netTeardown）で消える。 */
       var waitUi = { iv:null, t0:0 };
       function waitShow(step){
         var p = $("waitPanel"); if(!p) return;
@@ -2862,24 +2859,20 @@
         var ptBtn=$("ptStart"); if(ptBtn){ ptBtn.textContent = guest ? "ホストのスタート待ち" : "ふたりでスタート"; }
         var syBtn=$("syncStart"); if(syBtn){ syBtn.textContent = guest ? "ホストのスタート待ち" : "スタート"; }
       }
-      function netGenCode(){ var chars="ABCDEFGHJKMNPQRSTUVWXYZ23456789"; var out=""; for(var i=0;i<6;i++) out+=chars.charAt(Math.floor(Math.random()*chars.length)); return out; }
-      /* 全ブローカーから切断する。切る前に自分のプレゼンスを「不在」に
-         しておくと、相手が即座に切断へ気づける（残りの検知は相手側の
-         Last Will とハートビート途絶が担う）。 */
-      function netDestroyTransport(){
-        if(Net.tickTimer){ clearInterval(Net.tickTimer); Net.tickTimer = null; }
-        var clients = Net.clients; Net.clients = [];
-        clients.forEach(function(rec){
-          rec.dead = true;
-          if(rec.client){
-            if(rec.up){ try{ rec.client.publish(Net.presTopic, JSON.stringify({ on: 0 }), { qos: 1, retain: true }); }catch(e){} }
-            try{ rec.client.end(true); }catch(e){}
-            rec.client = null;
+      /* 今いる部屋から退出する。Playroom には専用の切断APIがないため、
+         自分の PlayerState の leaveRoom を使う（相手側には onQuit として
+         届く）。失敗してもローカル側の後片付けは呼び出し側で進める。 */
+      function netLeaveRoom(){
+        if(!netPrReady()){ prLeavePromise = null; return; }
+        var done = null;
+        try{
+          var me = window.Playroom.myPlayer();
+          if(me && typeof me.leaveRoom === "function"){
+            var p = me.leaveRoom();
+            if(p && typeof p.catch === "function") done = p.catch(function(){});
           }
-          rec.up = false;
-        });
-        Net.peerId = "";
-        Net.pubTopic = ""; Net.subTopic = ""; Net.presTopic = ""; Net.presPeerTopic = "";
+        }catch(e){}
+        prLeavePromise = done;
       }
       function netTeardown(msg, isErr){
         waitHide();
@@ -2887,8 +2880,9 @@
         Net.autoRetries = 0;
         Net.session++;
         Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.mode="";
-        netDestroyTransport();
-        netDiag.brk = "0/" + MQTT_BROKERS.length + "件"; netDiag.peer = "接続待ち"; netDiagUpdate();
+        netLeaveRoom();
+        prPlayerIds = {};
+        netDiag.room = "入室待ち"; netDiag.peer = "参加待ち"; netDiagUpdate();
         var cb=$("netCodeBox"); if(cb) cb.classList.remove("show");
         netUpdateBar(); applyOnlineLocks();
         if(msg) netSetStatus(msg, !!isErr);
@@ -2949,32 +2943,11 @@
           default: return null;
         }
       }
-      /* 複数ブローカー経由で同じメッセージが複数回届くため、受信済みIDを
-         覚えておいて重複を捨てる（保持は直近分だけに制限する）。 */
-      function netSeenBefore(id){
-        if(Net.seen[id]) return true;
-        Net.seen[id] = 1;
-        Net.seenList.push(id);
-        if(Net.seenList.length > 400){
-          var old = Net.seenList.splice(0, 200);
-          for(var i = 0; i < old.length; i++) delete Net.seen[old[i]];
-        }
-        return false;
-      }
-      function netPayloadText(payload){
-        if(!payload) return "";
-        if(typeof payload === "string") return payload;
-        if(typeof TextDecoder !== "undefined"){
-          try{ return new TextDecoder("utf-8").decode(payload); }catch(e){}
-        }
-        try{ return payload.toString(); }catch(e){ return ""; }
-      }
-      /* 参加→歓迎のハンドシェイクが成立した瞬間の共通処理。
-         ここで初めて「接続完了」として表示とレイアウトを切り替える。 */
+      /* 2人そろった瞬間の共通処理。ここで初めて「接続完了」として
+         表示とレイアウトを切り替える。 */
       function netMarkConnected(){
         if(Net.connected) return;
         Net.connected = true; Net.connecting = false;
-        Net.lastPeerAt = Date.now();
         netDiag.peer = "接続完了"; netDiagUpdate();
         Net.autoRetries = 0;
         waitHide();
@@ -2983,165 +2956,135 @@
         if(Net.isHost) netSetStatus("相手がつながりました！ 下のゲームを選ぶと、相手の画面も同じゲームに進みます。");
         else netSetStatus("部屋につながりました！ ゲームを選ぶと相手と一緒に遊べます。");
       }
-      /* 入る側の「参加」。作る側が受け取って「歓迎」を返すまで、
-         一定間隔で送り直す（tick・ブローカー接続時・画面復帰時から呼ばれる）。 */
-      function netSendJoin(){
-        if(Net.isHost || !Net.connecting || Net.connected) return;
-        Net.lastJoinAt = Date.now();
-        netDiag.peer = "参加を送信中"; netDiagUpdate();
-        netWireSend({ t: "__join", from: Net.myId });
+      /* 参加状況の数え直し。onPlayerJoin のたびと、入室直後に呼ぶ。
+         onPlayerJoin は登録時点で部屋にいる全員分も呼ばれるため、
+         prPlayerIds の数だけで「2人そろったか」を判定できる。 */
+      function netRefreshPlayers(){
+        if(!Net.connecting && !Net.connected) return;
+        var n = Object.keys(prPlayerIds).length;
+        if(n >= 2){ netMarkConnected(); return; }
+        if(Net.connecting){ netDiag.peer = "参加待ち（" + n + "/2人）"; netDiagUpdate(); }
       }
-      function netOnJoin(m){
-        if(!Net.isHost || typeof m.from !== "string" || !m.from) return;
-        if(Net.connected){
-          /* 接続済みの相手が参加を送り直してきたら（歓迎を取りこぼした等）、
-             歓迎を返し直す。別人の参加は2人専用なので受け付けない。 */
-          if(m.from === Net.peerId) netWireSend({ t: "__welcome", from: Net.myId, to: m.from });
-          return;
-        }
-        if(!Net.connecting) return;
-        Net.peerId = m.from;
-        netMarkConnected();
-        netWireSend({ t: "__welcome", from: Net.myId, to: m.from });
-      }
-      function netOnWelcome(m){
-        if(Net.isHost || typeof m.from !== "string" || !m.from) return;
-        if(m.to !== Net.myId) return; /* 自分宛の歓迎だけを受け付ける */
-        if(Net.connected) return;
-        Net.peerId = m.from;
-        netMarkConnected();
-        netSend({ t: "hello" });
-      }
-      /* 相手のプレゼンス（在席表示）。retained で配られるので、購読した
-         瞬間に相手の現在状態が分かる。on:0 は相手の Last Will か、
-         正常終了時の不在通知で、接続中なら切断として扱う。 */
-      function netOnPresence(str){
-        var p = null;
-        try{ p = JSON.parse(str); }catch(e){}
-        if(!p) return;
-        if(p.on){
-          Net.lastPeerAt = Date.now();
-          /* 作る側がいることが分かったら、入る側はすぐ参加を送る */
-          if(!Net.isHost && Net.connecting && !Net.connected) netSendJoin();
-        } else if(Net.connected){
+      /* 相手の退出（onQuit）。自分自身の退出は netTeardown 側で処理済み
+         なので無視し、相手の退出だけ既存の切断処理につなぐ。 */
+      function netOnPeerQuit(player){
+        if(!player || !player.id) return;
+        delete prPlayerIds[player.id];
+        var mine = false;
+        try{ var me = window.Playroom.myPlayer(); mine = !!me && me.id === player.id; }catch(e){}
+        if(mine) return;
+        if(Net.connected || Net.connecting){
           netTeardown("相手との接続が切れました。1台で遊ぶモードに戻りました。", true);
         }
       }
-      function netOnMessage(topic, payload){
-        if(topic === Net.presPeerTopic){ netOnPresence(netPayloadText(payload)); return; }
-        if(topic !== Net.subTopic) return;
-        var env = null;
-        try{ env = JSON.parse(netPayloadText(payload)); }catch(e){}
-        if(!env || typeof env.id !== "string" || !env.m || typeof env.m !== "object") return;
-        if(Net.myId && env.id.indexOf(Net.myId + ":") === 0) return; /* 自分の送信の回り込みは無視 */
-        if(netSeenBefore(env.id)) return; /* 複数ブローカー経由の重複を除く */
-        Net.lastPeerAt = Date.now();
-        var m = env.m;
-        if(m.t === "__hb") return; /* ハートビートは生存確認だけに使う */
-        if(m.t === "__join"){ netOnJoin(m); return; }
-        if(m.t === "__welcome"){ netOnWelcome(m); return; }
-        if(!Net.connected) return; /* ハンドシェイク前のゲームデータは捨てる */
-        var clean = netSanitize(m);
-        if(clean && NetH[clean.t]) NetH[clean.t](clean);
-      }
-      /* ブローカー1件分の接続。接続できたら購読とプレゼンスの公開を行い、
-         切れたら MQTT.js の自動再接続に任せる（再接続時にも connect が
-         発火して購読し直す）。Last Will にはプレゼンスの「不在」を登録し、
-         異常終了した側の不在が相手へ自動で届くようにする。 */
-      function netConnectBroker(url, sid){
-        var rec = { client: null, up: false, dead: false };
-        var client;
-        try{
-          client = window.mqtt.connect(url, {
-            clientId: "sukima-" + Net.myId + "-" + Math.random().toString(36).slice(2, 8),
-            clean: true,
-            keepalive: 30,
-            connectTimeout: 8000,
-            reconnectPeriod: 3000,
-            will: { topic: Net.presTopic, payload: JSON.stringify({ on: 0 }), qos: 1, retain: true }
-          });
-        }catch(e){ return rec; }
-        rec.client = client;
-        client.on("connect", function(){
-          if(rec.dead || Net.session !== sid) return;
-          rec.up = true;
-          netDiagBrokers();
-          try{
-            client.subscribe([Net.subTopic, Net.presPeerTopic], { qos: 1 });
-            client.publish(Net.presTopic, JSON.stringify({ on: 1 }), { qos: 1, retain: true });
-          }catch(e){}
-          /* 入る側は、ブローカーにつながったタイミングでも参加を送る */
-          if(!Net.isHost && Net.connecting && !Net.connected) netSendJoin();
-        });
-        client.on("message", function(topic, payload){
-          if(rec.dead || Net.session !== sid) return;
-          netOnMessage(topic, payload);
-        });
-        client.on("close", function(){
-          if(rec.dead) return;
-          rec.up = false;
-          netDiagBrokers();
-        });
-        client.on("error", function(){});
-        return rec;
-      }
-      /* トピックを組み立てて、全ブローカーへの接続を開始する。
-         トピックはアプリ固有の接頭辞＋コード＋方向で、コードだけでは
-         推測しにくい形にしてある。 */
-      function netStartTransport(){
-        var sid = Net.session;
-        Net.myId = "p" + Math.random().toString(36).slice(2, 12);
-        Net.peerId = "";
-        Net.msgSeq = 0; Net.seen = {}; Net.seenList = [];
-        Net.lastPeerAt = 0;
-        Net.pubTopic = MQTT_TOPIC_PREFIX + Net.code + (Net.isHost ? "/h2g" : "/g2h");
-        Net.subTopic = MQTT_TOPIC_PREFIX + Net.code + (Net.isHost ? "/g2h" : "/h2g");
-        Net.presTopic = MQTT_TOPIC_PREFIX + Net.code + "/pres/" + (Net.isHost ? "h" : "g");
-        Net.presPeerTopic = MQTT_TOPIC_PREFIX + Net.code + "/pres/" + (Net.isHost ? "g" : "h");
-        Net.clients = [];
-        MQTT_BROKERS.forEach(function(url){ Net.clients.push(netConnectBroker(url, sid)); });
-        netDiagBrokers();
-        netStartTick();
-      }
-      /* 接続まわりの定期処理（2秒ごと）。ゲーム画面への移動で止まらない
-         よう専用タイマーで管理し、teardown で止める。
-         - 入る側：接続が成立するまで「参加」を送り直す
-         - 接続中：ハートビートを送り、相手からの音信（何らかのメッセージ）
-           が途絶えたら切断として扱う */
-      function netStartTick(){
-        if(Net.tickTimer) return;
-        Net.tickTimer = setInterval(function(){
-          if(Net.connected){
-            netWireSend({ t: "__hb" });
-            if(Net.lastPeerAt && Date.now() - Net.lastPeerAt > 15000){
-              netTeardown("相手との接続が切れました。1台で遊ぶモードに戻りました。", true);
-            }
-          } else if(Net.connecting && !Net.isHost){
-            netSendJoin();
+      /* Playroom のイベント購読はページ内で1回だけ行う（部屋を出入り
+         しても購読は生き続け、セッション番号で古い部屋の通知を捨てる）。 */
+      var prHooksReady = false;
+      function netSetupHooks(){
+        if(prHooksReady || !netPrReady()) return;
+        prHooksReady = true;
+        var PR = window.Playroom;
+        PR.onPlayerJoin(function(player){
+          if(!player || !player.id) return;
+          if(!prPlayerIds[player.id]){
+            prPlayerIds[player.id] = 1;
+            try{ player.onQuit(function(){ netOnPeerQuit(player); }); }catch(e){}
           }
-        }, 2000);
+          netRefreshPlayers();
+        });
+        PR.onDisconnect(function(){
+          if(Net.connected || Net.connecting){
+            netTeardown("接続が切れました。1台で遊ぶモードに戻りました。", true);
+          }
+        });
       }
-      /* ライブラリの読み込み（先読み済みなら即完了）とブローカー接続の開始。
+      /* Playroom はURLの #r= パラメータを roomCode オプションより優先する。
+         前の部屋の #r= が残っていると作り直し・入り直しが前の部屋に
+         引っ張られるため、insertCoin の前に取り除く。 */
+      function netClearRoomHash(){
+        try{ history.replaceState(null, "", location.pathname + location.search); }
+        catch(e){ try{ location.hash = ""; }catch(e2){} }
+      }
+      /* 入る側の「部屋が存在しない」判定。存在しないコードで入ると
+         Playroom はそのコードの部屋を新規作成して自分がホストになる。
+         入室後しばらくしても自分1人でホストのままなら、そのコードの
+         部屋はなかったものとして案内する。 */
+      function netCheckJoinRoom(sid){
+        later(function(){
+          if(Net.session !== sid || Net.connected || !Net.connecting) return;
+          if(Net.mode !== "join") return;
+          if(Net.isHost && Object.keys(prPlayerIds).length <= 1){
+            netTeardown("そのコードの部屋が見つかりませんでした。コードが合っているか、相手が部屋を作っているか確認してね。", true);
+          }
+        }, 3000);
+      }
+      /* SDKの読み込み→購読の用意→insertCoin、までを進める。
          失敗したら待機パネルに状態を出し、「再接続する」ボタンを出す。 */
-      function netConnectAndJoin(){
+      function netStartSession(){
         var sid = Net.session;
-        Net.lastJoinAt = Date.now();
-        netDiag.lib = netMqttReady(); netDiagUpdate();
-        netLoadMqtt().then(function(){
-          if(!Net.connecting || Net.session !== sid) return; /* その間に切断・やり直し済み */
+        netDiag.lib = netPrReady(); netDiagUpdate();
+        var pre = prLeavePromise;
+        prLeavePromise = null;
+        Promise.resolve(pre).then(function(){
+          if(!Net.connecting || Net.session !== sid) return undefined;
+          return netLoadSdk();
+        }).then(function(){
+          if(!Net.connecting || Net.session !== sid) return undefined;
           netDiag.lib = true; netDiagUpdate();
-          netStartTransport();
-        }).catch(function(){
+          netSetupRpc();
+          netSetupHooks();
+          netClearRoomHash();
+          waitStepTo(Net.mode === "join" ? "部屋に入っています" : "部屋を作っています");
+          var opts = { skipLobby: true, maxPlayersPerRoom: 2 };
+          if(Net.mode === "join") opts.roomCode = Net.code;
+          return window.Playroom.insertCoin(opts);
+        }).then(function(){
+          if(typeof window.Playroom !== "object" || !window.Playroom) return;
+          if(Net.session !== sid){
+            /* その間に切断・やり直し済み。新しい接続が進行中でなければ、
+               入ってしまった部屋から出ておく（幽霊参加の防止） */
+            if(!(Net.connecting || Net.connected)) netLeaveRoom();
+            return;
+          }
+          if(!Net.connecting){ netLeaveRoom(); return; }
+          if(!Net.mode) return;
+          /* 入室完了。ホスト判定は isHost()、コードは getRoomCode() で確定する */
+          Net.isHost = !!window.Playroom.isHost();
+          Net.myPlayer = Net.isHost ? 1 : 2;
+          var rc = "";
+          try{ rc = window.Playroom.getRoomCode() || ""; }catch(e){}
+          if(rc) Net.code = String(rc).toUpperCase();
+          netDiag.room = "入室済み"; netDiagUpdate();
+          if(Net.mode === "create"){
+            $("netCodeText").textContent = Net.code;
+            $("netCodeBox").classList.add("show");
+            netSetStatus("部屋を作りました。コードを相手に伝えて、入ってくるのを待っています…");
+            waitStepTo("相手の参加を待っています");
+          } else {
+            netSetStatus("部屋に入りました。相手とつながるのを待っています…");
+            waitStepTo("相手の参加を待っています");
+            netCheckJoinRoom(sid);
+          }
+          netUpdateBar();
+          netRefreshPlayers();
+        }).catch(function(err){
           if(!Net.connecting || Net.session !== sid) return;
-          waitStepTo("読み込みに失敗しました");
-          netSetStatus("オンライン接続の読み込みに失敗しました。通信環境を確認して、「再接続する」を押してみてね。", true);
+          if(err && String((err && err.message) || err).indexOf("ROOM_LIMIT_EXCEEDED") >= 0){
+            Net.session++;
+            Net.connecting = false; Net.mode = "";
+            waitHide();
+            netUpdateBar();
+            netSetStatus("その部屋は満員でした。コードが合っているか確認してね。", true);
+            return;
+          }
+          waitStepTo("接続に失敗しました");
+          netSetStatus("オンライン接続に失敗しました。通信環境を確認して、「再接続する」を押してみてね。", true);
           netShowRetry(true);
         });
       }
-      /* 相手がなかなか来ない／見つからないときの案内＋再接続ボタン。
-         作る側はトピックを購読したまま待ち続ける（接続し直すと相手と
-         行き違う原因になる）ので、ここでは案内を出すだけ。入る側は
-         tick が「参加」を送り直し続けている。 */
+      /* 相手がなかなか来ないときの案内＋再接続ボタン。作る側は部屋に
+         入ったまま待ち続ける（接続し直すと相手と行き違う原因になる）
+         ので、ここでは案内を出すだけ。 */
       function netArmWaitTimeout(){
         var sid = Net.session;
         later(function(){
@@ -3155,74 +3098,64 @@
           netShowRetry(true);
         }, 45000);
       }
-      /* 待ち中に画面が裏へ回ると、ブラウザにタイマーが止められて参加の
-         送り直しが止まることがある。画面に戻ってきたら、その場で
-         ハートビート／参加を送り直す。 */
-      document.addEventListener("visibilitychange", function(){
-        if(document.visibilityState !== "visible") return;
-        if(Net.connected) netWireSend({ t: "__hb" });
-        else if(Net.connecting && !Net.isHost) netSendJoin();
-      });
       function netCreateRoom(){
-        if(Net.connecting || Net.connected || Net.clients.length) netTeardown();
+        if(Net.connecting || Net.connected) netTeardown();
         netShowRetry(false);
         Net.autoRetries = 0;
         Net.mode = "create";
         Net.session++;
-        Net.code = netGenCode();
+        Net.code = "";
         Net.isHost = true; Net.myPlayer = 1; Net.connecting = true;
-        netDiag.brk = "0/" + MQTT_BROKERS.length + "件"; netDiag.peer = "接続待ち"; netDiagUpdate();
-        /* コードは接続の完了を待たずにすぐ表示する（接続処理は裏で並行して進む） */
-        $("netCodeText").textContent = Net.code;
-        $("netCodeBox").classList.add("show");
-        netSetStatus("部屋を作りました。コードを相手に伝えて、入ってくるのを待っています…");
-        waitShow("相手の参加を待っています");
+        prPlayerIds = {};
+        netDiag.room = "入室待ち"; netDiag.peer = "参加待ち"; netDiagUpdate();
+        netSetStatus("部屋を作っています…");
+        waitShow("接続を読み込んでいます");
         netUpdateBar();
-        netConnectAndJoin();
+        netStartSession();
         netArmWaitTimeout();
       }
       function netJoinRoom(){
-        var code = ($("netCodeInput").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
-        if(code.length !== 6){ netSetStatus("コードは6文字で入力してね。", true); $("netCodeInput").focus(); return; }
-        if(Net.connecting || Net.connected || Net.clients.length) netTeardown();
+        var code = ($("netCodeInput").value || "").trim().toUpperCase().replace(/[^A-Z]/g, "");
+        if(code.length !== 4){ netSetStatus("コードは4文字の英字で入力してね。", true); $("netCodeInput").focus(); return; }
+        if(Net.connecting || Net.connected) netTeardown();
         netShowRetry(false);
         Net.autoRetries = 0;
         Net.mode = "join";
         Net.session++;
         Net.code = code;
         Net.isHost = false; Net.myPlayer = 2; Net.connecting = true;
-        netDiag.brk = "0/" + MQTT_BROKERS.length + "件"; netDiag.peer = "接続待ち"; netDiagUpdate();
+        prPlayerIds = {};
+        netDiag.room = "入室待ち"; netDiag.peer = "参加待ち"; netDiagUpdate();
         netSetStatus("部屋を探して接続しています…");
         waitShow("相手を探しています");
         netUpdateBar();
-        netConnectAndJoin();
+        netStartSession();
         netArmWaitTimeout();
       }
-      /* 「再接続する」：切断ではなく、同じコード・同じ役割のまま
-         ブローカーへの接続からやり直す。 */
+      /* 「再接続する」：切断ではなく、同じ役割のまま入室からやり直す。
+         作る側は新しい部屋になるため、コードも新しいものに差し替わる。 */
       function netRetryConnect(){
         var mode = Net.mode, code = Net.code;
-        if(!mode || !code) return;
+        if(!mode) return;
         netShowRetry(false);
-        netDestroyTransport();
+        netLeaveRoom();
         Net.session++;
         Net.autoRetries = 0;
         Net.connected = false; Net.connecting = true;
-        Net.code = code;
-        netDiag.brk = "0/" + MQTT_BROKERS.length + "件"; netDiag.peer = "接続待ち"; netDiagUpdate();
+        prPlayerIds = {};
+        netDiag.room = "入室待ち"; netDiag.peer = "参加待ち"; netDiagUpdate();
         if(mode === "create"){
-          Net.isHost = true; Net.myPlayer = 1;
-          $("netCodeText").textContent = Net.code;
-          $("netCodeBox").classList.add("show");
-          netSetStatus("再接続しています。コードを相手に伝えて、入ってくるのを待っています…");
-          waitShow("相手の参加を待っています");
+          Net.isHost = true; Net.myPlayer = 1; Net.code = "";
+          var cb=$("netCodeBox"); if(cb) cb.classList.remove("show");
+          netSetStatus("再接続しています。新しい部屋を作ります…");
+          waitShow("部屋を作り直しています");
         } else {
-          Net.isHost = false; Net.myPlayer = 2;
+          Net.isHost = false; Net.myPlayer = 2; Net.code = code;
           netSetStatus("再接続しています。部屋を探しています…");
           waitShow("相手を探しています");
         }
         netUpdateBar();
-        netConnectAndJoin();
+        netStartSession();
         netArmWaitTimeout();
       }
 
@@ -6609,7 +6542,7 @@
       $("netCodeInput").addEventListener("keydown", function(e){ if(netEnterKey(e)) netJoinRoom(); });
       $("netCopy").addEventListener("click", function(){
         var msg = $("netCopyMsg");
-        /* コピーするのは6文字のコードだけ（案内文やサイト名は付けない） */
+        /* コピーするのはコードだけ（案内文やサイト名は付けない） */
         var text = Net.code || "";
         if(!text){ msg.textContent = "コードがまだありません。"; return; }
         if(navigator.clipboard && navigator.clipboard.writeText){
@@ -6628,14 +6561,13 @@
          (1) オンライン欄をタップ／操作したとき（そのまま接続操作へ進める）、
          (2) ページ表示から15秒以上たって端末が暇なとき（requestIdleCallback）、
          のどちらか早い方。先読みが間に合わなくても、ボタンを押したときに
-         その場で読み込むので接続はそのまま行える。接続自体の速さはCDNの
-         優先順とコード即時表示で維持する。 */
+         その場で読み込むので接続はそのまま行える。 */
       (function(){
         var preStarted = false;
         function netPreload(){
           if(preStarted) return;
           preStarted = true;
-          netLoadMqtt().catch(function(){});
+          netLoadSdk().catch(function(){});
         }
         var card = document.querySelector(".online-card");
         if(card){
