@@ -1523,7 +1523,7 @@
             <li>出てきた<b>6文字のコード</b>を相手に伝える</li>
             <li><b>相手</b>が「コードで入る」からコードを入力すれば接続完了！</li>
           </ol>
-          <p class="net-note">ゲームの内容は2台のスマホの間を暗号化してやり取りします（WebRTC）。相手探しには公開ブローカー（MQTT）を使い、回線の相性で直接つながらないときは中継サーバーを通りますが、内容は暗号化されていて中継側では読めません。アカウント登録は不要です。接続まで数十秒かかることがあります。</p>
+          <p class="net-note">ゲームの内容は2台のスマホの間を暗号化してやり取りします（WebRTC）。相手との接続には PeerJS の公開サーバー（PeerJS Cloud）で相手を見つけ、回線の相性で直接つながらないときは中継サーバーを通りますが、内容は暗号化されていて中継側では読めません。アカウント登録は不要です。接続まで少し時間がかかることがあります。</p>
           <button class="btn-p1 net-big-btn" id="netCreate">部屋を作る（コード発行）</button>
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
           <div class="net-join" id="netJoinRow" style="display:none;">
@@ -1546,9 +1546,8 @@
             <div class="wait-sub">初回は30秒ほどかかることがあります。そのまま待っててね</div>
             <div class="wait-diag" aria-label="接続の診断">
               <div>ライブラリ：<span id="diagLib">読み込み中</span></div>
-              <div>ブローカー接続：<span id="diagBroker">—</span></div>
-              <div>相手の合図：<span id="diagSignal">まだ</span></div>
-              <div>直接接続（WebRTC）：<span id="diagRtc">接続待ち</span></div>
+              <div>サーバー登録：<span id="diagReg">まだ</span></div>
+              <div>相手との接続：<span id="diagRtc">接続待ち</span></div>
             </div>
           </div>
           <div class="net-status" id="netStatus">オンラインで遊べます。下のボタンで部屋を作るか、コードで入ってください（部屋に入るまでは1台モードの表示です）</div>
@@ -2697,49 +2696,41 @@
         return '<span class="mark" aria-hidden="true">' + (t === "bandage" ? MARK2 : MARK1) + '</span>';
       }
 
-      /* ---------- Online (Trystero / WebRTC P2P, MQTT signalling) ----------
-         Safety-checked choice: Trystero is MIT-licensed and actively maintained.
+      /* ---------- Online (PeerJS / WebRTC P2P, PeerJS Cloud signalling) ----------
          Game data travels directly between the two browsers over an encrypted
-         WebRTC data channel; public MQTT brokers are used only to introduce the
-         two peers. No account, no API key, no game data on any server. Rooms are
-         joined with a 6-char code only: the encryption password Trystero needs
-         is derived from the code internally (same code -> same value on both
-         sides), so the user never types or shares a password. To keep page
-         startup light, the library is NOT loaded at page open: loading is
-         deferred until the user first touches the online card, or until the
-         page has been shown for 15s and the device is idle. The fast CDN
-         order above keeps the actual connect quick either way. */
-      var TRYSTERO_APP_ID = "futari-minigame-katupuru-2026";
+         WebRTC data channel. PeerJS Cloud (0.peerjs.com, the public signalling
+         server run by the PeerJS project) is used only to introduce the two
+         peers: the host registers the ID "sukima-" + 6-char code, and the
+         guest connects to that ID directly. No account, no API key, no game
+         data on any server. Users only ever handle the 6-char code.
+         Why PeerJS: the previous discovery layers (Trystero over public Nostr
+         relays, then over public MQTT brokers) repeatedly failed to discover
+         the other peer at all in practice — both sides sat at "1/5 brokers"
+         and no handshake ever arrived. A single well-known signalling server
+         removes the "must share a live relay/broker" failure mode entirely.
+         The library is a classic script loaded from CDN (multiple candidates,
+         tried in order with a timeout). To keep page startup light it is NOT
+         loaded at page open: loading is deferred until the user first touches
+         the online card, or until the page has been shown for 15s and the
+         device is idle. The host shows its code immediately, before the
+         library finishes loading, so the perceived wait stays near zero. */
+      var PEERJS_ID_PREFIX = "sukima-";
       /* 応答の速いCDNから順に試す。1か所が遅い・落ちていても、タイムアウトで
          次の候補へ切り替えるので、遅いCDNに当たって待たされ続けない。 */
-      var TRYSTERO_CDNS = [
-        "https://cdn.jsdelivr.net/npm/@trystero-p2p/mqtt@0.25.4/+esm",
-        "https://esm.sh/@trystero-p2p/mqtt@0.25.4",
-        "https://esm.run/@trystero-p2p/mqtt@0.25.4",
-        "https://unpkg.com/@trystero-p2p/mqtt@0.25.4?module"
+      var PEERJS_CDNS = [
+        "https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js",
+        "https://unpkg.com/peerjs@1.5.5/dist/peerjs.min.js",
+        "https://cdnjs.cloudflare.com/ajax/libs/peerjs/1.5.5/peerjs.min.js"
       ];
-      /* 相手探しに使う公開MQTTブローカー。以前の Nostr リレー方式は、
-         リレーの不安定さで発見に失敗し続けた（同じブラウザの2タブでも
-         お互いを見つけられない実測が続いた）ため、接続が安定していて
-         発見が速い MQTT 方式（Trystero の mqtt 戦略）に切り替えた。
-         relayConfig.urls に指定した全ブローカーへ両側とも接続するので、
-         「共通の生きているブローカー」を必ず持てる。並びはライブラリ
-         既定の公開ブローカー（実績のある顔ぶれ）を明示したもの。 */
-      var TRYSTERO_BROKERS = [
-        "wss://broker.emqx.io:8084/mqtt",
-        "wss://test.mosquitto.org:8081/mqtt",
-        "wss://broker.hivemq.com:8884/mqtt",
-        "wss://broker-cn.emqx.io:8084/mqtt",
-        "wss://public:public@public.cloud.shiftr.io"
-      ];
-      /* 中継（TURN）サーバー。Trystero 0.25 の既定は STUN だけで TURN が
-         入っていないため、直接つながらない回線同士（携帯キャリアの回線、
-         iPhone の Safari、自宅 Wi-Fi の相性など）では相手が見つかっても
-         接続エラーになっていた。直接つながらないときだけ、暗号化された
-         ゲームデータをこの公開 TURN が中継する（中継側は内容を読めない）。
+      /* 中継（TURN）サーバー。直接つながらない回線同士（携帯キャリアの回線、
+         iPhone の Safari、自宅 Wi-Fi の相性など）では、相手が見つかっても
+         接続エラーになるため、直接つながらないときだけ暗号化されたゲーム
+         データをこの公開 TURN が中継する（中継側は内容を読めない）。
          freeturn.net は登録不要の公開 TURN（free / free）。
          openrelay.metered.ca は Open Relay Project の公開 TURN。 */
-      var TRYSTERO_TURN_SERVERS = [
+      var PEERJS_ICE_SERVERS = [
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun1.l.google.com:19302" },
         { urls: "turn:freeturn.net:3478", username: "free", credential: "free" },
         { urls: "turn:freeturn.net:3478?transport=tcp", username: "free", credential: "free" },
         { urls: "turns:freeturn.net:5349", username: "free", credential: "free" },
@@ -2747,88 +2738,64 @@
         { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
         { urls: "turns:openrelay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" }
       ];
-      var trysteroJoinRoom = null;
-      var trysteroGetSockets = null;
-      var trysteroLoading = null;
-      function netImportWithTimeout(url, ms){
-        return Promise.race([
-          import(url),
-          new Promise(function(_, reject){ setTimeout(function(){ reject(new Error("cdn timeout")); }, ms); })
-        ]);
+      function netPeerOptions(){
+        return {
+          host: "0.peerjs.com", port: 443, path: "/", secure: true, debug: 0,
+          config: { iceServers: PEERJS_ICE_SERVERS }
+        };
       }
-      function netLoadTrystero(){
-        if(trysteroJoinRoom) return Promise.resolve(trysteroJoinRoom);
-        if(trysteroLoading) return trysteroLoading;
-        var chain = Promise.reject(new Error("start"));
-        TRYSTERO_CDNS.forEach(function(url){
-          chain = chain.catch(function(){ return netImportWithTimeout(url, 9000); });
+      var peerJsLoading = null;
+      function netScriptWithTimeout(url, ms){
+        return new Promise(function(resolve, reject){
+          if(typeof window.Peer === "function"){ resolve(); return; }
+          var s = document.createElement("script");
+          var done = false;
+          var timer = setTimeout(function(){ fail(new Error("cdn timeout")); }, ms);
+          function ok(){ if(done) return; done = true; clearTimeout(timer); resolve(); }
+          function fail(err){ if(done) return; done = true; clearTimeout(timer); try{ s.remove(); }catch(e){} reject(err); }
+          s.src = url; s.async = true;
+          s.onload = function(){ if(typeof window.Peer === "function") ok(); else fail(new Error("bad script")); };
+          s.onerror = function(){ fail(new Error("cdn error")); };
+          document.head.appendChild(s);
         });
-        trysteroLoading = chain.then(function(mod){
-          if(!mod || typeof mod.joinRoom !== "function") throw new Error("bad module");
-          trysteroJoinRoom = mod.joinRoom;
-          trysteroGetSockets = (typeof mod.getRelaySockets === "function") ? mod.getRelaySockets : null;
-          trysteroLoading = null;
-          return trysteroJoinRoom;
+      }
+      function netLoadPeerJs(){
+        if(typeof window.Peer === "function") return Promise.resolve();
+        if(peerJsLoading) return peerJsLoading;
+        var chain = Promise.reject(new Error("start"));
+        PEERJS_CDNS.forEach(function(url){
+          chain = chain.catch(function(){ return netScriptWithTimeout(url, 9000); });
+        });
+        peerJsLoading = chain.then(function(){
+          peerJsLoading = null;
         }).catch(function(err){
-          trysteroLoading = null;
+          peerJsLoading = null;
           throw err;
         });
-        return trysteroLoading;
+        return peerJsLoading;
       }
-      /* ユーザーが触るのは6文字のコードだけ。暗号化に必要なパスワードは
-         コードから自動で決まる文字列を内部的に使う（作る側・入る側で
-         同じコードから同じ値になる）。 */
-      function netRoomPassword(code){ return "sukima-room-" + code; }
-      var Net = { room:null, action:null, sendFn:null, isHost:false, myPlayer:0, code:"", password:"", connected:false, connecting:false, peerId:null, mode:"", session:0, autoRetries:0, discoveryRetries:0, lastJoinAt:0 };
+      var Net = { peer:null, conn:null, isHost:false, myPlayer:0, code:"", connected:false, connecting:false, mode:"", session:0, autoRetries:0, codeRegens:0, lastJoinAt:0 };
       var NetH = {};
       function netSend(obj){
-        if(!Net.connected || !Net.sendFn) return;
-        try{ Net.sendFn(obj); }catch(e){}
+        if(!Net.connected || !Net.conn) return;
+        try{ if(Net.conn.open) Net.conn.send(obj); }catch(e){}
       }
       function netSetStatus(msg, isErr){ var el=$("netStatus"); if(el){ el.textContent=msg; el.className="net-status"+(isErr?" err":""); } }
       function netShowRetry(show){ var b=$("netRetry"); if(b) b.className = "net-retry" + (show ? " show" : ""); }
       /* ---------- 接続の診断表示（待機パネル内） ----------
          実機で失敗したときに「どの段階で止まっているか」を切り分けるための
-         表示。ブローカー接続数は Trystero の getRelaySockets（MQTTクライ
-         アント一覧）から数える。相手の合図は onPeerHandshake で検知する。 */
-      var netDiag = { lib:false, signal:false, rtc:"接続待ち" };
-      function netDiagBrokerText(){
-        if(!trysteroGetSockets) return "—";
-        try{
-          var raw = trysteroGetSockets() || [];
-          var socks = Array.isArray(raw) ? raw : Object.keys(raw).map(function(k){ return raw[k]; });
-          var up = 0;
-          for(var i=0;i<socks.length;i++){
-            var s = socks[i]; if(!s) continue;
-            if(s.connected === true || s.readyState === 1 || (s.stream && s.stream.socket && s.stream.socket.readyState === 1)) up++;
-          }
-          return up + " / " + socks.length + " 件";
-        }catch(e){ return "—"; }
-      }
+         表示。サーバー登録は PeerJS Cloud（0.peerjs.com）へ自分のIDを
+         登録できたか、相手との接続はデータ接続が開いたかを示す。 */
+      var netDiag = { lib:false, reg:"まだ", rtc:"接続待ち" };
       function netDiagUpdate(){
-        var a = $("diagLib"), b = $("diagBroker"), c = $("diagSignal"), d = $("diagRtc");
+        var a = $("diagLib"), b = $("diagReg"), d = $("diagRtc");
         if(a) a.textContent = netDiag.lib ? "完了" : "読み込み中";
-        if(b) b.textContent = netDiagBrokerText();
-        if(c) c.textContent = netDiag.signal ? "受け取りました" : "まだ";
+        if(b) b.textContent = netDiag.reg;
         if(d) d.textContent = netDiag.rtc;
-      }
-      /* 部屋の退出を直列化するキュー。Trystero は同じ appId＋部屋ID の部屋を
-         キャッシュして返すため、退出処理が終わる前に joinRoom し直すと
-         「退出中の部屋」が返ってきて、新しい接続が始まらない。再接続や
-         入り直しは、このキューの完了を待ってから joinRoom する。 */
-      var netLeaveChain = Promise.resolve();
-      function netQueueLeave(room){
-        if(!room) return;
-        var p = null;
-        try{ p = room.leave(); }catch(e){}
-        var settled = Promise.resolve(p).catch(function(){});
-        netLeaveChain = netLeaveChain.then(function(){
-          return Promise.race([settled, new Promise(function(res){ setTimeout(res, 1500); })]);
-        });
       }
       /* ---------- オンライン待機パネル（活動リング＋経過秒数＋接続ステップ） ----------
          接続の読み込み中〜相手の参加待ちの間だけオンライン欄に出す。
-         接続が完了（onJoin）または切断（netTeardown）で消える。 */
+         接続が完了（接続 open）または切断（netTeardown）で消える。 */
       var waitUi = { iv:null, t0:0 };
       function waitShow(step){
         var p = $("waitPanel"); if(!p) return;
@@ -2873,15 +2840,21 @@
         var syBtn=$("syncStart"); if(syBtn){ syBtn.textContent = guest ? "ホストのスタート待ち" : "スタート"; }
       }
       function netGenCode(){ var chars="ABCDEFGHJKMNPQRSTUVWXYZ23456789"; var out=""; for(var i=0;i<6;i++) out+=chars.charAt(Math.floor(Math.random()*chars.length)); return out; }
+      function netDestroyPeer(){
+        var conn = Net.conn; Net.conn = null;
+        if(conn){ try{ conn.close(); }catch(e){} }
+        var peer = Net.peer; Net.peer = null;
+        if(peer){ try{ peer.destroy(); }catch(e){} }
+      }
       function netTeardown(msg, isErr){
         waitHide();
         netShowRetry(false);
-        if(netAutoRetryTimer){ clearTimeout(netAutoRetryTimer); netAutoRetryTimer = null; }
-        Net.autoRetries = 0; Net.discoveryRetries = 0;
+        if(netGuestRetryTimer){ clearTimeout(netGuestRetryTimer); netGuestRetryTimer = null; }
+        Net.autoRetries = 0; Net.codeRegens = 0;
         Net.session++;
-        Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.peerId=null; Net.mode="";
-        Net.sendFn=null; Net.action=null;
-        if(Net.room){ netQueueLeave(Net.room); Net.room=null; }
+        Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.mode="";
+        netDestroyPeer();
+        netDiag.reg = "まだ"; netDiag.rtc = "接続待ち"; netDiagUpdate();
         var cb=$("netCodeBox"); if(cb) cb.classList.remove("show");
         netUpdateBar(); applyOnlineLocks();
         if(msg) netSetStatus(msg, !!isErr);
@@ -2942,110 +2915,187 @@
           default: return null;
         }
       }
-      function netSetupRoom(room){
-        Net.room = room;
-        var act = room.makeAction("fmgame");
-        var handler = function(data){
+      /* データ接続に受信・接続完了・切断のハンドラを付ける。作る側は
+         peer の "connection" イベントから、入る側は peer.connect の
+         戻り値からここへ来る。接続が開いた（open）時点で対戦成立とする。 */
+      function netAttachConn(conn, peer){
+        Net.conn = conn;
+        conn.on("data", function(data){
+          if(Net.conn !== conn) return; /* 古い接続からの遅れてきたデータは無視 */
           var clean = netSanitize(data);
           if(clean && NetH[clean.t]) NetH[clean.t](clean);
-        };
-        Net.action = act;
-        if(Object.prototype.toString.call(act) === "[object Array]"){
-          Net.sendFn = act[0];
-          if(typeof act[1] === "function") act[1](handler);
-        } else if(act && typeof act.send === "function"){
-          Net.sendFn = function(d){ return act.send(d); };
-          try{ act.onMessage = function(d){ handler(d); }; }catch(e){}
-        }
-        var onJoin = function(peerId){
-          if(Net.room !== room) return; /* 古い部屋からの遅れてきたイベントは無視 */
-          if(Net.connected){ return; } /* 2人専用：3人目は無視 */
-          Net.peerId = peerId || null;
+        });
+        conn.on("open", function(){
+          if(Net.conn !== conn || Net.peer !== peer) return; /* 古い接続は無視 */
+          if(Net.connected) return;
           Net.connected = true; Net.connecting = false;
-          netDiag.rtc = "接続完了";
-          Net.autoRetries = 0; Net.discoveryRetries = 0;
-          if(netAutoRetryTimer){ clearTimeout(netAutoRetryTimer); netAutoRetryTimer = null; }
+          netDiag.rtc = "接続完了"; netDiagUpdate();
+          Net.autoRetries = 0;
+          if(netGuestRetryTimer){ clearTimeout(netGuestRetryTimer); netGuestRetryTimer = null; }
           waitHide();
           netShowRetry(false);
           netUpdateBar(); applyOnlineLocks();
           if(Net.isHost) netSetStatus("相手がつながりました！ 下のゲームを選ぶと、相手の画面も同じゲームに進みます。");
           else { netSetStatus("部屋につながりました！ ゲームを選ぶと相手と一緒に遊べます。"); netSend({t:"hello"}); }
-        };
-        var onLeave = function(){
-          if(Net.room !== room) return; /* 古い部屋からの遅れてきたイベントは無視 */
-          if(Net.connected || Net.connecting) netTeardown("相手との接続が切れました。1台で遊ぶモードに戻りました。", true);
-        };
-        /* Trystero 0.25 の登録方法はプロパティ代入（room.onPeerJoin = fn）。
-           getter は「前に代入したハンドラ関数」を返すので、それを旧式の
-           登録呼び出しと間違えて実行すると、前回の onLeave がその場で
-           発火して即座に切断されてしまう（再接続ボタンを押すと部屋が
-           消えた不具合の原因）。代入だけを行うこと。 */
-        try{ room.onPeerJoin = onJoin; }catch(e){}
-        try{ room.onPeerLeave = onLeave; }catch(e){}
-      }
-      function netJoinTrysteroRoom(){
-        /* relayConfig.urls に MQTT ブローカーを指定するのが 0.25 の正しい
-           キー（旧キー relayUrls は無視される）。turnConfig で TURN 中継を
-           足し、直接つながらない回線同士でも接続できるようにする。
-           onPeerHandshake は相手の合図（オファー/アンサー）が届いて
-           ハンドシェイクが始まったときに呼ばれる＝診断表示用。 */
-        var config = {
-          appId: TRYSTERO_APP_ID,
-          password: Net.password,
-          relayConfig: { urls: TRYSTERO_BROKERS, redundancy: TRYSTERO_BROKERS.length },
-          turnConfig: TRYSTERO_TURN_SERVERS
-        };
-        netDiag.signal = false; netDiag.rtc = "接続待ち"; netDiagUpdate();
-        var room;
+        });
+        conn.on("close", function(){
+          if(Net.conn !== conn) return; /* 古い接続は無視 */
+          if(Net.connected){
+            netTeardown("相手との接続が切れました。1台で遊ぶモードに戻りました。", true);
+          } else {
+            /* まだ開いていない接続が閉じただけ（入る側の再試行など）：
+               切断扱いにせず、待ち状態のままにする */
+            Net.conn = null;
+            netDiag.rtc = "接続待ち"; netDiagUpdate();
+          }
+        });
         try{
-          room = trysteroJoinRoom(config, "room-" + Net.code, {
-            handshakeTimeoutMs: 20000,
-            onPeerHandshake: function(){ netDiag.signal = true; netDiag.rtc = "合図を交換中"; netDiagUpdate(); },
-            onJoinError: function(info){ netOnJoinError(info); }
+          conn.on("iceStateChanged", function(state){
+            if(Net.conn !== conn || Net.connected) return;
+            if(state === "disconnected" || state === "failed"){ netDiag.rtc = "接続が不安定です"; netDiagUpdate(); }
           });
-        }catch(e){
-          room = trysteroJoinRoom(config, "room-" + Net.code);
-        }
-        netSetupRoom(room);
+        }catch(e){}
       }
-      /* 相手は見つかったのに回線がつながらなかったとき（onJoinError）。
-         エラーになった部屋は同じ相手と再挑戦しない作りなので、部屋を
-         作り直して自動で最大2回まで再挑戦する。それでもダメなら理由を
-         出して手動の「再接続する」ボタンに切り替える。 */
-      var netAutoRetryTimer = null;
-      function netOnJoinError(info){
+      /* 入る側の接続試行。相手のID（sukima-＋コード）へ直接つなぐ。
+         試行が制限時間内に開かなければ閉じて、間隔を空けて再試行する。
+         再試行するのは入る側だけ：作る側はIDを登録したまま待ち続けるので、
+         両側のタイミングがずれ続けても必ずどこかで出会える。 */
+      var netGuestRetryTimer = null;
+      function netGuestConnect(peer, sid){
+        if(Net.peer !== peer || Net.session !== sid || !Net.connecting || Net.connected) return;
+        Net.lastJoinAt = Date.now();
+        var conn;
+        try{ conn = peer.connect(PEERJS_ID_PREFIX + Net.code, { reliable: true }); }
+        catch(e){ netScheduleGuestRetry(peer, sid); return; }
+        if(!conn){ netScheduleGuestRetry(peer, sid); return; }
+        netDiag.rtc = "接続中"; netDiagUpdate();
+        netAttachConn(conn, peer);
+        later(function(){
+          if(Net.peer !== peer || Net.session !== sid || Net.connected || !Net.connecting) return;
+          if(Net.conn === conn && !conn.open){
+            try{ conn.close(); }catch(e){}
+            if(Net.conn === conn) Net.conn = null;
+            netScheduleGuestRetry(peer, sid);
+          }
+        }, 15000);
+      }
+      function netScheduleGuestRetry(peer, sid){
+        if(netGuestRetryTimer) return; /* 同時に複数回スケジュールしない */
         if(!Net.connecting || Net.connected) return;
-        if(netAutoRetryTimer) return; /* 同時に複数回スケジュールしない */
-        if(Net.autoRetries < 2){
-          Net.autoRetries++;
-          netDiag.rtc = "エラー（自動で再挑戦中）"; netDiagUpdate();
-          waitStepTo("中継サーバー経由で再挑戦しています");
-          netSetStatus("相手は見つかりましたが、回線が直接つながりませんでした。中継サーバー経由で自動で再挑戦しています…（" + Net.autoRetries + "回目）", false);
-          var sid = Net.session;
-          netAutoRetryTimer = later(function(){
-            netAutoRetryTimer = null;
-            if(!Net.connecting || Net.connected || Net.session !== sid) return;
-            netRetryConnect();
-          }, 1600);
-        } else {
+        if(Net.autoRetries >= 8){
+          waitStepTo("相手が見つかりません");
+          netSetStatus("まだつながっていません。コードが合っているか、相手が部屋を開いたまま待っているか確認してね。「再接続する」も試せます。", true);
+          netShowRetry(true);
+          return;
+        }
+        Net.autoRetries++;
+        netDiag.rtc = "再試行中（" + Net.autoRetries + "回目）"; netDiagUpdate();
+        waitStepTo("相手を探しています");
+        netGuestRetryTimer = later(function(){
+          netGuestRetryTimer = null;
+          if(Net.peer !== peer || Net.session !== sid || !Net.connecting || Net.connected) return;
+          netGuestConnect(peer, sid);
+        }, 5000);
+      }
+      /* PeerJS のエラーの切り分け。
+         unavailable-id：作る側で同じコードが既に使われていた → 別のコードを
+           自動で発行し直して登録し直す（ユーザーは新しいコードを伝えるだけ）。
+         peer-unavailable：入る側で相手のIDがまだ登録されていない → 間隔を
+           空けて自動で再試行する（相手が部屋を作るのが遅れただけのことが多い）。
+         network / server-error 等：登録まわりの一時的な失敗 → 理由と
+           「再接続する」ボタンを出す。 */
+      function netOnPeerError(type, peer, sid){
+        if(Net.peer !== peer || Net.session !== sid) return;
+        if(type === "unavailable-id"){
+          if(Net.isHost && Net.connecting && !Net.connected){
+            if(Net.codeRegens < 5){
+              Net.codeRegens++;
+              Net.code = netGenCode();
+              $("netCodeText").textContent = Net.code;
+              netUpdateBar();
+              netSetStatus("そのコードはちょうど使われていたので、新しいコードに変えました。このコードを相手に伝えてね。");
+              netDestroyPeer();
+              netStartPeer();
+            } else {
+              netDiag.reg = "登録エラー"; netDiagUpdate();
+              waitStepTo("コードの発行に失敗しました");
+              netSetStatus("コードの発行がうまくいきませんでした。「再接続する」を押してもう一度試してみてね。", true);
+              netShowRetry(true);
+            }
+          }
+          return;
+        }
+        if(type === "peer-unavailable"){
+          if(!Net.isHost && Net.connecting && !Net.connected){
+            if(Net.conn){ try{ Net.conn.close(); }catch(e){} Net.conn = null; }
+            netScheduleGuestRetry(peer, sid);
+          }
+          return;
+        }
+        if(type === "browser-incompatible"){
           netDiag.rtc = "エラー"; netDiagUpdate();
-          waitStepTo("接続でエラーがありました");
-          netSetStatus("接続でエラーがありました。2台とも Wi-Fi とモバイル回線を切り替えてみるか、「再接続する」を押して、もう一度試してみてね。", true);
+          waitStepTo("このブラウザでは接続できません");
+          netSetStatus("このブラウザではオンライン対戦を使えません。別のブラウザで試してみてね。", true);
+          netShowRetry(true);
+          return;
+        }
+        if(Net.connecting && !Net.connected){
+          netDiag.reg = "登録エラー"; netDiag.rtc = "エラー"; netDiagUpdate();
+          waitStepTo("サーバーに接続できませんでした");
+          netSetStatus("接続サーバーにうまくつながりませんでした。通信環境を確認して、「再接続する」を押してみてね。", true);
           netShowRetry(true);
         }
       }
-      /* ライブラリの読み込み（先読み済みなら即完了）と部屋への参加。
+      /* Peer を作って PeerJS Cloud に登録する。作る側は「sukima-＋コード」を
+         自分のIDとして登録し、入ってくる接続を待つ。入る側はIDを自動採番で
+         登録し、登録できたら相手のIDへ接続しに行く。 */
+      function netStartPeer(){
+        var sid = Net.session;
+        var peer;
+        try{
+          peer = Net.isHost ? new Peer(PEERJS_ID_PREFIX + Net.code, netPeerOptions()) : new Peer(netPeerOptions());
+        }catch(e){
+          waitStepTo("読み込みに失敗しました");
+          netSetStatus("オンライン接続の読み込みに失敗しました。通信環境を確認して、「再接続する」を押してみてね。", true);
+          netShowRetry(true);
+          return;
+        }
+        Net.peer = peer;
+        netDiag.reg = "登録中"; netDiagUpdate();
+        peer.on("open", function(){
+          if(Net.peer !== peer || Net.session !== sid) return;
+          netDiag.reg = "登録済み"; netDiagUpdate();
+          if(!Net.isHost) netGuestConnect(peer, sid);
+        });
+        peer.on("connection", function(conn){
+          if(Net.peer !== peer) return;
+          if(!Net.isHost){ try{ conn.close(); }catch(e){} return; }
+          if(Net.connected){ try{ conn.close(); }catch(e){} return; } /* 2人専用：3人目は無視 */
+          if(Net.conn && Net.conn !== conn){ try{ Net.conn.close(); }catch(e){} Net.conn = null; } /* 最新の試行を優先 */
+          netDiag.rtc = "接続中"; netDiagUpdate();
+          netAttachConn(conn, peer);
+        });
+        peer.on("error", function(err){
+          netOnPeerError(err && err.type ? String(err.type) : "", peer, sid);
+        });
+        peer.on("disconnected", function(){
+          if(Net.peer !== peer) return;
+          /* シグナリングとの接続だけが切れた状態。IDの登録はサーバー側に
+             残っているので、同じIDのまま再接続できる */
+          netDiag.reg = "再接続中"; netDiagUpdate();
+          try{ peer.reconnect(); }catch(e){}
+        });
+      }
+      /* ライブラリの読み込み（先読み済みなら即完了）と Peer の登録開始。
          失敗したら待機パネルに状態を出し、「再接続する」ボタンを出す。 */
       function netConnectAndJoin(){
         var sid = Net.session;
         Net.lastJoinAt = Date.now();
-        netDiag.lib = !!trysteroJoinRoom; netDiagUpdate();
-        /* 前の部屋の退出が終わってから入り直す。退出前に joinRoom すると
-           同じ部屋のキャッシュが返ってきて接続が始まらないため。 */
-        netLeaveChain.then(function(){ return netLoadTrystero(); }).then(function(){
+        netDiag.lib = (typeof window.Peer === "function"); netDiagUpdate();
+        netLoadPeerJs().then(function(){
           if(!Net.connecting || Net.session !== sid) return; /* その間に切断・やり直し済み */
           netDiag.lib = true; netDiagUpdate();
-          netJoinTrysteroRoom();
+          netStartPeer();
         }).catch(function(){
           if(!Net.connecting || Net.session !== sid) return;
           waitStepTo("読み込みに失敗しました");
@@ -3053,23 +3103,14 @@
           netShowRetry(true);
         });
       }
-      /* 相手がなかなか見つからないときの案内＋再接続ボタン（試行ごとに張り直す）。
-         発見はリレー経由の一時的な通知（保存されない合図）のやり取りなので、
-         最初の合図が行き違いになると、そのまま待っても永遠に見つからない。
-         そこで最初のタイムアウトでは諦めず、部屋を作り直して合図を
-         出し直す（自動で1回）。それでも見つからなければ案内＋ボタン。 */
+      /* 相手がなかなか来ない／見つからないときの案内＋再接続ボタン。
+         作る側はIDを登録したまま待ち続ける（登録し直すと相手と行き違う
+         原因になる）ので、ここでは案内を出すだけ。入る側は別途、間隔を
+         空けた自動再試行が並行して走っている。 */
       function netArmWaitTimeout(){
         var sid = Net.session;
-        var ms = Net.isHost ? 45000 : 30000;
         later(function(){
           if(Net.connected || !Net.connecting || Net.session !== sid) return;
-          if(Net.discoveryRetries < 1){
-            Net.discoveryRetries++;
-            waitStepTo("探し直しています");
-            netSetStatus(Net.isHost ? "まだ相手が来ていません。合図を出し直して、もう一度探しています…" : "まだ相手が見つかりません。合図を出し直して、もう一度探しています…", false);
-            netRetryConnect();
-            return;
-          }
           if(Net.isHost){
             netSetStatus("まだ相手が来ていません。コードを伝えたか、この画面を開いたまま待っているか確認してね。つながらないときは「再接続する」も試せます。", false);
           } else {
@@ -3077,30 +3118,29 @@
             netSetStatus("まだつながっていません。コードが合っているか、相手が部屋を開いたまま待っているか確認してね。「再接続する」も試せます。", true);
           }
           netShowRetry(true);
-        }, ms);
+        }, 45000);
       }
-      /* 待ち中に画面が裏へ回ると、合図の再送タイマーがブラウザに止められて
-         発見が止まることがある。画面に戻ってきたら、間隔が空いていれば
-         その場で合図を出し直す。 */
+      /* 待ち中に画面が裏へ回ると、ブラウザにタイマーが止められて再試行が
+         止まることがある。画面に戻ってきたら、その場で接続し直す。 */
       document.addEventListener("visibilitychange", function(){
         if(document.visibilityState !== "visible") return;
         if(!Net.connecting || Net.connected) return;
-        if(!Net.mode || !Net.code) return;
-        if(Date.now() - Net.lastJoinAt < 10000) return;
-        if(Net.discoveryRetries >= 3) return;
-        Net.discoveryRetries++;
-        waitStepTo("探し直しています");
-        netRetryConnect();
+        if(Net.peer && Net.peer.disconnected){ try{ Net.peer.reconnect(); }catch(e){} }
+        if(!Net.isHost && Net.peer && !Net.peer.destroyed){
+          if(Date.now() - Net.lastJoinAt < 10000) return;
+          if(Net.conn){ try{ Net.conn.close(); }catch(e){} Net.conn = null; }
+          netGuestConnect(Net.peer, Net.session);
+        }
       });
       function netCreateRoom(){
-        if(Net.room) netTeardown();
+        if(Net.peer || Net.conn) netTeardown();
         netShowRetry(false);
-        Net.autoRetries = 0; Net.discoveryRetries = 0;
+        Net.autoRetries = 0; Net.codeRegens = 0;
         Net.mode = "create";
         Net.session++;
         Net.code = netGenCode();
-        Net.password = netRoomPassword(Net.code);
         Net.isHost = true; Net.myPlayer = 1; Net.connecting = true;
+        netDiag.reg = "登録中"; netDiag.rtc = "接続待ち"; netDiagUpdate();
         /* コードは接続の完了を待たずにすぐ表示する（接続処理は裏で並行して進む） */
         $("netCodeText").textContent = Net.code;
         $("netCodeBox").classList.add("show");
@@ -3113,46 +3153,64 @@
       function netJoinRoom(){
         var code = ($("netCodeInput").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
         if(code.length !== 6){ netSetStatus("コードは6文字で入力してね。", true); $("netCodeInput").focus(); return; }
-        if(Net.room) netTeardown();
+        if(Net.peer || Net.conn) netTeardown();
         netShowRetry(false);
-        Net.autoRetries = 0; Net.discoveryRetries = 0;
+        Net.autoRetries = 0; Net.codeRegens = 0;
         Net.mode = "join";
         Net.session++;
         Net.code = code;
-        Net.password = netRoomPassword(code);
         Net.isHost = false; Net.myPlayer = 2; Net.connecting = true;
+        netDiag.reg = "登録中"; netDiag.rtc = "接続待ち"; netDiagUpdate();
         netSetStatus("部屋を探して接続しています…");
         waitShow("相手を探しています");
         netUpdateBar();
         netConnectAndJoin();
         netArmWaitTimeout();
       }
-      /* 「再接続する」：今の部屋を離れて、同じコードのまま最初から接続をやり直す */
+      /* 「再接続する」：切断ではなく、同じコードのまま接続をやり直す。
+         作る側はIDの登録が生きていればそれを保ったまま待ち直し（登録の
+         やり直しは相手との行き違いの原因になる）、入る側は接続試行を
+         最初からやり直す。登録自体が死んでいるときだけ作り直す。 */
       function netRetryConnect(){
         var mode = Net.mode, code = Net.code;
         if(!mode || !code) return;
-        if(netAutoRetryTimer){ clearTimeout(netAutoRetryTimer); netAutoRetryTimer = null; }
+        if(netGuestRetryTimer){ clearTimeout(netGuestRetryTimer); netGuestRetryTimer = null; }
         netShowRetry(false);
         Net.session++;
-        if(Net.room){ netQueueLeave(Net.room); Net.room = null; }
-        Net.connected = false; Net.connecting = true; Net.peerId = null;
-        Net.sendFn = null; Net.action = null;
+        Net.autoRetries = 0; Net.codeRegens = 0;
+        Net.connected = false; Net.connecting = true;
         Net.code = code;
-        Net.password = netRoomPassword(code);
         if(mode === "create"){
           Net.isHost = true; Net.myPlayer = 1;
           $("netCodeText").textContent = Net.code;
           $("netCodeBox").classList.add("show");
           netSetStatus("再接続しています。コードを相手に伝えて、入ってくるのを待っています…");
           waitShow("相手の参加を待っています");
+          netUpdateBar();
+          if(Net.peer && !Net.peer.destroyed){
+            /* 登録は生きたまま：接続途中の相手がいなければ待ち直すだけ */
+            if(!Net.conn){ netDiag.reg = "登録済み"; netDiag.rtc = "接続待ち"; netDiagUpdate(); }
+            if(Net.peer.disconnected){ try{ Net.peer.reconnect(); }catch(e){} }
+            netArmWaitTimeout();
+          } else {
+            netDestroyPeer();
+            netConnectAndJoin();
+            netArmWaitTimeout();
+          }
         } else {
           Net.isHost = false; Net.myPlayer = 2;
           netSetStatus("再接続しています。部屋を探しています…");
           waitShow("相手を探しています");
+          netUpdateBar();
+          if(Net.conn){ try{ Net.conn.close(); }catch(e){} Net.conn = null; }
+          if(Net.peer && !Net.peer.destroyed && !Net.peer.disconnected){
+            netGuestConnect(Net.peer, Net.session);
+          } else {
+            netDestroyPeer();
+            netConnectAndJoin();
+          }
+          netArmWaitTimeout();
         }
-        netUpdateBar();
-        netConnectAndJoin();
-        netArmWaitTimeout();
       }
 
       /* ---------- records (in-memory for this session) ---------- */
@@ -6545,7 +6603,7 @@
           msg.textContent = "この環境ではコピーできません。コードをそのまま伝えてね。";
         }
       });
-      $("netRetry").addEventListener("click", function(){ Net.autoRetries = 0; Net.discoveryRetries = 0; netRetryConnect(); });
+      $("netRetry").addEventListener("click", function(){ Net.autoRetries = 0; Net.codeRegens = 0; netRetryConnect(); });
       $("netDisconnect").addEventListener("click", function(){
         netSend({t:"bye"});
         netTeardown("接続を切りました。1台で遊ぶモードです。");
@@ -6562,7 +6620,7 @@
         function netPreload(){
           if(preStarted) return;
           preStarted = true;
-          netLoadTrystero().catch(function(){});
+          netLoadPeerJs().catch(function(){});
         }
         var card = document.querySelector(".online-card");
         if(card){
