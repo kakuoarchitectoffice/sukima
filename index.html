@@ -3115,8 +3115,8 @@
         netArmWaitTimeout();
       }
       function netJoinRoom(){
-        var code = ($("netCodeInput").value || "").trim().toUpperCase().replace(/[^A-Z]/g, "");
-        if(code.length !== 4){ netSetStatus("コードは4文字の英字で入力してね。", true); $("netCodeInput").focus(); return; }
+        var code = ($("netCodeInput").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
+        if(!/^[A-Z0-9]{4}$/.test(code)){ netSetStatus("コードは4文字の英数字で入力してね。", true); $("netCodeInput").focus(); return; }
         if(Net.connecting || Net.connected) netTeardown();
         netShowRetry(false);
         Net.autoRetries = 0;
