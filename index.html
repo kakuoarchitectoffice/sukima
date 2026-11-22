@@ -4,6 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
     <meta name="color-scheme" content="light dark" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <meta http-equiv="Pragma" content="no-cache" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -1214,6 +1216,54 @@
         body.online[data-game="wani"] .hc-hud{margin-bottom:10px;}
       }
 
+      /* ゾーン型ゲームの追加対応（つなひき／早押し／タイミング／シンクロ／ぴったり）：
+         オンラインでは相手ゾーンの操作ボタンは出さず、状態表示だけを上部に
+         小さく残す。自分のゾーンは下部に大きく、ボタンも押しやすくする */
+      body.online #scr-tug.active, body.online #scr-haya.active, body.online #scr-timing.active,
+      body.online #scr-sync.active, body.online #scr-ptimer.active{display:flex;flex-direction:column;}
+      body.online #scr-tug .zone.flip, body.online #scr-haya .zone.flip, body.online #scr-timing .zone.flip,
+      body.online #scr-sync .zone.flip, body.online #scr-ptimer .zone.flip{transform:none;}
+      body.online.me-p1 #scr-tug .zone.p2, body.online.me-p1 #scr-haya .zone.p2, body.online.me-p1 #scr-timing .zone.p2,
+      body.online.me-p1 #scr-sync .zone.p2, body.online.me-p1 #scr-ptimer .zone.p2,
+      body.online.me-p2 #scr-tug .zone.p1, body.online.me-p2 #scr-haya .zone.p1, body.online.me-p2 #scr-timing .zone.p1,
+      body.online.me-p2 #scr-sync .zone.p1, body.online.me-p2 #scr-ptimer .zone.p1{order:1;padding:8px 10px;margin-bottom:10px;}
+      body.online.me-p1 #scr-tug .zone.p2 .z-label, body.online.me-p1 #scr-haya .zone.p2 .z-label,
+      body.online.me-p1 #scr-timing .zone.p2 .z-label, body.online.me-p1 #scr-sync .zone.p2 .z-label,
+      body.online.me-p1 #scr-ptimer .zone.p2 .z-label,
+      body.online.me-p2 #scr-tug .zone.p1 .z-label, body.online.me-p2 #scr-haya .zone.p1 .z-label,
+      body.online.me-p2 #scr-timing .zone.p1 .z-label, body.online.me-p2 #scr-sync .zone.p1 .z-label,
+      body.online.me-p2 #scr-ptimer .zone.p1 .z-label{margin-bottom:0;font-size:12px;}
+      body.online.me-p1 #scr-tug .zone.p2 button, body.online.me-p1 #scr-haya .zone.p2 button,
+      body.online.me-p1 #scr-timing .zone.p2 button, body.online.me-p1 #scr-ptimer .zone.p2 button,
+      body.online.me-p2 #scr-tug .zone.p1 button, body.online.me-p2 #scr-haya .zone.p1 button,
+      body.online.me-p2 #scr-timing .zone.p1 button, body.online.me-p2 #scr-ptimer .zone.p1 button{display:none;}
+      body.online.me-p1 #scr-sync .zone.p2, body.online.me-p2 #scr-sync .zone.p1{pointer-events:none;}
+      body.online #scr-tug .center-box, body.online #scr-haya .center-box, body.online #scr-timing .center-box,
+      body.online #scr-sync .center-box, body.online #scr-ptimer .center-box{order:2;margin:0 0 12px;}
+      body.online.me-p1 #scr-tug .zone.p1, body.online.me-p1 #scr-haya .zone.p1, body.online.me-p1 #scr-timing .zone.p1,
+      body.online.me-p1 #scr-sync .zone.p1, body.online.me-p1 #scr-ptimer .zone.p1,
+      body.online.me-p2 #scr-tug .zone.p2, body.online.me-p2 #scr-haya .zone.p2, body.online.me-p2 #scr-timing .zone.p2,
+      body.online.me-p2 #scr-sync .zone.p2, body.online.me-p2 #scr-ptimer .zone.p2{order:3;padding:16px 14px 20px;}
+      body.online #scr-tug .zone .big-btn, body.online #scr-haya .zone .big-btn{min-height:96px;font-size:22px;border-radius:12px;}
+      body.online #scr-timing .zone .big-btn, body.online #scr-ptimer .zone .big-btn{min-height:84px;font-size:20px;border-radius:12px;}
+      body.online #scr-sync .sync-zone{min-height:110px;}
+      /* ボクシング：相手のパンチ／ガードボタンは出さない（HPなどの情報表示は残す）。
+         自分のボタンだけを大きくする */
+      body.online.me-p1 #scr-boxing .zone.p2 .box-btns, body.online.me-p2 #scr-boxing .zone.p1 .box-btns{display:none;}
+      body.online #scr-boxing .box-punch{min-height:88px;font-size:23px;}
+      body.online #scr-boxing .box-guardbtn{min-height:68px;font-size:16px;}
+      /* シューティング：オンラインは自分のフィールドだけを大きく表示し、相手のフィールドは出さない */
+      body.online.me-p1 #shtWrap2, body.online.me-p2 #shtWrap1{display:none;}
+      body.online.me-p2 #shtField2{transform:none !important;}
+      body.online #scr-shoot .sht-field{height:min(54vh,430px);}
+      /* ゲストは観戦専用：ホストが操作する準備画面（割り勘／あみだ／カードゲーム）は触れない */
+      body.online.is-guest #wariSetup, body.online.is-guest #sevSetup,
+      body.online.is-guest #babSetup, body.online.is-guest #daiSetup{pointer-events:none;opacity:.75;}
+      body.online.is-guest #wariStop, body.online.is-guest #wariNextBtn{display:none !important;}
+      body.online.is-guest #amCountRow, body.online.is-guest #amNames, body.online.is-guest #amChoices{pointer-events:none;opacity:.75;}
+      /* 見学中（3人目以降）は、2人用ゲームの操作ボタンを出さない */
+      body.online.me-spec .zone button, body.online.me-spec .box-btns button{display:none;}
+
       /* ---------- 携帯で遊ぶ（センサー系）・設定・共通の小物 ---------- */
       .tag.phone{background:var(--ink);border-color:var(--ink);color:var(--bg);}
       .settings-card{
@@ -1517,12 +1567,13 @@
         <p class="pb-hint">アイコンをタップすると変わります</p>
 
         <div class="online-card">
-          <h3>オンラインで遊ぶ（2台のスマホで）</h3>
+          <h3>オンラインで遊ぶ（離れた相手と）</h3>
           <ol class="net-steps">
             <li><b>部屋を作る人</b>が、下の「部屋を作る」を押す</li>
             <li>出てきた<b>4文字のコード</b>を相手に伝える</li>
             <li><b>相手</b>が「コードで入る」からコードを入力すれば接続完了！</li>
           </ol>
+          <p class="sub-text" style="margin:0 0 10px;">全30ゲームすべてオンライン対応です。部屋には最大4人まで入れます（7並べ・ババ抜き・大富豪は人数分の対戦、2人用ゲームでは3人目以降は見学になります）。オンライン中は、自分の操作ボタンだけが大きく表示されます。</p>
           <p class="net-note">ゲームの内容は、対戦ゲーム専用サービス「Playroom Kit」のサーバーを経由して相手のスマホへ届きます。直接つなぐ方式と中継する方式を自動で切り替えるため、回線の相性を問わずつながりやすい仕組みです。流れるのは対戦の操作情報だけで、個人情報は送りません。アカウント登録は不要です。接続まで少し時間がかかることがあります。</p>
           <button class="btn-p1 net-big-btn" id="netCreate">部屋を作る（コード発行）</button>
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
@@ -1548,6 +1599,7 @@
               <div>SDK：<span id="diagLib">読み込み中</span></div>
               <div>部屋への入室：<span id="diagBrk">入室待ち</span></div>
               <div>相手の参加：<span id="diagPeer">参加待ち</span></div>
+              <div id="diagErrRow" style="display:none;">エラー詳細：<span id="diagErr"></span></div>
             </div>
           </div>
           <div class="net-status" id="netStatus">オンラインで遊べます。下のボタンで部屋を作るか、コードで入ってください（部屋に入るまでは1台モードの表示です）</div>
@@ -2706,7 +2758,7 @@
          of our own and no account: users only ever handle the room
          code.
          Room flow follows the official docs (docs.joinplayroom.com):
-         - Create: insertCoin({ skipLobby: true, maxPlayersPerRoom: 2 })
+         - Create: insertCoin({ skipLobby: true, maxPlayersPerRoom: 4 })
            with no roomCode, then read the code with getRoomCode()
            (Playroom codes are 4 letters) and show it.
          - Join: insertCoin({ ..., roomCode: <typed code> }).
@@ -2739,6 +2791,9 @@
         "https://cdn.joinplayroom.com/playroomkit/multiplayer.umd.js"
       ];
       var PR_RPC_NAME = "sukimaMsg";
+      /* このページの版数。hello に載せて相手と照合し、古い版のページを
+         開いたままの相手とは「バージョン違い」と分かるようにする。 */
+      var NET_VER = 42;
       function netPrReady(){ return typeof window.Playroom === "object" && !!window.Playroom && typeof window.Playroom.insertCoin === "function" && !!window.Playroom.RPC; }
       var prLoading = null;
       function netScriptWithTimeout(url, ms){
@@ -2760,7 +2815,7 @@
         if(prLoading) return prLoading;
         var chain = Promise.reject(new Error("start"));
         PR_CDNS.forEach(function(url){
-          chain = chain.catch(function(){ return netScriptWithTimeout(url, 9000); });
+          chain = chain.catch(function(){ return netScriptWithTimeout(url, 15000); });
         });
         prLoading = chain.then(function(){
           prLoading = null;
@@ -2770,7 +2825,8 @@
         });
         return prLoading;
       }
-      var Net = { isHost:false, myPlayer:0, code:"", connected:false, connecting:false, mode:"", session:0, autoRetries:0 };
+      var Net = { isHost:false, myPlayer:0, code:"", connected:false, connecting:false, mode:"", session:0, autoRetries:0,
+        seat:0, playerCount:0, syncOk:false, helloAcked:false };
       var NetH = {};
       /* 退出処理（leaveRoom）の完了待ち。再接続・作り直しで、前の部屋を
          出きる前に次の部屋へ入ってしまう競合を避けるために使う。 */
@@ -2806,12 +2862,14 @@
       /* ---------- 接続の診断表示（待機パネル内） ----------
          実機で失敗したときに「どの段階で止まっているか」を切り分けるための
          表示。SDKの読み込み、部屋への入室、相手の参加状態の3段階を示す。 */
-      var netDiag = { lib:false, room:"入室待ち", peer:"参加待ち" };
+      var netDiag = { lib:false, room:"入室待ち", peer:"参加待ち", err:"" };
       function netDiagUpdate(){
         var a = $("diagLib"), b = $("diagBrk"), d = $("diagPeer");
         if(a) a.textContent = netDiag.lib ? "完了" : "読み込み中";
         if(b) b.textContent = netDiag.room;
         if(d) d.textContent = netDiag.peer;
+        var er = $("diagErr"), erRow = $("diagErrRow");
+        if(er && erRow){ er.textContent = netDiag.err || ""; erRow.style.display = netDiag.err ? "" : "none"; }
       }
       /* ---------- オンライン待機パネル（活動リング＋経過秒数＋接続ステップ） ----------
          接続の読み込み中〜相手の参加待ちの間だけオンライン欄に出す。
@@ -2847,8 +2905,12 @@
         document.body.classList.toggle("online", !!Net.connected);
         document.body.classList.toggle("me-p1", !!Net.connected && Net.myPlayer === 1);
         document.body.classList.toggle("me-p2", !!Net.connected && Net.myPlayer === 2);
+        document.body.classList.toggle("is-guest", !!Net.connected && !Net.isHost);
+        document.body.classList.toggle("me-spec", !!Net.connected && Net.seat >= 3);
         var bar=$("netBar"); if(!bar) return;
-        if(Net.connected){ bar.className="net-bar show"; bar.innerHTML = wolf(Net.myPlayer, "wolf-24") + " オンライン対戦中：あなたは " + (Net.myPlayer===1 ? "あか（プレイヤー1）" : "あお（プレイヤー2）") + " です"; }
+        if(Net.connected){ bar.className="net-bar show"; bar.innerHTML = Net.seat >= 3
+          ? (wolf(Net.myPlayer, "wolf-24") + " オンライン対戦中：あなたは見学中です（プレイヤー" + Net.seat + "）。カードゲームでは対戦に参加できます")
+          : (wolf(Net.myPlayer, "wolf-24") + " オンライン対戦中：あなたは " + (Net.myPlayer===1 ? "あか（プレイヤー1）" : "あお（プレイヤー2）") + " です"); }
         else if(Net.connecting){ bar.className="net-bar show waiting"; bar.textContent= Net.isHost ? ("オンライン：相手の参加を待っています…（コード " + Net.code + "）") : "オンライン：接続中…"; }
         else { bar.className="net-bar"; bar.textContent=""; }
         var dc=$("netDisconnect"); if(dc) dc.className="net-disconnect" + ((Net.connected||Net.connecting) ? " show" : "");
@@ -2858,6 +2920,11 @@
         var hcBtn=$("hcStart"); if(hcBtn){ hcBtn.textContent = guest ? "ホストのスタート待ち" : "ゲームスタート"; hcBtn.disabled = !!guest; }
         var ptBtn=$("ptStart"); if(ptBtn){ ptBtn.textContent = guest ? "ホストのスタート待ち" : "ふたりでスタート"; }
         var syBtn=$("syncStart"); if(syBtn){ syBtn.textContent = guest ? "ホストのスタート待ち" : "スタート"; }
+        /* ホストが進行を担当するゲームのスタート系ボタンは、ゲスト側では押せないようにする */
+        var boxBtn=$("boxStart"); if(boxBtn){ boxBtn.textContent = guest ? "ホストのスタート待ち" : "ゲームスタート"; boxBtn.disabled = !!guest; }
+        var shtBtn=$("shtStart"); if(shtBtn){ shtBtn.textContent = guest ? "ホストのスタート待ち" : "ゲームスタート"; if(guest) shtBtn.disabled = true; }
+        ["sevGo","babGo","daiGo","amMake","wariStart"].forEach(function(id){ var b=$(id); if(b) b.disabled = !!guest; });
+        var amSt=$("amStart"); if(amSt && guest) amSt.disabled = true;
       }
       /* 今いる部屋から退出する。Playroom には専用の切断APIがないため、
          自分の PlayerState の leaveRoom を使う（相手側には onQuit として
@@ -2880,9 +2947,10 @@
         Net.autoRetries = 0;
         Net.session++;
         Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.mode="";
+        Net.seat=0; Net.playerCount=0; Net.syncOk=false; Net.helloAcked=false;
         netLeaveRoom();
         prPlayerIds = {};
-        netDiag.room = "入室待ち"; netDiag.peer = "参加待ち"; netDiagUpdate();
+        netDiag.room = "入室待ち"; netDiag.peer = "参加待ち"; netDiag.err = ""; netDiagUpdate();
         var cb=$("netCodeBox"); if(cb) cb.classList.remove("show");
         netUpdateBar(); applyOnlineLocks();
         if(msg) netSetStatus(msg, !!isErr);
@@ -2896,12 +2964,54 @@
         return n;
       }
       function netPlayer(v){ return v === 2 ? 2 : 1; }
+      /* 座席番号（1〜4人用ゲーム用） */
+      function netSeat(v){ var n = Math.round(netNum(v, 1, 4, 1)); return n < 1 ? 1 : (n > 4 ? 4 : n); }
+      /* トランプ1枚 [スート, ランク] の検証（スート -1=ジョーカー） */
+      function netCardPair(v){
+        if(!v || typeof v !== "object") return null;
+        var s = Math.round(netNum(v[0], -1, 3, -99)); if(s < -1 || s > 3) return null;
+        var r = Math.round(netNum(v[1], 0, 13, -99)); if(r < 0 || r > 13) return null;
+        if(s === -1 && r !== 0) return null;
+        return [s, r];
+      }
+      function netCardList(v, cap){
+        var out = [];
+        if(Array.isArray(v)) for(var i = 0; i < v.length && out.length < cap; i++){ var c = netCardPair(v[i]); if(c) out.push(c); }
+        return out;
+      }
+      function netHands(v){
+        var out = {1:[], 2:[], 3:[], 4:[]};
+        if(v && typeof v === "object") for(var p = 1; p <= 4; p++) out[p] = netCardList(v[p], 60);
+        return out;
+      }
+      function netNames(v, cap){
+        var out = [];
+        if(Array.isArray(v)) for(var i = 0; i < v.length && i < cap; i++) out.push(String(v[i] == null ? "" : v[i]).slice(0, 12));
+        return out;
+      }
+      function netIntList(v, cap, min, max, fb){
+        var out = [];
+        if(Array.isArray(v)) for(var i = 0; i < v.length && out.length < cap; i++) out.push(Math.round(netNum(v[i], min, max, fb)));
+        return out;
+      }
+      /* 手札オブジェクト ⇄ 送信用 [s,r] 配列の変換 */
+      function netHandsEncode(hands){
+        var out = {};
+        for(var p = 1; p <= 4; p++) out[p] = (hands[p] || []).map(function(c){ return [c.s, c.r]; });
+        return out;
+      }
+      function netHandsDecode(h){
+        var out = {1:[], 2:[], 3:[], 4:[]};
+        for(var p = 1; p <= 4; p++) out[p] = (h[p] || []).map(function(pr){ return { s:pr[0], r:pr[1] }; });
+        return out;
+      }
       /* All peer messages are untrusted: rebuild each one from a whitelist
          with coerced, range-checked fields before any handler sees it. */
       function netSanitize(m){
         if(!m || typeof m !== "object" || typeof m.t !== "string") return null;
         switch(m.t){
-          case "hello": case "bye": case "retry": case "tugGo": case "hcStart": return {t:m.t};
+          case "hello": return {t:"hello", v:Math.round(netNum(m.v, 0, 9999, 0))};
+          case "bye": case "retry": case "tugGo": case "hcStart": return {t:m.t};
           case "nav": {
             var games = ["home","tug","haya","timing","sync","heart","ptimer","reversi","connect4","gomoku","janken","dice","chess","checkers","mancala","memory","sugoroku","quiz","moji","wani","pirate","warikan","amida","sevens","baba","daifugo","shake","tilt","boxing","swipe","shoot"];
             return games.indexOf(m.game) >= 0 ? {t:"nav", game:m.game} : null;
@@ -2940,6 +3050,63 @@
           case "ptStop": return {t:"ptStop", p:netPlayer(m.p), t:netNum(m.t, 0, 120, 0)};
           case "jkPick": return {t:"jkPick", p:netPlayer(m.p), c:Math.round(netNum(m.c, 0, 2, 0))};
           case "diceRoll": return {t:"diceRoll", p:netPlayer(m.p), v:Math.round(netNum(m.v, 1, 6, 1))};
+          case "memDeal": {
+            var md = netIntList(m.deck, 16, 0, 7, 0);
+            return md.length === 16 ? {t:"memDeal", deck:md} : null;
+          }
+          case "memFlip": return {t:"memFlip", i:Math.round(netNum(m.i, 0, 15, -1))};
+          case "mojiStart": return {t:"mojiStart", ai:Math.round(netNum(m.ai, 0, 999, 0))};
+          case "mojiGuess": return {t:"mojiGuess", w:String(m.w == null ? "" : m.w).slice(0, 6)};
+          case "pirStart": return {t:"pirStart", bad:Math.round(netNum(m.bad, 0, 11, 0))};
+          case "pirStab": return {t:"pirStab", i:Math.round(netNum(m.i, 0, 11, -1))};
+          case "wariStart": {
+            var wq = [];
+            if(Array.isArray(m.queue)) for(var wi = 0; wi < m.queue.length && wq.length < 12; wi++){
+              var q = m.queue[wi] || {};
+              wq.push({ place:String(q.place == null ? "" : q.place).slice(0, 6), amount:Math.round(netNum(q.amount, 0, 99999, 0)), part:Math.round(netNum(q.part, 0, 9, 1)), of:Math.round(netNum(q.of, 0, 9, 1)) });
+            }
+            var wd = [];
+            if(Array.isArray(m.drinkers)) for(var wj = 0; wj < m.drinkers.length && wd.length < 6; wj++) wd.push(!!m.drinkers[wj]);
+            return { t:"wariStart", total:Math.round(netNum(m.total, 1, 99999, 1)), count:Math.round(netNum(m.count, 2, 6, 2)),
+              names:netNames(m.names, 6), gent:!!m.gent, gentIdx:Math.round(netNum(m.gentIdx, 0, 5, 0)), drinkers:wd, queue:wq };
+          }
+          case "wariSpin": return {t:"wariSpin", place:String(m.place == null ? "" : m.place).slice(0, 6), amount:Math.round(netNum(m.amount, 0, 99999, 0)), part:Math.round(netNum(m.part, 0, 9, 1)), of:Math.round(netNum(m.of, 0, 9, 1)), restricted:m.restricted ? 1 : 0};
+          case "wariPick": {
+            var wl = [];
+            if(Array.isArray(m.log)) for(var wk = 0; wk < m.log.length && wl.length < 12; wk++) wl.push(String(m.log[wk] == null ? "" : m.log[wk]).slice(0, 48));
+            return {t:"wariPick", who:Math.round(netNum(m.who, 1, 6, 1)), sums:netIntList(m.sums, 6, 0, 999999, 0), log:wl};
+          }
+          case "wariEnd": return {t:"wariEnd", sums:netIntList(m.sums, 6, 0, 999999, 0)};
+          case "amMake": {
+            var rg = [];
+            if(Array.isArray(m.rungs)) for(var ai2 = 0; ai2 < m.rungs.length && rg.length < 90; ai2++){
+              var r0 = m.rungs[ai2] || {};
+              rg.push({ y:Math.round(netNum(r0.y, 0, 430, 0)), i:Math.round(netNum(r0.i, 0, 5, 0)) });
+            }
+            return { t:"amMake", count:Math.round(netNum(m.count, 2, 6, 2)), names:netNames(m.names, 6), choices:netNames(m.choices, 6), rungs:rg };
+          }
+          case "amStart": return {t:"amStart"};
+          case "sevDeal": case "babDeal": case "daiDeal":
+            return { t:m.t, hands:netHands(m.hands), names:netNames(m.names, 4), humans:netSeat(m.humans) };
+          case "sevPlay": return {t:"sevPlay", p:netSeat(m.p), i:Math.round(netNum(m.i, 0, 60, -1))};
+          case "sevPass": return {t:"sevPass", p:netSeat(m.p)};
+          case "babDraw": return {t:"babDraw", p:netSeat(m.p), i:Math.round(netNum(m.i, 0, 60, -1)), anim:m.anim ? 1 : 0};
+          case "babDiscard": return {t:"babDiscard", p:netSeat(m.p), r:Math.round(netNum(m.r, 1, 13, 0))};
+          case "babAdvance": return {t:"babAdvance", p:netSeat(m.p)};
+          case "daiPlay": return {t:"daiPlay", p:netSeat(m.p), cards:netCardList(m.cards, 13)};
+          case "daiPass": return {t:"daiPass", p:netSeat(m.p)};
+          case "boxStart": return {t:"boxStart"};
+          case "boxPunch": return {t:"boxPunch", p:netPlayer(m.p)};
+          case "boxGuard": return {t:"boxGuard", p:netPlayer(m.p), on:m.on ? 1 : 0};
+          case "boxHit": return {t:"boxHit", atk:netPlayer(m.atk), def:netPlayer(m.def), crit:m.crit ? 1 : 0, blocked:m.blocked ? 1 : 0, hpD:Math.round(netNum(m.hpD, 0, 99, 0)), comboA:Math.round(netNum(m.comboA, 0, 99, 0))};
+          case "boxChance": return {t:"boxChance", p:netPlayer(m.p), ms:Math.round(netNum(m.ms, 300, 6000, 2200))};
+          case "boxState": return {t:"boxState", hp1:Math.round(netNum(m.hp1, 0, 99, 0)), hp2:Math.round(netNum(m.hp2, 0, 99, 0)), st1:Math.round(netNum(m.st1, 0, 100, 0)), st2:Math.round(netNum(m.st2, 0, 100, 0))};
+          case "shkScore": return {t:"shkScore", p:netPlayer(m.p), n:Math.round(netNum(m.n, 0, 999, 0))};
+          case "tiltTime": return {t:"tiltTime", p:netPlayer(m.p), t:netNum(m.t, 0, 3600, 0)};
+          case "swpScore": return {t:"swpScore", p:netPlayer(m.p), n:Math.round(netNum(m.n, 0, 9999, 0))};
+          case "shtStart": return {t:"shtStart"};
+          case "shtScore": return {t:"shtScore", p:netPlayer(m.p), score:Math.round(netNum(m.score, 0, 999999, 0)), combo:Math.round(netNum(m.combo, 0, 999, 0))};
+          case "shtEnd": return {t:"shtEnd", s1:Math.round(netNum(m.s1, 0, 999999, 0)), s2:Math.round(netNum(m.s2, 0, 999999, 0))};
           default: return null;
         }
       }
@@ -2955,6 +3122,18 @@
         netUpdateBar(); applyOnlineLocks();
         if(Net.isHost) netSetStatus("相手がつながりました！ 下のゲームを選ぶと、相手の画面も同じゲームに進みます。");
         else netSetStatus("部屋につながりました！ ゲームを選ぶと相手と一緒に遊べます。");
+        /* 同期確認：参加通知（presence）だけでなく、ゲーム操作のメッセージが
+           実際に往復できるかを hello の送り合いで確かめる。片側だけ先に接続
+           完了しても、後から完了した側の hello とその返信で必ず両方向を確認
+           できる。9秒たっても確認できない場合は、その旨を表示する。 */
+        Net.syncOk = false; Net.helloAcked = false;
+        netSend({t:"hello", v:NET_VER});
+        var sid = Net.session;
+        later(function(){
+          if(Net.session !== sid || !Net.connected || Net.syncOk) return;
+          netSetStatus("つながっていますが、ゲームの同期を確認できませんでした。電波のよい場所で「再接続する」を試してみてね。", true);
+          netShowRetry(true);
+        }, 9000);
       }
       /* 参加状況の数え直し。onPlayerJoin のたびと、入室直後に呼ぶ。
          onPlayerJoin は登録時点で部屋にいる全員分も呼ばれるため、
@@ -2962,8 +3141,28 @@
       function netRefreshPlayers(){
         if(!Net.connecting && !Net.connected) return;
         var n = Object.keys(prPlayerIds).length;
+        Net.playerCount = n;
+        /* 座席番号は Playroom が保持する参加順（__pOrder）で決める。部屋を
+           作った人（ホスト）が1番。カードゲームなど最大4人のゲームでは
+           この座席がそのまま自分のプレイヤー番号になる。取得できない場合
+           は従来どおりホスト=1／ゲスト=2で代用する。 */
+        var seat = 0;
+        try{
+          var order = window.Playroom.getState("__pOrder") || [];
+          var me = window.Playroom.myPlayer();
+          if(me && order && order.length){ var ix = order.indexOf(me.id); if(ix >= 0) seat = ix + 1; }
+        }catch(e){}
+        if(!seat) seat = Net.isHost ? 1 : 2;
+        Net.seat = seat;
+        Net.myPlayer = seat;
         if(n >= 2){ netMarkConnected(); return; }
         if(Net.connecting){ netDiag.peer = "参加待ち（" + n + "/2人）"; netDiagUpdate(); }
+      }
+      /* オンラインで「その手番を担当する端末か」。自分の座席はもちろん、
+         CPU席はホストの端末が担当する（CPUの手を全端末へ送るため）。 */
+      function netMineSeat(p){
+        if(!Net.connected) return true;
+        return p === Net.seat || (Net.isHost && p > Net.playerCount);
       }
       /* 相手の退出（onQuit）。自分自身の退出は netTeardown 側で処理済み
          なので無視し、相手の退出だけ既存の切断処理につなぐ。 */
@@ -2973,7 +3172,14 @@
         var mine = false;
         try{ var me = window.Playroom.myPlayer(); mine = !!me && me.id === player.id; }catch(e){}
         if(mine) return;
+        netRefreshPlayers();
         if(Net.connected || Net.connecting){
+          /* 3〜4人で遊んでいるときは、1人抜けても対戦を続ける。
+             2人を下回ったら従来どおり接続を終える */
+          if(Net.connected && Object.keys(prPlayerIds).length >= 2){
+            netSetStatus("参加者の1人が退出しました。このまま続けられます。");
+            return;
+          }
           netTeardown("相手との接続が切れました。1台で遊ぶモードに戻りました。", true);
         }
       }
@@ -3016,13 +3222,14 @@
           if(Net.isHost && Object.keys(prPlayerIds).length <= 1){
             netTeardown("そのコードの部屋が見つかりませんでした。コードが合っているか、相手が部屋を作っているか確認してね。", true);
           }
-        }, 3000);
+        }, 6000);
       }
       /* SDKの読み込み→購読の用意→insertCoin、までを進める。
          失敗したら待機パネルに状態を出し、「再接続する」ボタンを出す。 */
       function netStartSession(){
         var sid = Net.session;
-        netDiag.lib = netPrReady(); netDiagUpdate();
+        var stage = "sdk"; /* 失敗した段階の切り分け用（sdk → room） */
+        netDiag.lib = netPrReady(); netDiag.err = ""; netDiagUpdate();
         var pre = prLeavePromise;
         prLeavePromise = null;
         Promise.resolve(pre).then(function(){
@@ -3035,9 +3242,15 @@
           netSetupHooks();
           netClearRoomHash();
           waitStepTo(Net.mode === "join" ? "部屋に入っています" : "部屋を作っています");
-          var opts = { skipLobby: true, maxPlayersPerRoom: 2 };
+          stage = "room";
+          var opts = { skipLobby: true, maxPlayersPerRoom: 4, reconnectGracePeriod: 60000 };
           if(Net.mode === "join") opts.roomCode = Net.code;
-          return window.Playroom.insertCoin(opts);
+          /* 入室がいつまでも終わらない（応答が返らない）場合は、30秒で
+             失敗として扱い、自動リトライにつなげる */
+          return Promise.race([
+            window.Playroom.insertCoin(opts),
+            new Promise(function(_, reject){ setTimeout(function(){ reject(new Error("INSERT_TIMEOUT")); }, 30000); })
+          ]);
         }).then(function(){
           if(typeof window.Playroom !== "object" || !window.Playroom) return;
           if(Net.session !== sid){
@@ -3069,7 +3282,10 @@
           netRefreshPlayers();
         }).catch(function(err){
           if(!Net.connecting || Net.session !== sid) return;
-          if(err && String((err && err.message) || err).indexOf("ROOM_LIMIT_EXCEEDED") >= 0){
+          var emsg = String((err && err.message) || err || "");
+          netDiag.err = (stage === "sdk" ? "SDKの読み込み：" : "部屋への入室：") + emsg.slice(0, 120);
+          netDiagUpdate();
+          if(emsg.indexOf("ROOM_LIMIT_EXCEEDED") >= 0){
             Net.session++;
             Net.connecting = false; Net.mode = "";
             waitHide();
@@ -3077,8 +3293,44 @@
             netSetStatus("その部屋は満員でした。コードが合っているか確認してね。", true);
             return;
           }
+          /* 無料枠の1日あたりの利用上限に達すると、サーバーが新規参加を
+             弾く（QUOTA_EXCEEDED）。再試行しても回復しないので、その旨を
+             伝えて終わる */
+          if(emsg.indexOf("QUOTA_EXCEEDED") >= 0){
+            Net.session++;
+            Net.connecting = false; Net.mode = "";
+            waitHide();
+            netUpdateBar();
+            netSetStatus("オンライン対戦サービスの本日の無料枠の上限に達したようです。時間をおいて（明日以降）もう一度試してね。", true);
+            return;
+          }
+          if(emsg.indexOf("INVALID_ORIGIN") >= 0){
+            Net.session++;
+            Net.connecting = false; Net.mode = "";
+            waitHide();
+            netUpdateBar();
+            netSetStatus("このページの開き方ではオンライン対戦を使えませんでした。公式ページのURLをSafariやChromeで開いて試してね。", true);
+            return;
+          }
+          /* 回線の揺らぎやサーバー側の一時的な失敗では、間隔をあけて自動で
+             3回まで入室からやり直す。作る側はまだコードを相手に伝えてい
+             ない段階なので部屋を作り直して安全で、入る側は同じコードで
+             入り直す。 */
+          if(Net.autoRetries < 3){
+            Net.autoRetries++;
+            var delay = Net.autoRetries === 1 ? 2000 : Net.autoRetries === 2 ? 4000 : 7000;
+            waitStepTo("接続を再試行しています");
+            netSetStatus("接続に失敗したので、自動で再試行しています…（" + Net.autoRetries + "回目）", false);
+            netLeaveRoom();
+            later(function(){
+              if(!Net.connecting || Net.session !== sid) return;
+              netStartSession();
+            }, delay);
+            return;
+          }
           waitStepTo("接続に失敗しました");
-          netSetStatus("オンライン接続に失敗しました。通信環境を確認して、「再接続する」を押してみてね。", true);
+          netDiag.room = "入室失敗"; netDiagUpdate();
+          netSetStatus("オンライン接続に失敗しました（" + (stage === "sdk" ? "SDKの読み込み" : "部屋への入室") + "で止まりました）。通信環境を確認して、「再接続する」を押してみてね。アプリ内ブラウザで開いている場合は、SafariやChromeで開き直すとつながることがあります。", true);
           netShowRetry(true);
         });
       }
@@ -4768,10 +5020,12 @@
           el.disabled = st !== "down" || mem.lock || mem.over;
         });
       }
-      function memFlip(i){
+      function memFlip(i, remote){
         if(currentGame !== "memory" || mem.over || mem.lock) return;
+        if(!remote && Net.connected && mem.turn !== Net.myPlayer) return;
         var card = mem.cards[i];
-        if(card.state !== "down") return;
+        if(!card || card.state !== "down") return;
+        if(!remote && Net.connected) netSend({t:"memFlip", i:i});
         card.state = "open";
         sfx("flip");
         mem.open.push(i);
@@ -4817,31 +5071,45 @@
           }, 950);
         }
       }
-      function memoryInit(){
-        var deck = [];
-        MEM_SYMS.forEach(function(s){ deck.push(s); deck.push(s); });
-        for(var i = deck.length - 1; i > 0; i--){
-          var j = Math.floor(Math.random() * (i + 1));
-          var t = deck[i]; deck[i] = deck[j]; deck[j] = t;
-        }
-        mem.cards = deck.map(function(s){ return {sym:s, state:"down"}; });
+      /* 配布された並び（記号インデックス×16）から盤面を作る共通処理。
+         オンラインではホストがシャッフルして全端末へ配り、同じ並びにする */
+      function memApplyDeal(deckIdx){
+        mem.cards = deckIdx.map(function(ix){ return {sym:MEM_SYMS[ix], state:"down"}; });
         mem.turn = 1; mem.open = []; mem.lock = false; mem.pairs = {1:0, 2:0}; mem.done = 0; mem.over = false;
         var grid = $("memGrid");
-        if(grid.children.length !== 16){
-          grid.innerHTML = ""; mem.els = [];
-          for(var k=0;k<16;k++){
-            (function(idx){
-              var b = document.createElement("button");
-              b.type = "button"; b.className = "mem-card"; b.setAttribute("aria-label", "カード");
-              b.addEventListener("click", function(){ memFlip(idx); });
-              grid.appendChild(b); mem.els.push(b);
-            })(k);
-          }
+        grid.innerHTML = ""; mem.els = [];
+        for(var k=0;k<16;k++){
+          (function(idx){
+            var b = document.createElement("button");
+            b.type = "button"; b.className = "mem-card"; b.setAttribute("aria-label", "カード");
+            b.addEventListener("click", function(){ memFlip(idx); });
+            grid.appendChild(b); mem.els.push(b);
+          })(k);
         }
         $("memStatus").textContent = "あかからスタート！ カードを2枚めくってね";
         memRender();
       }
+      function memoryInit(){
+        if(Net.connected && !Net.isHost){
+          /* ゲストはホストの配布を待つ */
+          mem.cards = []; mem.els = []; mem.open = []; mem.lock = true; mem.pairs = {1:0, 2:0}; mem.done = 0; mem.over = false; mem.turn = 1;
+          $("memGrid").innerHTML = "";
+          $("memStatus").textContent = "ホストがカードを配るのを待ってね";
+          memRender();
+          return;
+        }
+        var deck = [];
+        MEM_SYMS.forEach(function(s, ix){ deck.push(ix); deck.push(ix); });
+        for(var i = deck.length - 1; i > 0; i--){
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = deck[i]; deck[i] = deck[j]; deck[j] = t;
+        }
+        memApplyDeal(deck);
+        if(Net.connected) netSend({t:"memDeal", deck:deck});
+      }
       inits.memory = memoryInit;
+      NetH.memDeal = function(m){ if(currentGame === "memory") memApplyDeal(m.deck); };
+      NetH.memFlip = function(m){ if(m.i >= 0) memFlip(m.i, true); };
 
       /* ================================================================
          16. すごろくレース（30マス・イベントマス・1回休み）
@@ -5263,10 +5531,19 @@
           var st = moji.kbState[k];
           btn.className = st === "hit" ? "kb-hit" : st === "inw" ? "kb-inw" : st === "out" ? "kb-out" : "";
         });
+        /* オンラインで相手の番のときは、キーボード（操作用）は隠す */
+        var kb = $("mojiKb");
+        if(kb) kb.style.visibility = (Net.connected && !moji.over && moji.turn !== Net.myPlayer) ? "hidden" : "";
       }
       function mojiSubmit(){
         if(moji.over || moji.cur.length !== 4) return;
+        if(Net.connected && moji.turn !== Net.myPlayer) return;
         var guess = moji.cur;
+        if(Net.connected) netSend({t:"mojiGuess", w:guess});
+        mojiApplyGuess(guess);
+      }
+      function mojiApplyGuess(guess){
+        if(moji.over) return;
         var fb = mojiFeedback(guess);
         var by = moji.turn;
         moji.guesses.push({word:guess, fb:fb, by:by});
@@ -5305,6 +5582,7 @@
       }
       function mojiKey(k){
         if(moji.over) return;
+        if(Net.connected && moji.turn !== Net.myPlayer) return;
         if(k === "del"){ moji.cur = moji.cur.slice(0, -1); }
         else if(k === "ok"){ mojiSubmit(); return; }
         else if(k === "daku" || k === "handa" || k === "small"){
@@ -5317,7 +5595,10 @@
         mojiRender();
       }
       function mojiInit(){
-        moji.answer = MOJI_WORDS[Math.floor(Math.random() * MOJI_WORDS.length)];
+        /* オンラインではホストがお題を決めて全端末で共有する */
+        var waiting = Net.connected && !Net.isHost;
+        var ai = Math.floor(Math.random() * MOJI_WORDS.length);
+        moji.answer = waiting ? "" : MOJI_WORDS[ai];
         moji.turn = 1; moji.guesses = []; moji.cur = ""; moji.over = false; moji.kbState = {};
         var kb = $("mojiKb");
         if(!kb.children.length){
@@ -5344,10 +5625,18 @@
           });
           kb.appendChild(ctrl);
         }
-        $("mojiStatus").textContent = "あかからスタート！ 4文字の言葉を予想してね";
+        $("mojiStatus").textContent = waiting ? "ホストがお題を決めるのを待ってね" : "あかからスタート！ 4文字の言葉を予想してね";
         mojiRender();
+        if(!waiting && Net.connected) netSend({t:"mojiStart", ai:ai});
       }
       inits.moji = mojiInit;
+      NetH.mojiStart = function(m){
+        if(currentGame !== "moji") return;
+        moji.answer = MOJI_WORDS[m.ai % MOJI_WORDS.length];
+        $("mojiStatus").textContent = "あかからスタート！ 4文字の言葉を予想してね";
+        mojiRender();
+      };
+      NetH.mojiGuess = function(m){ if(currentGame === "moji" && m.w) mojiApplyGuess(m.w); };
 
       /* ================================================================
          19. ワニたたきパニック（1台=上下2フィールド対戦／オンライン=取り合い）
@@ -5586,8 +5875,11 @@
           el.disabled = !!by || pir.over;
         });
       }
-      function pirStab(i){
+      function pirStab(i, remote){
         if(currentGame !== "pirate" || pir.over || pir.stabbed[i]) return;
+        if(Net.connected && pir.bad < 0) return;
+        if(!remote && Net.connected && pir.turn !== Net.myPlayer) return;
+        if(!remote && Net.connected) netSend({t:"pirStab", i:i});
         pir.stabbed[i] = pir.turn;
         var stage = $("pirStage");
         stage.classList.remove("pir-shake");
@@ -5616,7 +5908,9 @@
         pirRender();
       }
       function pirateInit(){
-        pir.turn = 1; pir.bad = Math.floor(Math.random() * 12); pir.stabbed = {}; pir.over = false;
+        /* オンラインではホストが当たりの穴を決めて全端末で共有する */
+        var waiting = Net.connected && !Net.isHost;
+        pir.turn = 1; pir.bad = waiting ? -1 : Math.floor(Math.random() * 12); pir.stabbed = {}; pir.over = false;
         $("pirPirate").innerHTML = PIRATE_SVG;
         $("pirPirate").classList.remove("pop");
         var wrap = $("pirSlots");
@@ -5631,10 +5925,18 @@
             })(i);
           }
         }
-        $("pirStatus").textContent = "あかからスタート！ 穴を選んで剣を刺してね";
+        $("pirStatus").textContent = waiting ? "ホストがタルを準備するのを待ってね" : "あかからスタート！ 穴を選んで剣を刺してね";
         pirRender();
+        if(!waiting && Net.connected) netSend({t:"pirStart", bad:pir.bad});
       }
       inits.pirate = pirateInit;
+      NetH.pirStart = function(m){
+        if(currentGame !== "pirate") return;
+        pir.bad = m.bad;
+        $("pirStatus").textContent = "あかからスタート！ 穴を選んで剣を刺してね";
+        pirRender();
+      };
+      NetH.pirStab = function(m){ if(m.i >= 0) pirStab(m.i, true); };
 
       /* ================================================================
          21. お会計ルーレット割り勘（桁ごとに担当を決める）
@@ -5787,6 +6089,7 @@
         return item.of > 1 ? (item.place + "（" + item.part + "／" + item.of + "）") : item.place;
       }
       function wariBeginDigit(){
+        if(Net.connected && !Net.isHost) return;
         if(!wari.queue.length){ wariFinish(); return; }
         /* 全員が必ず払う保証：残り回数（今回を含む）が、まだ1円も払っていない
            人の数と同じになったら、それ以降は未払いの人だけをルーレットに出す。 */
@@ -5812,8 +6115,10 @@
           var el = $("wariWho");
           if(el) el.innerHTML = wariIcon(wari.curWho, 64, true) + "<span>" + wariEsc(wariDisplayName(wari.curWho)) + "</span>";
         }, 70);
+        if(Net.connected) netSend({ t:"wariSpin", place:item.place, amount:item.amount, part:item.part, of:item.of, restricted:wari.restricted ? 1 : 0 });
       }
       function wariStop(){
+        if(Net.connected && !Net.isHost) return;
         if(!wari.spinning) return;
         wari.spinning = false;
         sfx("stop");
@@ -5835,8 +6140,10 @@
         else nb.textContent = "結果を見る";
         nb.style.display = "";
         $("wariStatus").textContent = wari.queue.length ? ("次は " + wariItemLabel(wari.queue[0]) + " だよ") : "全部決まったよ！";
+        if(Net.connected) netSend({ t:"wariPick", who:winner, sums:wari.sums.slice(), log:wari.log.slice() });
       }
       function wariFinish(){
+        if(Net.connected && Net.isHost && !wari.endSent){ wari.endSent = true; netSend({ t:"wariEnd", sums:wari.sums.slice() }); }
         wari.running = false;
         $("wariStart").disabled = false;
         $("wariSetup").classList.remove("wari-setup-off");
@@ -5860,6 +6167,7 @@
       }
       function wariStart(){
         if(wari.running) return;
+        if(Net.connected && !Net.isHost) return;
         var amt = parseInt($("wariAmount").value, 10);
         if(!amt || amt < 1 || amt > 99999){ $("wariStatus").textContent = "1〜99,999円の金額を入れてね"; return; }
         wariReadNames();
@@ -5911,12 +6219,17 @@
           it.of = placeCount[it.place];
         });
         wari.running = true;
+        wari.endSent = false;
         $("wariStart").disabled = true;
         $("wariSetup").classList.add("wari-setup-off");
         $("wariTotals").style.display = "none";
         $("wariLog").innerHTML = "";
         $("wariStatus").textContent = "";
         wariSyncTotal();
+        /* オンラインでは、設定と全ピースをゲストへ送って同じ結果を見せる */
+        if(Net.connected) netSend({ t:"wariStart", total:wari.total, count:wari.count, names:wari.names.slice(),
+          gent:wari.gent, gentIdx:wari.gentIdx, drinkers:wari.drinkers.slice(),
+          queue:wari.queue.map(function(q){ return {place:q.place, amount:q.amount, part:q.part, of:q.of}; }) });
         wariBeginDigit();
       }
       function warikanInit(){
@@ -5930,6 +6243,7 @@
           $("wariStop").addEventListener("click", wariStop);
           $("wariFace").addEventListener("click", wariStop);
           $("wariNextBtn").addEventListener("click", function(){
+            if(Net.connected && !Net.isHost) return;
             if(wari.queue.length) wariBeginDigit(); else wariFinish();
           });
           $("wariGentToggle").addEventListener("click", function(){
@@ -5959,6 +6273,76 @@
         wariSyncTotal();
       }
       inits.warikan = warikanInit;
+      /* オンライン（ゲスト側）：ホストの操作に合わせて、同じルーレットと
+         結果を自分の画面にも表示する。操作ボタンはホスト専用。 */
+      NetH.wariStart = function(m){
+        if(currentGame !== "warikan") return;
+        wari.total = m.total; wari.count = m.count;
+        wari.names = m.names.slice();
+        while(wari.names.length < m.count) wari.names.push(wariDefaultName(wari.names.length));
+        wari.gent = m.gent; wari.gentIdx = m.gentIdx; wari.drinkers = m.drinkers.slice();
+        wari.sums = []; for(var i = 0; i < m.count; i++) wari.sums.push(0);
+        wari.log = []; wari.queue = m.queue.slice();
+        wari.running = true; wari.spinning = false; wari.endSent = false;
+        wariRebuildSetup();
+        $("wariStart").disabled = true;
+        $("wariSetup").classList.add("wari-setup-off");
+        $("wariTotals").style.display = "none";
+        $("wariLog").innerHTML = "";
+        $("wariStatus").textContent = "ホストがルーレットを回しています…";
+        wariSyncTotal();
+      };
+      NetH.wariSpin = function(m){
+        if(currentGame !== "warikan") return;
+        if(wari.queue.length) wari.queue.shift();
+        var item = { kind:"digit", place:m.place, amount:m.amount, part:m.part, of:m.of };
+        wari.cur = item;
+        var allowed = null;
+        if(m.restricted){
+          allowed = [];
+          for(var u = 0; u < wari.count; u++) if((wari.sums[u] || 0) <= 0) allowed.push(u);
+        }
+        wariBuildSeq(allowed);
+        wari.curWho = wari.seq[0] + 1;
+        $("wariFace").innerHTML = '<div class="wf-place">' + wariItemLabel(item) + ' はだれが払う？</div>' +
+          '<div class="wf-amt">' + item.amount.toLocaleString() + '円</div>' +
+          '<div class="wf-spin" id="wariWho">' + wariIcon(wari.curWho, 64, true) + '<span>' + wariEsc(wariDisplayName(wari.curWho)) + '</span></div>' +
+          '<div class="wf-hint">ホストが止めるのを待ってね</div>';
+        $("wariFace").classList.add("spinning");
+        $("wariStop").style.display = "none";
+        $("wariNextBtn").style.display = "none";
+        $("wariStatus").textContent = (m.restricted ? "まだ払っていない人だけのルーレット！ " : "") + wariItemLabel(item) + "のルーレットが回ってるよ";
+        wari.spinning = true;
+        if(wari.iv){ clearInterval(wari.iv); wari.iv = null; }
+        wari.iv = every(function(){
+          wari.seqPos = (wari.seqPos + 1) % wari.seq.length;
+          wari.curWho = wari.seq[wari.seqPos] + 1;
+          var el = $("wariWho");
+          if(el) el.innerHTML = wariIcon(wari.curWho, 64, true) + "<span>" + wariEsc(wariDisplayName(wari.curWho)) + "</span>";
+        }, 70);
+      };
+      NetH.wariPick = function(m){
+        if(currentGame !== "warikan") return;
+        wari.spinning = false;
+        if(wari.iv){ clearInterval(wari.iv); wari.iv = null; }
+        $("wariFace").classList.remove("spinning");
+        $("wariStop").style.display = "none";
+        wari.sums = m.sums.slice();
+        wari.log = m.log.slice();
+        $("wariLog").innerHTML = wari.log.map(function(s){ return "・" + wariEsc(s); }).join("<br />");
+        var item = wari.cur || { place:"", amount:0, part:1, of:1 };
+        var head = item.of > 1 ? "このピース（" + item.place + "）は…" : "この桁（" + item.place + "）は…";
+        $("wariFace").innerHTML = '<div class="wf-place">' + head + '</div>' +
+          '<div class="wf-result">' + wariIcon(m.who, 64, true) + '<span>' + wariEsc(wariDisplayName(m.who)) + ' が ' + item.amount.toLocaleString() + '円 払う！</span></div>';
+        $("wariStatus").textContent = wari.queue.length ? ("次は " + wariItemLabel(wari.queue[0]) + " だよ") : "全部決まったよ！";
+      };
+      NetH.wariEnd = function(m){
+        if(currentGame !== "warikan") return;
+        if(wari.iv){ clearInterval(wari.iv); wari.iv = null; }
+        wari.spinning = false;
+        wari.sums = m.sums.slice();
+        wariFinish();
+      };
 
       /* ================================================================
          22. あみだくじ（2〜6人・名前と選択肢は自由入力）
@@ -6047,6 +6431,7 @@
       }
       function amMake(){
         if(am.tracing) return;
+        if(Net.connected && !Net.isHost) return;
         amReadInputs();
         am.rungs = [];
         for(var y = 84; y <= 348; y += 33){
@@ -6063,6 +6448,8 @@
         $("amResults").innerHTML = "";
         $("amStart").style.display = "";
         $("amStart").disabled = false;
+        /* オンラインでは、同じあみだをゲストにも配って同時に見る */
+        if(Net.connected) netSend({ t:"amMake", count:am.count, names:am.names.slice(), choices:am.choices.slice(), rungs:am.rungs });
       }
       function amPathFor(s){
         var sorted = am.rungs.slice().sort(function(a, b){ return a.y - b.y; });
@@ -6074,8 +6461,10 @@
         pts.push([amX(pos), 382]);
         return pts;
       }
-      function amStart(){
+      function amStart(remote){
         if(!am.made || am.tracing) return;
+        if(!remote && Net.connected && !Net.isHost) return;
+        if(!remote && Net.connected) netSend({t:"amStart"});
         am.tracing = true;
         $("amStart").disabled = true;
         $("amResults").innerHTML = "";
@@ -6129,11 +6518,25 @@
             })(n);
           }
           $("amMake").addEventListener("click", amMake);
-          $("amStart").addEventListener("click", amStart);
+          $("amStart").addEventListener("click", function(){ amStart(false); });
           amRebuildInputs();
         }
       }
       inits.amida = amidaInit;
+      NetH.amMake = function(m){
+        if(currentGame !== "amida") return;
+        am.count = m.count; am.names = m.names.slice(); am.choices = m.choices.slice();
+        while(am.names.length < am.count) am.names.push(am.names.length === 0 ? "あか" : am.names.length === 1 ? "あお" : "プレイヤー" + (am.names.length + 1));
+        while(am.choices.length < am.count) am.choices.push(AM_DEFAULT_CHOICES[am.choices.length]);
+        am.rungs = m.rungs;
+        amCompute();
+        am.made = true;
+        amDraw(null);
+        $("amResults").innerHTML = "";
+        $("amStart").style.display = "";
+        $("amStart").disabled = true;
+      };
+      NetH.amStart = function(){ if(currentGame === "amida" && am.made) amStart(true); };
 
       /* ================================================================
          12. チェス（本格版：全ルール＋チェック／チェックメイト判定）
@@ -6525,9 +6928,27 @@
         $("topicDisplay").textContent = TOPICS[i];
       });
 
-      NetH.hello = function(){};
+      NetH.hello = function(m){
+        Net.syncOk = true;
+        if(!Net.helloAcked){ Net.helloAcked = true; netSend({t:"hello", v:NET_VER}); }
+        if(m.v !== NET_VER){
+          netSetStatus("つながりましたが、相手のページのバージョンが違うようです（相手：" + (m.v ? "v" + m.v : "旧バージョン") + "／自分：v" + NET_VER + "）。両方ともページを開き直してから遊ぶと確実です。", true);
+          return;
+        }
+        if(Net.isHost) netSetStatus("相手がつながりました！ 下のゲームを選ぶと、相手の画面も同じゲームに進みます。（同期OK）");
+        else netSetStatus("部屋につながりました！ ゲームを選ぶと相手と一緒に遊べます。（同期OK）");
+      };
       NetH.nav = function(m){ go(m.game, true); };
-      NetH.retry = function(){ hideResult(); clearAllTimers(); if(inits[currentGame]) inits[currentGame](); };
+      NetH.retry = function(){
+        hideResult(); clearAllTimers();
+        /* カードゲームの再戦は、ホストが配り直すことで始まる */
+        if(Net.connected && Net.isHost){
+          if(currentGame === "sevens"){ sevStartGame(); return; }
+          if(currentGame === "baba"){ babStartGame(); return; }
+          if(currentGame === "daifugo"){ daiStartGame(); return; }
+        }
+        if(inits[currentGame]) inits[currentGame]();
+      };
       NetH.bye = function(){ netTeardown("相手が接続を切りました。1台で遊ぶモードに戻りました。", true); };
       $("netCreate").addEventListener("click", netCreateRoom);
       $("netJoin").addEventListener("click", netJoinRoom);
@@ -6779,14 +7200,16 @@
         }, 800);
         return true;
       }
-      function sevPlayCard(i){
-        if(sev.over || !sev.revealed || p4IsCPU(sev, sev.turn)) return;
+      function sevPlayCard(i, remote){
+        if(sev.over || p4IsCPU(sev, sev.turn)) return;
+        if(!remote && (!sev.revealed || (Net.connected && sev.turn !== Net.seat))) return;
         var p = sev.turn;
         var c = sev.hands[p][i];
         if(!c || !sevPlayable(c)) return;
         sev.hands[p].splice(i, 1);
         sev.placed[c.s * 100 + c.r] = true;
         sev.msg = p4Name(sev, p) + " が " + SUIT_MARK[c.s] + RANK_LABEL[c.r] + " を出した";
+        if(!remote && Net.connected) netSend({t:"sevPlay", p:p, i:i});
         if(sev.hands[p].length === 0){
           sev.out[p] = true;
           sev.ranks.push(p);
@@ -6797,8 +7220,9 @@
         sev.turn = p % 4 + 1;
         sevTurn();
       }
-      function sevDoPass(){
+      function sevDoPass(remote){
         var p = sev.turn;
+        if(!remote && Net.connected) netSend({t:"sevPass", p:p});
         sev.passes[p]++;
         if(sev.passes[p] >= 4){
           sev.out[p] = true;
@@ -6825,6 +7249,7 @@
           sev.hands[p].splice(i, 1);
           sev.placed[c.s * 100 + c.r] = true;
           sev.msg = p4Name(sev, p) + "（CPU）が " + SUIT_MARK[c.s] + RANK_LABEL[c.r] + " を出した";
+          if(Net.connected) netSend({t:"sevPlay", p:p, i:i});
           if(sev.hands[p].length === 0){
             sev.out[p] = true;
             sev.ranks.push(p);
@@ -6849,7 +7274,12 @@
         if(sev.keepMsg){ sev.keepMsg = false; sev.msg += " → 次は " + p4Name(sev, p) + " の番"; }
         else sev.msg = p4Name(sev, p) + " の番" + (p4IsCPU(sev, p) ? "（CPU）" : "");
         sevRender();
-        if(p4IsCPU(sev, p)){
+        if(Net.connected){
+          /* オンライン：手札が見えるのは自分の番だけ。CPU席はホストが進める */
+          sev.revealed = (p === Net.seat);
+          sevRender();
+          if(p4IsCPU(sev, p) && Net.isHost) later(sevCpuMove, 1000);
+        } else if(p4IsCPU(sev, p)){
           later(sevCpuMove, 1000);
         } else if(p === prev){
           sev.revealed = true;
@@ -6859,13 +7289,23 @@
         }
       }
       function sevStartGame(){
+        if(Net.connected && !Net.isHost) return;
         p4ReadNames(sev, "sevNames");
         var deck = shuffleCards(mkDeck(false));
-        sev.hands = { 1:[], 2:[], 3:[], 4:[] };
+        var hands = { 1:[], 2:[], 3:[], 4:[] };
+        deck.forEach(function(c, i){ hands[i % 4 + 1].push(c); });
+        var data = { hands:hands, names:sev.names.slice(), humans: Net.connected ? Net.playerCount : sev.humans };
+        if(Net.connected) netSend({ t:"sevDeal", hands:netHandsEncode(hands), names:data.names, humans:data.humans });
+        sevApplyDeal(data);
+      }
+      /* 配布された手札から対局を開始する（全端末共通） */
+      function sevApplyDeal(data){
+        sev.humans = data.humans; sev.names = data.names.slice();
+        while(sev.names.length < 4) sev.names.push(P4_DEFS[sev.names.length]);
+        sev.hands = data.hands;
         sev.placed = {}; sev.passes = { 1:0, 2:0, 3:0, 4:0 };
         sev.out = {}; sev.dq = []; sev.ranks = [];
         sev.over = false; sev.lastP = 0; sev.turn = 1;
-        deck.forEach(function(c, i){ sev.hands[i % 4 + 1].push(c); });
         for(var p = 1; p <= 4; p++){
           sortHandStd(sev.hands[p]);
           sev.hands[p] = sev.hands[p].filter(function(c){
@@ -6891,6 +7331,9 @@
         sevDoPass();
       });
       inits.sevens = sevensInit;
+      NetH.sevDeal = function(m){ if(currentGame === "sevens") sevApplyDeal({ hands:netHandsDecode(m.hands), names:m.names, humans:m.humans }); };
+      NetH.sevPlay = function(m){ if(currentGame === "sevens" && m.p === sev.turn && m.i >= 0) sevPlayCard(m.i, true); };
+      NetH.sevPass = function(m){ if(currentGame === "sevens" && m.p === sev.turn) sevDoPass(true); };
 
       /* ================================================================
          24. ババ抜き
@@ -7072,7 +7515,7 @@
           bab.phase = "confirm";
         }
         babRender();
-        if(p4IsCPU(bab, p)){
+        if(p4IsCPU(bab, p) && (!Net.connected || Net.isHost)){
           if(bab.phase === "discard") later(babCpuDiscardStep, 850);
           else later(babAdvance, 950);
         }
@@ -7087,11 +7530,13 @@
         babAfterDraw();
       }
       /* 人間の引く操作：選んだカードが浮き上がり、間を置いてめくれてから手札へ */
-      function babPick(i){
+      function babPick(i, remote){
         if(bab.over || bab.phase !== "draw" || bab.anim) return;
-        if(p4IsCPU(bab, bab.turn) || !bab.revealed) return;
+        if(!remote && (p4IsCPU(bab, bab.turn) || !bab.revealed)) return;
+        if(!remote && Net.connected && bab.turn !== Net.seat) return;
         var q = bab.target;
         if(i < 0 || i >= bab.hands[q].length) return;
+        if(!remote && Net.connected) netSend({t:"babDraw", p:bab.turn, i:i, anim:1});
         bab.anim = true;
         bab.pickIdx = i;
         babRender();
@@ -7109,9 +7554,11 @@
         }, 620);
       }
       /* ペアをタップして捨てる：2枚がくるっと回って飛んでいく */
-      function babDiscardTap(rank){
+      function babDiscardTap(rank, remote){
         if(bab.over || bab.phase !== "discard" || bab.anim) return;
-        if(p4IsCPU(bab, bab.turn) || !bab.revealed) return;
+        if(!remote && (p4IsCPU(bab, bab.turn) || !bab.revealed)) return;
+        if(!remote && Net.connected && bab.turn !== Net.seat) return;
+        if(!remote && Net.connected) netSend({t:"babDiscard", p:bab.turn, r:rank});
         var p = bab.turn;
         var idxs = [];
         bab.hands[p].forEach(function(c, ix){ if(c.r === rank && idxs.length < 2) idxs.push(ix); });
@@ -7138,6 +7585,7 @@
           if(c.r === rank && removed < 2){ removed++; return false; }
           return true;
         });
+        if(Net.connected) netSend({t:"babDiscard", p:p, r:rank});
         babAfterDiscard(p, true);
       }
       /* ペアを捨て終わったあとの共通処理（p＝捨てた人、cpu＝CPUかどうか） */
@@ -7154,7 +7602,9 @@
         }
         if(bab.hands[p].length === 0){
           babRender();
-          later(babAdvance, 1000);
+          /* オンラインでは担当端末だけが進め、他端末は babAdvance の
+             メッセージで進む（二重に進めないため） */
+          if(!Net.connected || netMineSeat(p)) later(babAdvance, 1000);
           return;
         }
         bab.phase = bab.afterDiscard;
@@ -7169,6 +7619,9 @@
       }
       function babAdvance(){
         if(bab.over) return;
+        /* 自分の手番（またはホスト担当のCPU席）の進行だけを全端末へ送る。
+           受信側で再送されないよう、担当端末かどうかで判定する */
+        if(Net.connected && netMineSeat(bab.turn)) netSend({t:"babAdvance", p:bab.turn});
         if(babCheckEnd()){ babRender(); return; }
         var guard = 0;
         do { bab.turn = bab.turn % 4 + 1; } while(bab.hands[bab.turn].length === 0 && guard++ < 8);
@@ -7177,7 +7630,9 @@
       function babCpuDraw(){
         if(bab.over) return;
         var q = bab.target;
-        babDrawResolve(Math.floor(Math.random() * bab.hands[q].length));
+        var idx = Math.floor(Math.random() * bab.hands[q].length);
+        if(Net.connected) netSend({t:"babDraw", p:bab.turn, i:idx, anim:0});
+        babDrawResolve(idx);
       }
       function babTurn(){
         if(bab.over) return;
@@ -7204,7 +7659,15 @@
           bab.msg = p4Name(bab, p) + " の番。" + p4Name(bab, q) + " から1枚引く";
         }
         babRender();
-        if(p4IsCPU(bab, p)){
+        if(Net.connected){
+          /* オンライン：手札が見えるのは自分の番だけ。CPU席はホストが進める */
+          bab.revealed = (p === Net.seat);
+          babRender();
+          if(p4IsCPU(bab, p) && Net.isHost){
+            if(bab.phase === "discard") later(babCpuDiscardStep, 1000);
+            else later(babCpuDraw, 1050);
+          }
+        } else if(p4IsCPU(bab, p)){
           if(bab.phase === "discard") later(babCpuDiscardStep, 1000);
           else later(babCpuDraw, 1050);
         } else if(p === prev){
@@ -7215,13 +7678,24 @@
         }
       }
       function babStartGame(){
+        if(Net.connected && !Net.isHost) return;
         p4ReadNames(bab, "babNames");
         var deck = shuffleCards(mkDeck(true));
-        bab.hands = { 1:[], 2:[], 3:[], 4:[] };
+        var hands = { 1:[], 2:[], 3:[], 4:[] };
+        deck.forEach(function(c, i){ hands[i % 4 + 1].push(c); });
+        var data = { hands:hands, names:bab.names.slice(), humans: Net.connected ? Net.playerCount : bab.humans };
+        if(Net.connected) netSend({ t:"babDeal", hands:netHandsEncode(hands), names:data.names, humans:data.humans });
+        babApplyDeal(data);
+      }
+      /* 配布された手札から対局を開始する（全端末共通） */
+      function babApplyDeal(data){
+        bab.humans = data.humans; bab.names = data.names.slice();
+        while(bab.names.length < 4) bab.names.push(P4_DEFS[bab.names.length]);
+        bab.hands = data.hands;
         bab.finishOrder = [];
+        bab.out = {};
         bab.over = false; bab.lastP = 0; bab.turn = 1; bab.loser = 0;
         bab.anim = false; bab.pickIdx = -1; bab.flipIdx = -1; bab.drawn = null;
-        deck.forEach(function(c, i){ bab.hands[i % 4 + 1].push(c); });
         /* ペアは自動で捨てない：各プレイヤーが自分の番に光ったペアを自分で捨てる */
         for(var p = 1; p <= 4; p++) sortHandStd(bab.hands[p]);
         $("babSetup").style.display = "none";
@@ -7237,9 +7711,18 @@
       $("babGo").addEventListener("click", babStartGame);
       $("babOkBtn").addEventListener("click", function(){
         if(bab.over || bab.phase !== "confirm" || p4IsCPU(bab, bab.turn)) return;
+        if(Net.connected && bab.turn !== Net.seat) return;
         babAdvance();
       });
       inits.baba = babaInit;
+      NetH.babDeal = function(m){ if(currentGame === "baba") babApplyDeal({ hands:netHandsDecode(m.hands), names:m.names, humans:m.humans }); };
+      NetH.babDraw = function(m){
+        if(currentGame !== "baba" || m.p !== bab.turn || m.i < 0) return;
+        if(m.anim) babPick(m.i, true);
+        else babDrawResolve(m.i);
+      };
+      NetH.babDiscard = function(m){ if(currentGame === "baba" && m.p === bab.turn && m.r >= 1) babDiscardTap(m.r, true); };
+      NetH.babAdvance = function(m){ if(currentGame === "baba" && m.p === bab.turn) babAdvance(); };
 
       /* ================================================================
          25. 大富豪
@@ -7341,7 +7824,8 @@
         }, 800);
         return true;
       }
-      function daiPlayCards(p, cards){
+      function daiPlayCards(p, cards, remote){
+        if(!remote && Net.connected) netSend({ t:"daiPlay", p:p, cards:cards.map(function(c){ return [c.s, c.r]; }) });
         cards.forEach(function(c){
           var i = dai.hands[p].indexOf(c);
           if(i >= 0) dai.hands[p].splice(i, 1);
@@ -7375,7 +7859,8 @@
         }
         daiTurn();
       }
-      function daiDoPass(p){
+      function daiDoPass(p, remote){
+        if(!remote && Net.connected) netSend({t:"daiPass", p:p});
         dai.msg = p4Name(dai, p) + " はパス";
         dai.passes++;
         var act = daiActiveCount();
@@ -7461,7 +7946,12 @@
         dai.lastP = p;
         if(!dai.msg) dai.msg = p4Name(dai, p) + " の番";
         daiRender();
-        if(p4IsCPU(dai, p)){
+        if(Net.connected){
+          /* オンライン：手札が見えるのは自分の番だけ。CPU席はホストが進める */
+          dai.revealed = (p === Net.seat);
+          daiRender();
+          if(p4IsCPU(dai, p) && Net.isHost) later(daiCpuMove, 1100);
+        } else if(p4IsCPU(dai, p)){
           later(daiCpuMove, 1100);
         } else if(p === prev){
           dai.revealed = true;
@@ -7471,14 +7961,24 @@
         }
       }
       function daiStartGame(){
+        if(Net.connected && !Net.isHost) return;
         p4ReadNames(dai, "daiNames");
         var deck = shuffleCards(mkDeck(true));
-        dai.hands = { 1:[], 2:[], 3:[], 4:[] };
+        var hands = { 1:[], 2:[], 3:[], 4:[] };
+        deck.forEach(function(c, i){ hands[i % 4 + 1].push(c); });
+        var data = { hands:hands, names:dai.names.slice(), humans: Net.connected ? Net.playerCount : dai.humans };
+        if(Net.connected) netSend({ t:"daiDeal", hands:netHandsEncode(hands), names:data.names, humans:data.humans });
+        daiApplyDeal(data);
+      }
+      /* 配布された手札から対局を開始する（全端末共通） */
+      function daiApplyDeal(data){
+        dai.humans = data.humans; dai.names = data.names.slice();
+        while(dai.names.length < 4) dai.names.push(P4_DEFS[dai.names.length]);
+        dai.hands = data.hands;
         dai.field = []; dai.fieldGroup = null; dai.fieldCount = 0; dai.fieldPlayer = 0;
         dai.revolution = false; dai.passes = 0;
         dai.out = {}; dai.ranks = [];
         dai.over = false; dai.lastP = 0; dai.sel = {};
-        deck.forEach(function(c, i){ dai.hands[i % 4 + 1].push(c); });
         dai.turn = 1;
         for(var p = 1; p <= 4; p++){
           daiSortHand(dai.hands[p]);
@@ -7503,6 +8003,18 @@
         daiDoPass(dai.turn);
       });
       inits.daifugo = daifugoInit;
+      NetH.daiDeal = function(m){ if(currentGame === "daifugo") daiApplyDeal({ hands:netHandsDecode(m.hands), names:m.names, humans:m.humans }); };
+      NetH.daiPlay = function(m){
+        if(currentGame !== "daifugo" || m.p !== dai.turn) return;
+        var pool = dai.hands[m.p].slice(), cards = [];
+        m.cards.forEach(function(pr){
+          for(var i = 0; i < pool.length; i++){
+            if(pool[i].s === pr[0] && pool[i].r === pr[1]){ cards.push(pool[i]); pool.splice(i, 1); break; }
+          }
+        });
+        if(cards.length && cards.length === m.cards.length) daiPlayCards(m.p, cards, true);
+      };
+      NetH.daiPass = function(m){ if(currentGame === "daifugo" && m.p === dai.turn) daiDoPass(m.p, true); };
 
       /* ================================================================
          演出：ロゴの「A」の反転／割れたSマーク／カードの出現
@@ -7775,7 +8287,7 @@
       }
       function shkSetControls(){
         $("shkSensorBtn").style.display = (sensorPermNeeded() && !Sensor.ready) ? "" : "none";
-        $("shkStart").style.display = shk.phase === "idle" ? "" : "none";
+        $("shkStart").style.display = (shk.phase === "idle" && (!Net.connected || shk.turn === Net.myPlayer)) ? "" : "none";
         var tb = $("shkTapBtn");
         tb.style.display = (shk.phase === "run" && shk.mode === "touch") ? "" : "none";
         tb.className = "big-btn " + (shk.turn === 1 ? "btn-p1" : "btn-p2");
@@ -7790,11 +8302,13 @@
         $("shkStatus").textContent = (sensorPermNeeded() && !Sensor.ready)
           ? "まず「センサーを使う」を押してね（使えない場合は、そのままスタートで連打モードになります）"
           : (shk.mode === "touch" ? "この端末では連打モードで遊ぶよ。あかからスタート！" : "あかからスタート！ スマホをしっかり持ってね");
+        if(Net.connected && Net.myPlayer !== 1) $("shkStatus").textContent = "あかが自分の端末で挑戦するのを待ってね";
         shkRender(); shkSetControls();
       }
       inits.shake = shkInit;
       function shkStartTurn(){
         if(shk.phase === "count" || shk.phase === "run") return;
+        if(Net.connected && shk.turn !== Net.myPlayer) return;
         shk.mode = Sensor.ready ? "sensor" : "touch";
         shk.count = 0; shk.timeLeft = 10; shk.phase = "count"; shk.noSensorChecked = false;
         $("shkStage").className = "shk-stage";
@@ -7857,6 +8371,18 @@
         st.classList.remove("heat1"); st.classList.remove("heat2");
         $("shkTime").textContent = "終了！";
         shkRender(); shkSetControls();
+        if(Net.connected){
+          /* オンライン：自分の結果を相手へ送り、相手は自分の端末で挑戦する */
+          netSend({t:"shkScore", p:shk.turn, n:shk.count});
+          if(shk.turn === 1){
+            shk.phase = "wait";
+            $("shkStatus").textContent = "あかは " + shk.count + "回！ あおが自分の端末で挑戦するのを待ってね";
+            shkRender(); shkSetControls();
+          } else {
+            shkFinishMatch();
+          }
+          return;
+        }
         if(shk.turn === 1){
           $("shkStatus").textContent = "あかは " + shk.count + "回！ 次は あお の番だよ";
           later(function(){
@@ -7891,6 +8417,39 @@
           }, 900);
         }
       }
+      /* オンライン用：両者の回数がそろったら勝敗を出す（両端末で同じ計算） */
+      function shkFinishMatch(){
+        var a = shk.scores[1], b = shk.scores[2];
+        if(a === null || b === null) return;
+        var title, w = 0;
+        if(a === b) title = "引き分け！";
+        else if(a > b){ title = "あか（プレイヤー1）の勝ち！"; w = 1; records.shake.p1++; }
+        else { title = "あお（プレイヤー2）の勝ち！"; w = 2; records.shake.p2++; }
+        $("shkStatus").textContent = "対決終了！";
+        later(function(){
+          if(currentGame !== "shake") return;
+          showResult(title,
+            "シェイク回数は あか <b>" + a + "回</b> ／ あお <b>" + b + "回</b> でした。" +
+            (w ? "<br />通算成績は あか " + records.shake.p1 + "勝 ／ あお " + records.shake.p2 + "勝" : ""),
+            shkInit, w);
+        }, 900);
+      }
+      NetH.shkScore = function(m){
+        if(currentGame !== "shake") return;
+        shk.scores[m.p] = m.n;
+        if(m.p === 1){
+          shk.turn = 2; shk.phase = "idle"; shk.count = 0; shk.timeLeft = 10;
+          $("shkStage").className = "shk-stage";
+          $("shkTime").textContent = "のこり 10.0 秒";
+          $("shkFill").style.width = "100%";
+          $("shkStatus").textContent = Net.myPlayer === 2
+            ? "あかは " + m.n + "回でした。あなたの番！ スタートを押してね"
+            : "あかは " + m.n + "回でした。あおの挑戦を待ってね";
+          shkRender(); shkSetControls();
+        } else {
+          shkFinishMatch();
+        }
+      };
       $("shkSensorBtn").addEventListener("click", function(){
         sensorEnable(function(ok){
           if(ok){ shk.mode = "sensor"; $("shkStatus").textContent = "センサーOK！ あかからスタート！"; }
@@ -7977,7 +8536,7 @@
       }
       function tiltSetControls(){
         $("tiltSensorBtn").style.display = (sensorPermNeeded() && !Sensor.ready) ? "" : "none";
-        $("tiltStart").style.display = tilt.phase === "idle" ? "" : "none";
+        $("tiltStart").style.display = (tilt.phase === "idle" && (!Net.connected || tilt.turn === Net.myPlayer)) ? "" : "none";
       }
       function tiltInit(){
         tiltBuild();
@@ -7988,6 +8547,7 @@
         $("tiltStatus").textContent = (sensorPermNeeded() && !Sensor.ready)
           ? "まず「センサーを使う」を押してね（使えない場合は、そのままスタートでドラッグモードになります）"
           : (tilt.mode === "touch" ? "この端末ではドラッグでボールを動かすよ。あかからスタート！" : "あかからスタート！ 端末を水平に持ってね");
+        if(Net.connected && Net.myPlayer !== 1) $("tiltStatus").textContent = "あかが自分の端末で挑戦するのを待ってね";
         tiltRender(); tiltSetControls();
       }
       inits.tilt = tiltInit;
@@ -8059,6 +8619,7 @@
       }
       function tiltStartTurn(){
         if(tilt.phase === "run") return;
+        if(Net.connected && tilt.turn !== Net.myPlayer) return;
         tilt.mode = Sensor.ready ? "sensor" : "touch";
         tiltResetBall();
         tilt.baseG = Sensor.lastGX; tilt.baseB = Sensor.lastBY;
@@ -8083,6 +8644,18 @@
         sfx("goal");
         $("tiltTimeNow").textContent = t.toFixed(1);
         tiltRender(); tiltSetControls();
+        if(Net.connected){
+          /* オンライン：タイムを相手へ送り、相手は自分の端末で挑戦する */
+          netSend({t:"tiltTime", p:tilt.turn, t:Math.round(t * 1000) / 1000});
+          if(tilt.turn === 1){
+            tilt.phase = "wait";
+            $("tiltStatus").textContent = "ゴール！ あかは " + t.toFixed(2) + "秒。あおが自分の端末で挑戦するのを待ってね";
+            tiltSetControls();
+          } else {
+            tiltFinishMatch();
+          }
+          return;
+        }
         if(tilt.turn === 1){
           $("tiltStatus").textContent = "ゴール！ あかは " + t.toFixed(2) + "秒。次は あお の番だよ";
           later(function(){
@@ -8115,6 +8688,37 @@
           }, 1000);
         }
       }
+      /* オンライン用：両者のタイムがそろったら勝敗を出す（両端末で同じ計算） */
+      function tiltFinishMatch(){
+        var a = tilt.times[1], b = tilt.times[2];
+        if(a === null || b === null) return;
+        var title, w = 0;
+        if(Math.abs(a - b) < 0.005) title = "引き分け！";
+        else if(a < b){ title = "あか（プレイヤー1）の勝ち！"; w = 1; records.tilt.p1++; }
+        else { title = "あお（プレイヤー2）の勝ち！"; w = 2; records.tilt.p2++; }
+        $("tiltStatus").textContent = "ゴール！ 対決終了";
+        later(function(){
+          if(currentGame !== "tilt") return;
+          showResult(title,
+            "タイムは あか <b>" + a.toFixed(2) + "秒</b> ／ あお <b>" + b.toFixed(2) + "秒</b> でした。" +
+            (w ? "<br />通算成績は あか " + records.tilt.p1 + "勝 ／ あお " + records.tilt.p2 + "勝" : ""),
+            tiltInit, w);
+        }, 1000);
+      }
+      NetH.tiltTime = function(m){
+        if(currentGame !== "tilt") return;
+        tilt.times[m.p] = m.t;
+        if(m.p === 1){
+          tilt.turn = 2; tilt.phase = "idle"; tiltResetBall();
+          $("tiltTimeNow").textContent = "0.0";
+          $("tiltStatus").textContent = Net.myPlayer === 2
+            ? "あかは " + m.t.toFixed(2) + "秒でした。あなたの番！ スタートを押してね"
+            : "あかは " + m.t.toFixed(2) + "秒でした。あおの挑戦を待ってね";
+          tiltRender(); tiltSetControls();
+        } else {
+          tiltFinishMatch();
+        }
+      };
       $("tiltSensorBtn").addEventListener("click", function(){
         sensorEnable(function(ok){
           if(ok){ tilt.mode = "sensor"; $("tiltStatus").textContent = "センサーOK！ あかからスタート！"; }
@@ -8187,6 +8791,15 @@
       function boxPunch(p){
         if(box.phase !== "run" || box.busy[p]) return;
         if(box.st[p] < BOX_COST) return;
+        /* オンラインでゲストがパンチするときは「意図」だけをホストへ送り、
+           判定（ガード／クリティカル／ダメージ）はホストが正として行う */
+        if(Net.connected && !Net.isHost && p === Net.myPlayer){
+          netSend({t:"boxPunch", p:p});
+          box.busy[p] = true;
+          sfx("whoosh");
+          later(function(){ box.busy[p] = false; boxHud(); }, 320);
+          return;
+        }
         box.st[p] -= BOX_COST;
         box.busy[p] = true;
         var now = performance.now();
@@ -8225,6 +8838,7 @@
           sfx("guard");
           boxPop(px, py, "ガード！", "guard");
           box.combo[atk] = 0; comboSet("boxCombo" + atk, 0);
+          if(Net.connected && Net.isHost) netSend({t:"boxHit", atk:atk, def:def, crit:crit ? 1 : 0, blocked:1, hpD:box.hp[def], comboA:0});
           return;
         }
         var dmg = crit ? 3 : 1;
@@ -8237,6 +8851,7 @@
         boxPop(px, py, crit ? "クリティカル！ -" + dmg : "-" + dmg, crit ? "crit" : "");
         if(navigator.vibrate){ try{ navigator.vibrate(crit ? 45 : 15); }catch(e){} }
         boxHud();
+        if(Net.connected && Net.isHost) netSend({t:"boxHit", atk:atk, def:def, crit:crit ? 1 : 0, blocked:0, hpD:box.hp[def], comboA:box.combo[atk]});
         if(box.hp[def] <= 0) boxKO(atk, def);
       }
       function boxLoop(ts){
@@ -8247,19 +8862,36 @@
         [1, 2].forEach(function(p){
           box.st[p] = Math.min(100, box.st[p] + 42 * dt);
           if(now >= box.nextChance[p] && now >= box.chance[p]){
-            box.chance[p] = now + 2200;
-            box.nextChance[p] = now + 6500 + Math.random() * 4500;
-            sfx("sparkle");
+            /* チャンスの発生はオンラインではホストだけが決め、全端末へ配る
+               （ゲスト側は届いた boxChance で光らせる） */
+            if(!Net.connected || Net.isHost){
+              box.chance[p] = now + 2200;
+              box.nextChance[p] = now + 6500 + Math.random() * 4500;
+              sfx("sparkle");
+              if(Net.connected) netSend({t:"boxChance", p:p, ms:2200});
+            } else {
+              box.nextChance[p] = now + 1200;
+            }
           }
           var active = now < box.chance[p];
           $("boxChance" + p).classList.toggle("on", active);
           $("boxGlove" + p).classList.toggle("chance", active);
         });
+        /* ホストはHP・スタミナの正を定期的に配って、表示の食い違いを直す */
+        if(Net.connected && Net.isHost){
+          box._syncAcc = (box._syncAcc || 0) + dt;
+          if(box._syncAcc >= 1){
+            box._syncAcc = 0;
+            netSend({t:"boxState", hp1:box.hp[1], hp2:box.hp[2], st1:Math.round(box.st[1]), st2:Math.round(box.st[2])});
+          }
+        }
         boxHud();
         setRaf("boxing", requestAnimationFrame(boxLoop));
       }
-      function boxStartMatch(){
+      function boxStartMatch(remote){
         if(box.phase === "count" || box.phase === "run") return;
+        if(!remote && Net.connected && !Net.isHost) return;
+        if(!remote && Net.connected) netSend({t:"boxStart"});
         box.hp = {1:BOX_HP, 2:BOX_HP}; box.st = {1:100, 2:100};
         box.guard = {1:false, 2:false}; box.busy = {1:false, 2:false};
         box.combo = {1:0, 2:0}; comboSet("boxCombo1", 0); comboSet("boxCombo2", 0);
@@ -8339,7 +8971,44 @@
       }
       function boxInit(){ boxReset(); }
       inits.boxing = boxInit;
-      $("boxStart").addEventListener("click", boxStartMatch);
+      NetH.boxStart = function(){ if(currentGame === "boxing") boxStartMatch(true); };
+      NetH.boxPunch = function(m){ if(currentGame === "boxing") boxPunch(m.p); };
+      NetH.boxGuard = function(m){
+        if(currentGame !== "boxing") return;
+        box.guard[m.p] = !!m.on;
+        $("boxGuard" + m.p).classList.toggle("on", !!m.on);
+        $("boxFighter" + m.p).classList.toggle("guarding", !!m.on);
+      };
+      NetH.boxChance = function(m){ if(currentGame === "boxing") box.chance[m.p] = performance.now() + m.ms; };
+      NetH.boxState = function(m){
+        if(currentGame !== "boxing" || Net.isHost) return;
+        box.hp[1] = m.hp1; box.hp[2] = m.hp2; box.st[1] = m.st1; box.st[2] = m.st2;
+        boxHud();
+      };
+      NetH.boxHit = function(m){
+        if(currentGame !== "boxing" || box.phase !== "run") return;
+        var def = m.def, atk = m.atk;
+        var fEl = $("boxFighter" + def);
+        var fr = fEl.getBoundingClientRect(), ar = $("boxArena").getBoundingClientRect();
+        var px = fr.left + fr.width / 2 - ar.left, py = fr.top + fr.height / 2 - ar.top;
+        if(m.blocked){
+          sfx("guard");
+          boxPop(px, py, "ガード！", "guard");
+          box.combo[atk] = 0; comboSet("boxCombo" + atk, 0);
+          return;
+        }
+        box.hp[def] = m.hpD;
+        box.combo[atk] = m.comboA; box.combo[def] = 0;
+        comboHit("boxCombo" + atk, box.combo[atk], $("boxArena"), px, py, 5);
+        comboSet("boxCombo" + def, 0);
+        sfx(m.crit ? "crit" : "punch");
+        fEl.classList.remove("hit"); void fEl.offsetWidth; fEl.classList.add("hit");
+        boxPop(px, py, m.crit ? "クリティカル！ -3" : "-1", m.crit ? "crit" : "");
+        if(navigator.vibrate){ try{ navigator.vibrate(m.crit ? 45 : 15); }catch(e){} }
+        boxHud();
+        if(box.hp[def] <= 0) boxKO(atk, def);
+      };
+      $("boxStart").addEventListener("click", function(){ boxStartMatch(false); });
       [1, 2].forEach(function(p){
         $("boxPunch" + p).addEventListener("pointerdown", function(e){ e.preventDefault(); boxPunch(p); });
         var g = $("boxGuard" + p);
@@ -8348,8 +9017,10 @@
           box.guard[p] = true;
           g.classList.add("on");
           $("boxFighter" + p).classList.add("guarding");
+          if(Net.connected && p === Net.myPlayer) netSend({t:"boxGuard", p:p, on:1});
         });
         var off = function(){
+          if(box.guard[p] && Net.connected && p === Net.myPlayer) netSend({t:"boxGuard", p:p, on:0});
           box.guard[p] = false;
           g.classList.remove("on");
           $("boxFighter" + p).classList.remove("guarding");
@@ -8390,7 +9061,7 @@
         $("swpTimeNow").textContent = Math.max(0, Math.ceil(swp.timeLeft));
         comboSet("swpCombo", swp.combo);
       }
-      function swpSetControls(){ $("swpStart").style.display = swp.phase === "idle" ? "" : "none"; }
+      function swpSetControls(){ $("swpStart").style.display = (swp.phase === "idle" && (!Net.connected || swp.turn === Net.myPlayer)) ? "" : "none"; }
       function swpDrawTrail(){
         $("swpTrailLine").setAttribute("points", swp.trail.map(function(p){ return p.x + "," + p.y; }).join(" "));
       }
@@ -8405,6 +9076,7 @@
         swpClearItems();
         $("swpBig").textContent = "";
         $("swpStatus").textContent = "あかからスタート！ フルーツをスワイプで斬ろう";
+        if(Net.connected && Net.myPlayer !== 1) $("swpStatus").textContent = "あかが自分の端末で挑戦するのを待ってね";
         swpRender(); swpHud(); swpSetControls();
       }
       inits.swipe = swpInit;
@@ -8537,6 +9209,7 @@
       }
       function swpStartTurn(){
         if(swp.phase === "count" || swp.phase === "run") return;
+        if(Net.connected && swp.turn !== Net.myPlayer) return;
         swp.score = 0; swp.combo = 0; swp.timeLeft = SWP_TIME; swp.phase = "count";
         swpClearItems();
         swpRender(); swpHud(); swpSetControls();
@@ -8566,6 +9239,18 @@
         sigPop($("swpBig"));
         swp.timeLeft = 0;
         swpRender(); swpHud(); swpSetControls();
+        if(Net.connected){
+          /* オンライン：スコアを相手へ送り、相手は自分の端末で挑戦する */
+          netSend({t:"swpScore", p:swp.turn, n:swp.score});
+          if(swp.turn === 1){
+            swp.phase = "wait";
+            $("swpStatus").textContent = "あかは " + swp.score + "点！ あおが自分の端末で挑戦するのを待ってね";
+            swpRender(); swpHud(); swpSetControls();
+          } else {
+            swpFinishMatch();
+          }
+          return;
+        }
         if(swp.turn === 1){
           $("swpStatus").textContent = "あかは " + swp.score + "点！ 次は あお の番だよ";
           later(function(){
@@ -8600,6 +9285,39 @@
           }, 900);
         }
       }
+      /* オンライン用：両者のスコアがそろったら勝敗を出す（両端末で同じ計算） */
+      function swpFinishMatch(){
+        var a = swp.scores[1], b = swp.scores[2];
+        if(a === null || b === null) return;
+        var title, w = 0;
+        if(a === b) title = "引き分け！";
+        else if(a > b){ title = "あか（プレイヤー1）の勝ち！"; w = 1; records.swipe.p1++; }
+        else { title = "あお（プレイヤー2）の勝ち！"; w = 2; records.swipe.p2++; }
+        $("swpStatus").textContent = "対決終了！";
+        if(w) fxConfetti("swpConfetti");
+        later(function(){
+          if(currentGame !== "swipe") return;
+          showResult(title,
+            "スコアは あか <b>" + a + "点</b> ／ あお <b>" + b + "点</b> でした。" +
+            (w ? "<br />通算成績は あか " + records.swipe.p1 + "勝 ／ あお " + records.swipe.p2 + "勝" : ""),
+            swpInit, w);
+        }, 900);
+      }
+      NetH.swpScore = function(m){
+        if(currentGame !== "swipe") return;
+        swp.scores[m.p] = m.n;
+        if(m.p === 1){
+          swp.turn = 2; swp.score = 0; swp.combo = 0; swp.timeLeft = SWP_TIME; swp.phase = "idle";
+          swpClearItems();
+          $("swpBig").textContent = "";
+          $("swpStatus").textContent = Net.myPlayer === 2
+            ? "あかは " + m.n + "点でした。あなたの番！ スタートを押してね"
+            : "あかは " + m.n + "点でした。あおの挑戦を待ってね";
+          swpRender(); swpHud(); swpSetControls();
+        } else {
+          swpFinishMatch();
+        }
+      };
       $("swpStart").addEventListener("click", swpStartTurn);
 
       /* ================================================================
@@ -8708,7 +9426,7 @@
         var field = $("shtField" + (f + 1));
         var rect = field.getBoundingClientRect();
         var x = e.clientX - rect.left, y = e.clientY - rect.top;
-        if(f === 1 && window.matchMedia("(orientation: portrait)").matches){
+        if(f === 1 && !Net.connected && window.matchMedia("(orientation: portrait)").matches){
           x = rect.width - x; y = rect.height - y;
         }
         var p = f + 1;
@@ -8734,10 +9452,11 @@
               shtPop(f, t.cx, t.cy, "+" + pts + (shtMult(p) > 1 ? " ×" + shtMult(p) : ""), t.kind === "gold" ? "gold" : "");
             }
             shtHud(); shtLabels();
+            if(Net.connected) netSend({t:"shtScore", p:p, score:sht.scores[p], combo:sht.combo[p]});
             return;
           }
         }
-        if(sht.combo[p] > 0){ sht.combo[p] = 0; shtLabels(); }
+        if(sht.combo[p] > 0){ sht.combo[p] = 0; shtLabels(); if(Net.connected) netSend({t:"shtScore", p:p, score:sht.scores[p], combo:0}); }
       }
       function shtLoop(ts){
         if(!sht.playing) return;
@@ -8767,6 +9486,20 @@
       }
       function shtEnd(){
         if(sht.over) return;
+        /* オンラインの終了判定はホストが正。ゲストはホストの最終スコアを
+           待ってから結果を出す（届かない場合の保険つき） */
+        if(Net.connected && !Net.isHost){
+          if(!sht.endFallback){
+            sht.endFallback = true; sht.playing = false;
+            later(function(){ if(currentGame === "shoot" && !sht.over) shtFinish(); }, 1500);
+          }
+          return;
+        }
+        if(Net.connected && Net.isHost) netSend({t:"shtEnd", s1:sht.scores[1], s2:sht.scores[2]});
+        shtFinish();
+      }
+      function shtFinish(){
+        if(sht.over) return;
         sht.over = true; sht.playing = false;
         shtClearField(0); shtClearField(1);
         var s1 = sht.scores[1], s2 = sht.scores[2];
@@ -8783,8 +9516,11 @@
             shtInit, w);
         }, 600);
       }
-      function shtStartGame(){
+      function shtStartGame(remote){
         if(sht.playing) return;
+        if(!remote && Net.connected && !Net.isHost) return;
+        if(!remote && Net.connected) netSend({t:"shtStart"});
+        sht.endFallback = false;
         sht.scores = {1:0, 2:0}; sht.combo = {1:0, 2:0}; sht.timeLeft = 45; sht.lastTs = 0; sht.spawnAcc = [0.25, 0.5];
         sht.over = false; sht.playing = true;
         shtClearField(0); shtClearField(1);
@@ -8794,17 +9530,28 @@
         setRaf("shoot", requestAnimationFrame(shtLoop));
       }
       function shtInit(){
-        sht.playing = false; sht.over = false;
+        sht.playing = false; sht.over = false; sht.endFallback = false;
         sht.scores = {1:0, 2:0}; sht.combo = {1:0, 2:0}; sht.timeLeft = 45;
         shtClearField(0); shtClearField(1);
         var st = $("shtStart");
-        st.disabled = false;
-        st.textContent = "ゲームスタート";
+        st.disabled = !!(Net.connected && !Net.isHost);
+        st.textContent = (Net.connected && !Net.isHost) ? "ホストのスタート待ち" : "ゲームスタート";
         $("shtNote").textContent = "スタートを押すと的が出てくるよ";
         shtHud(); shtLabels();
       }
       inits.shoot = shtInit;
-      $("shtStart").addEventListener("click", shtStartGame);
+      NetH.shtStart = function(){ if(currentGame === "shoot") shtStartGame(true); };
+      NetH.shtScore = function(m){
+        if(currentGame !== "shoot") return;
+        sht.scores[m.p] = m.score; sht.combo[m.p] = m.combo;
+        shtHud(); shtLabels();
+      };
+      NetH.shtEnd = function(m){
+        if(currentGame !== "shoot") return;
+        sht.scores[1] = m.s1; sht.scores[2] = m.s2;
+        shtFinish();
+      };
+      $("shtStart").addEventListener("click", function(){ shtStartGame(false); });
       [0, 1].forEach(function(f){
         $("shtField" + (f + 1)).addEventListener("pointerdown", function(e){ e.preventDefault(); shtTap(f, e); });
       });
