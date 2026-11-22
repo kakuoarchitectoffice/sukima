@@ -1345,6 +1345,8 @@
       .wait-sec small{font-size:11px;font-weight:700;color:var(--ink-soft);}
       .wait-step{margin-top:10px;font-size:14.5px;font-weight:700;letter-spacing:.05em;color:var(--ink);}
       .wait-sub{margin-top:3px;font-size:11.5px;color:var(--ink-soft);line-height:1.6;}
+      .wait-diag{margin:10px auto 0;max-width:320px;text-align:left;font-size:11.5px;line-height:1.7;color:var(--ink-soft);border-top:1px dashed var(--line);padding-top:8px;}
+      .wait-diag span{color:var(--ink);font-weight:700;}
 
       /* コンボメーター：連打で育つコンボハート（No.024）＋ゲージ */
       .combo-meter{
@@ -1521,7 +1523,7 @@
             <li>出てきた<b>6文字のコード</b>を相手に伝える</li>
             <li><b>相手</b>が「コードで入る」からコードを入力すれば接続完了！</li>
           </ol>
-          <p class="net-note">ゲームの内容は2台のスマホの間を暗号化してやり取りします（WebRTC）。相手探しには公開リレーを使い、回線の相性で直接つながらないときは中継サーバーを通りますが、内容は暗号化されていて中継側では読めません。アカウント登録は不要です。接続まで数十秒かかることがあります。</p>
+          <p class="net-note">ゲームの内容は2台のスマホの間を暗号化してやり取りします（WebRTC）。相手探しには公開ブローカー（MQTT）を使い、回線の相性で直接つながらないときは中継サーバーを通りますが、内容は暗号化されていて中継側では読めません。アカウント登録は不要です。接続まで数十秒かかることがあります。</p>
           <button class="btn-p1 net-big-btn" id="netCreate">部屋を作る（コード発行）</button>
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
           <div class="net-join" id="netJoinRow" style="display:none;">
@@ -1542,6 +1544,12 @@
             </div>
             <div class="wait-step" id="waitStep">接続を読み込んでいます</div>
             <div class="wait-sub">初回は30秒ほどかかることがあります。そのまま待っててね</div>
+            <div class="wait-diag" aria-label="接続の診断">
+              <div>ライブラリ：<span id="diagLib">読み込み中</span></div>
+              <div>ブローカー接続：<span id="diagBroker">—</span></div>
+              <div>相手の合図：<span id="diagSignal">まだ</span></div>
+              <div>直接接続（WebRTC）：<span id="diagRtc">接続待ち</span></div>
+            </div>
           </div>
           <div class="net-status" id="netStatus">オンラインで遊べます。下のボタンで部屋を作るか、コードで入ってください（部屋に入るまでは1台モードの表示です）</div>
           <button class="net-retry" id="netRetry" type="button">再接続する</button>
@@ -2689,10 +2697,10 @@
         return '<span class="mark" aria-hidden="true">' + (t === "bandage" ? MARK2 : MARK1) + '</span>';
       }
 
-      /* ---------- Online (Trystero / WebRTC P2P, Nostr signalling) ----------
+      /* ---------- Online (Trystero / WebRTC P2P, MQTT signalling) ----------
          Safety-checked choice: Trystero is MIT-licensed and actively maintained.
          Game data travels directly between the two browsers over an encrypted
-         WebRTC data channel; public Nostr relays are used only to introduce the
+         WebRTC data channel; public MQTT brokers are used only to introduce the
          two peers. No account, no API key, no game data on any server. Rooms are
          joined with a 6-char code only: the encryption password Trystero needs
          is derived from the code internally (same code -> same value on both
@@ -2705,31 +2713,24 @@
       /* 応答の速いCDNから順に試す。1か所が遅い・落ちていても、タイムアウトで
          次の候補へ切り替えるので、遅いCDNに当たって待たされ続けない。 */
       var TRYSTERO_CDNS = [
-        "https://cdn.jsdelivr.net/npm/trystero@0.25.4/+esm",
-        "https://esm.sh/trystero@0.25.4",
-        "https://esm.run/trystero@0.25.4",
-        "https://unpkg.com/trystero@0.25.4?module"
+        "https://cdn.jsdelivr.net/npm/@trystero-p2p/mqtt@0.25.4/+esm",
+        "https://esm.sh/@trystero-p2p/mqtt@0.25.4",
+        "https://esm.run/@trystero-p2p/mqtt@0.25.4",
+        "https://unpkg.com/@trystero-p2p/mqtt@0.25.4?module"
       ];
-      /* 相手探しに使う公開リレー。発見できなかった実測（同じブラウザの
-         2タブでも97秒間お互いを見つけられず）の主因はこちら：
-         Trystero 0.25 の設定キーは relayConfig.urls で、旧キー relayUrls は
-         無言で無視される。無視されると、ライブラリ既定の大きなリストから
-         appId のハッシュで選ばれた5件だけが使われ、その顔ぶれ次第では
-         書き込みを受け付けない・落ちているリレーに当たって発見が止まる。
-         relayConfig.urls を渡すと指定した全件に両側とも接続するので、
-         稼働中の主要リレーを広めに並べて「共通の生きているリレー」を
-         必ず持てるようにする。 */
-      var TRYSTERO_RELAYS = [
-        "wss://relay.damus.io",
-        "wss://nos.lol",
-        "wss://relay.primal.net",
-        "wss://relay.snort.social",
-        "wss://nostr.mom",
-        "wss://relay.nostr.band",
-        "wss://relay.nostr.net",
-        "wss://nostr-pub.wellorder.net",
-        "wss://offchain.pub",
-        "wss://relay.orangepill.dev"
+      /* 相手探しに使う公開MQTTブローカー。以前の Nostr リレー方式は、
+         リレーの不安定さで発見に失敗し続けた（同じブラウザの2タブでも
+         お互いを見つけられない実測が続いた）ため、接続が安定していて
+         発見が速い MQTT 方式（Trystero の mqtt 戦略）に切り替えた。
+         relayConfig.urls に指定した全ブローカーへ両側とも接続するので、
+         「共通の生きているブローカー」を必ず持てる。並びはライブラリ
+         既定の公開ブローカー（実績のある顔ぶれ）を明示したもの。 */
+      var TRYSTERO_BROKERS = [
+        "wss://broker.emqx.io:8084/mqtt",
+        "wss://test.mosquitto.org:8081/mqtt",
+        "wss://broker.hivemq.com:8884/mqtt",
+        "wss://broker-cn.emqx.io:8084/mqtt",
+        "wss://public:public@public.cloud.shiftr.io"
       ];
       /* 中継（TURN）サーバー。Trystero 0.25 の既定は STUN だけで TURN が
          入っていないため、直接つながらない回線同士（携帯キャリアの回線、
@@ -2747,6 +2748,7 @@
         { urls: "turns:openrelay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" }
       ];
       var trysteroJoinRoom = null;
+      var trysteroGetSockets = null;
       var trysteroLoading = null;
       function netImportWithTimeout(url, ms){
         return Promise.race([
@@ -2764,6 +2766,7 @@
         trysteroLoading = chain.then(function(mod){
           if(!mod || typeof mod.joinRoom !== "function") throw new Error("bad module");
           trysteroJoinRoom = mod.joinRoom;
+          trysteroGetSockets = (typeof mod.getRelaySockets === "function") ? mod.getRelaySockets : null;
           trysteroLoading = null;
           return trysteroJoinRoom;
         }).catch(function(err){
@@ -2784,6 +2787,45 @@
       }
       function netSetStatus(msg, isErr){ var el=$("netStatus"); if(el){ el.textContent=msg; el.className="net-status"+(isErr?" err":""); } }
       function netShowRetry(show){ var b=$("netRetry"); if(b) b.className = "net-retry" + (show ? " show" : ""); }
+      /* ---------- 接続の診断表示（待機パネル内） ----------
+         実機で失敗したときに「どの段階で止まっているか」を切り分けるための
+         表示。ブローカー接続数は Trystero の getRelaySockets（MQTTクライ
+         アント一覧）から数える。相手の合図は onPeerHandshake で検知する。 */
+      var netDiag = { lib:false, signal:false, rtc:"接続待ち" };
+      function netDiagBrokerText(){
+        if(!trysteroGetSockets) return "—";
+        try{
+          var raw = trysteroGetSockets() || [];
+          var socks = Array.isArray(raw) ? raw : Object.keys(raw).map(function(k){ return raw[k]; });
+          var up = 0;
+          for(var i=0;i<socks.length;i++){
+            var s = socks[i]; if(!s) continue;
+            if(s.connected === true || s.readyState === 1 || (s.stream && s.stream.socket && s.stream.socket.readyState === 1)) up++;
+          }
+          return up + " / " + socks.length + " 件";
+        }catch(e){ return "—"; }
+      }
+      function netDiagUpdate(){
+        var a = $("diagLib"), b = $("diagBroker"), c = $("diagSignal"), d = $("diagRtc");
+        if(a) a.textContent = netDiag.lib ? "完了" : "読み込み中";
+        if(b) b.textContent = netDiagBrokerText();
+        if(c) c.textContent = netDiag.signal ? "受け取りました" : "まだ";
+        if(d) d.textContent = netDiag.rtc;
+      }
+      /* 部屋の退出を直列化するキュー。Trystero は同じ appId＋部屋ID の部屋を
+         キャッシュして返すため、退出処理が終わる前に joinRoom し直すと
+         「退出中の部屋」が返ってきて、新しい接続が始まらない。再接続や
+         入り直しは、このキューの完了を待ってから joinRoom する。 */
+      var netLeaveChain = Promise.resolve();
+      function netQueueLeave(room){
+        if(!room) return;
+        var p = null;
+        try{ p = room.leave(); }catch(e){}
+        var settled = Promise.resolve(p).catch(function(){});
+        netLeaveChain = netLeaveChain.then(function(){
+          return Promise.race([settled, new Promise(function(res){ setTimeout(res, 1500); })]);
+        });
+      }
       /* ---------- オンライン待機パネル（活動リング＋経過秒数＋接続ステップ） ----------
          接続の読み込み中〜相手の参加待ちの間だけオンライン欄に出す。
          接続が完了（onJoin）または切断（netTeardown）で消える。 */
@@ -2801,6 +2843,7 @@
           waitUi.iv = setInterval(function(){
             var el = $("waitSec");
             if(el) el.textContent = String(Math.floor((Date.now() - waitUi.t0) / 1000));
+            netDiagUpdate();
           }, 250);
         }
       }
@@ -2838,7 +2881,7 @@
         Net.session++;
         Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.peerId=null; Net.mode="";
         Net.sendFn=null; Net.action=null;
-        if(Net.room){ try{ Net.room.leave(); }catch(e){} Net.room=null; }
+        if(Net.room){ netQueueLeave(Net.room); Net.room=null; }
         var cb=$("netCodeBox"); if(cb) cb.classList.remove("show");
         netUpdateBar(); applyOnlineLocks();
         if(msg) netSetStatus(msg, !!isErr);
@@ -2915,9 +2958,11 @@
           try{ act.onMessage = function(d){ handler(d); }; }catch(e){}
         }
         var onJoin = function(peerId){
+          if(Net.room !== room) return; /* 古い部屋からの遅れてきたイベントは無視 */
           if(Net.connected){ return; } /* 2人専用：3人目は無視 */
           Net.peerId = peerId || null;
           Net.connected = true; Net.connecting = false;
+          netDiag.rtc = "接続完了";
           Net.autoRetries = 0; Net.discoveryRetries = 0;
           if(netAutoRetryTimer){ clearTimeout(netAutoRetryTimer); netAutoRetryTimer = null; }
           waitHide();
@@ -2927,35 +2972,35 @@
           else { netSetStatus("部屋につながりました！ ゲームを選ぶと相手と一緒に遊べます。"); netSend({t:"hello"}); }
         };
         var onLeave = function(){
+          if(Net.room !== room) return; /* 古い部屋からの遅れてきたイベントは無視 */
           if(Net.connected || Net.connecting) netTeardown("相手との接続が切れました。1台で遊ぶモードに戻りました。", true);
         };
-        /* Trystero 0.25 uses property assignment (room.onPeerJoin = fn);
-           older releases used registration calls. Support both. */
-        try{
-          var prevJoin = room.onPeerJoin;
-          if(typeof prevJoin === "function"){ try{ prevJoin(onJoin); }catch(e){} }
-        }catch(e){}
+        /* Trystero 0.25 の登録方法はプロパティ代入（room.onPeerJoin = fn）。
+           getter は「前に代入したハンドラ関数」を返すので、それを旧式の
+           登録呼び出しと間違えて実行すると、前回の onLeave がその場で
+           発火して即座に切断されてしまう（再接続ボタンを押すと部屋が
+           消えた不具合の原因）。代入だけを行うこと。 */
         try{ room.onPeerJoin = onJoin; }catch(e){}
-        try{
-          var prevLeave = room.onPeerLeave;
-          if(typeof prevLeave === "function"){ try{ prevLeave(onLeave); }catch(e){} }
-        }catch(e){}
         try{ room.onPeerLeave = onLeave; }catch(e){}
       }
       function netJoinTrysteroRoom(){
-        /* relayConfig.urls が 0.25 の正しいキー（relayUrls は無視される）。
-           turnConfig で TURN 中継を足し、直接つながらない回線同士でも
-           接続できるようにする。 */
+        /* relayConfig.urls に MQTT ブローカーを指定するのが 0.25 の正しい
+           キー（旧キー relayUrls は無視される）。turnConfig で TURN 中継を
+           足し、直接つながらない回線同士でも接続できるようにする。
+           onPeerHandshake は相手の合図（オファー/アンサー）が届いて
+           ハンドシェイクが始まったときに呼ばれる＝診断表示用。 */
         var config = {
           appId: TRYSTERO_APP_ID,
           password: Net.password,
-          relayConfig: { urls: TRYSTERO_RELAYS, redundancy: TRYSTERO_RELAYS.length },
+          relayConfig: { urls: TRYSTERO_BROKERS, redundancy: TRYSTERO_BROKERS.length },
           turnConfig: TRYSTERO_TURN_SERVERS
         };
+        netDiag.signal = false; netDiag.rtc = "接続待ち"; netDiagUpdate();
         var room;
         try{
           room = trysteroJoinRoom(config, "room-" + Net.code, {
             handshakeTimeoutMs: 20000,
+            onPeerHandshake: function(){ netDiag.signal = true; netDiag.rtc = "合図を交換中"; netDiagUpdate(); },
             onJoinError: function(info){ netOnJoinError(info); }
           });
         }catch(e){
@@ -2973,6 +3018,7 @@
         if(netAutoRetryTimer) return; /* 同時に複数回スケジュールしない */
         if(Net.autoRetries < 2){
           Net.autoRetries++;
+          netDiag.rtc = "エラー（自動で再挑戦中）"; netDiagUpdate();
           waitStepTo("中継サーバー経由で再挑戦しています");
           netSetStatus("相手は見つかりましたが、回線が直接つながりませんでした。中継サーバー経由で自動で再挑戦しています…（" + Net.autoRetries + "回目）", false);
           var sid = Net.session;
@@ -2982,6 +3028,7 @@
             netRetryConnect();
           }, 1600);
         } else {
+          netDiag.rtc = "エラー"; netDiagUpdate();
           waitStepTo("接続でエラーがありました");
           netSetStatus("接続でエラーがありました。2台とも Wi-Fi とモバイル回線を切り替えてみるか、「再接続する」を押して、もう一度試してみてね。", true);
           netShowRetry(true);
@@ -2992,8 +3039,12 @@
       function netConnectAndJoin(){
         var sid = Net.session;
         Net.lastJoinAt = Date.now();
-        netLoadTrystero().then(function(){
+        netDiag.lib = !!trysteroJoinRoom; netDiagUpdate();
+        /* 前の部屋の退出が終わってから入り直す。退出前に joinRoom すると
+           同じ部屋のキャッシュが返ってきて接続が始まらないため。 */
+        netLeaveChain.then(function(){ return netLoadTrystero(); }).then(function(){
           if(!Net.connecting || Net.session !== sid) return; /* その間に切断・やり直し済み */
+          netDiag.lib = true; netDiagUpdate();
           netJoinTrysteroRoom();
         }).catch(function(){
           if(!Net.connecting || Net.session !== sid) return;
@@ -3083,7 +3134,7 @@
         if(netAutoRetryTimer){ clearTimeout(netAutoRetryTimer); netAutoRetryTimer = null; }
         netShowRetry(false);
         Net.session++;
-        if(Net.room){ try{ Net.room.leave(); }catch(e){} Net.room = null; }
+        if(Net.room){ netQueueLeave(Net.room); Net.room = null; }
         Net.connected = false; Net.connecting = true; Net.peerId = null;
         Net.sendFn = null; Net.action = null;
         Net.code = code;
