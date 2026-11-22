@@ -1082,23 +1082,16 @@
       }
       .set-toggle.on{background:var(--accent);border-color:var(--accent);color:#fff;}
       @media (prefers-color-scheme: dark){ .set-toggle.on{color:#161615;} }
-      /* Player icon picker (home) */
-      .icon-picker{
-        background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
-        box-shadow:var(--shadow);padding:14px 16px 8px;margin-top:14px;
+      /* Player icons: tap the icon itself to cycle to the next one */
+      .pb-hint{margin:4px 2px 0;font-size:11.5px;color:var(--ink-soft);letter-spacing:.04em;text-align:center;}
+      .pb-iconbtn,.pc-iconbtn{
+        background:none;border:none;padding:3px;margin:-3px;cursor:pointer;line-height:0;
+        border-radius:50%;-webkit-tap-highlight-color:transparent;font-family:inherit;
       }
-      .icon-picker h3{margin:0 0 3px;font-size:14.5px;font-weight:700;letter-spacing:.05em;}
-      .icon-picker .ip-note{margin:0;font-size:12px;color:var(--ink-soft);line-height:1.65;}
-      .ip-row{display:flex;align-items:flex-start;gap:10px;flex-wrap:wrap;padding:9px 0;border-top:1px solid var(--line);margin-top:10px;}
-      .ip-who{flex:0 0 auto;font-size:12.5px;font-weight:700;letter-spacing:.03em;padding-top:12px;min-width:104px;}
-      .ip-opts{display:flex;gap:6px;flex-wrap:wrap;flex:1;min-width:0;}
-      .ip-opt{
-        display:flex;flex-direction:column;align-items:center;gap:4px;min-width:54px;
-        background:none;border:1.5px solid transparent;border-radius:10px;padding:6px 4px 5px;
-        cursor:pointer;color:var(--ink-soft);font-family:inherit;
-      }
-      .ip-opt .ip-name{font-size:8.5px;font-weight:700;letter-spacing:.02em;line-height:1.3;text-align:center;}
-      .ip-opt.sel{border-color:var(--accent);color:var(--ink);background:var(--bg);}
+      .pb-iconbtn:focus-visible,.pc-iconbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px;}
+      .icon-pop{animation:iconPop .32s ease;}
+      @keyframes iconPop{0%{transform:scale(1);}35%{transform:scale(1.28) rotate(-4deg);}65%{transform:scale(.94);}100%{transform:scale(1);}}
+      @media (prefers-reduced-motion: reduce){ .icon-pop{animation:none;} }
       .sensor-req-btn{
         width:100%;margin-top:10px;padding:12px 10px;border-radius:8px;cursor:pointer;
         background:transparent;color:var(--ink);border:1.5px dashed var(--line-strong);
@@ -1273,12 +1266,7 @@
           <div class="pb p1">プレイヤー1<small>あか担当</small></div>
           <div class="pb p2">プレイヤー2<small>あお担当</small></div>
         </div>
-
-        <div class="icon-picker" id="iconPicker">
-          <h3>プレイヤーアイコン</h3>
-          <p class="ip-note">1人ずつ好きなアイコンを選べます。コラボキャラの2匹も選べます。選んだアイコンは次に開いたときもそのまま使えます。</p>
-          <div id="ipRows"></div>
-        </div>
+        <p class="pb-hint">アイコンをタップすると変わります</p>
 
         <div class="online-card">
           <h3>オンラインで遊ぶ（2台のスマホで）</h3>
@@ -2254,7 +2242,8 @@
       var MARK1 = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.6 16.2 L6.2 8.2 L10.2 11.8 L12 7 L13.8 11.8 L17.8 8.2 L19.4 16.2 Z" fill="#e2ac2e" stroke="#a87c14" stroke-width="1" stroke-linejoin="round"/><rect x="4.6" y="16.5" width="14.8" height="2.5" rx="1.25" fill="#e2ac2e" stroke="#a87c14" stroke-width=".8"/></svg>';
       var MARK2 = '<svg viewBox="0 0 24 24" aria-hidden="true"><g transform="rotate(-18 12 12)"><rect x="2.6" y="9" width="18.8" height="6.4" rx="3.2" fill="#eecfa5" stroke="#c99e6d" stroke-width="1"/><rect x="9.4" y="9" width="5.2" height="6.4" fill="#f8e7cb"/><circle cx="5.9" cy="12.2" r="1" fill="#c99e6d"/><circle cx="18.1" cy="12.2" r="1" fill="#c99e6d"/></g></svg>';
       /* ---------- Player icon customization ----------
-         Each player picks an icon on the home screen:
+         Each player's icon cycles to the next choice when the icon
+         itself is tapped (home player bar / 4-player game strips):
            crown       王冠オオカミ (default for player 1)
            bandage     絆創膏オオカミ (default for player 2)
            collab-wolf コラボ：旅するオオカミ (circular face photo)
@@ -2621,7 +2610,7 @@
         document.querySelectorAll(".players-bar .pb").forEach(function(el){
           var p = el.classList.contains("p1") ? 1 : 2;
           if(el.getAttribute("data-lbl") === null) el.setAttribute("data-lbl", el.innerHTML);
-          el.innerHTML = wolf(p, "wolf-28") + '<span class="pb-txt">' + el.getAttribute("data-lbl") + "</span>";
+          el.innerHTML = '<button type="button" class="pb-iconbtn" data-cycle-icon="' + p + '" data-size="28" aria-label="プレイヤー' + p + 'のアイコンを変える">' + wolf(p, "wolf-28") + '</button><span class="pb-txt">' + el.getAttribute("data-lbl") + "</span>";
         });
         var ends = document.querySelectorAll(".tug-ends span");
         if(ends.length === 2){ refreshLeadIcon(ends[0], 1, 16, true); refreshLeadIcon(ends[1], 2, 16, true); }
@@ -2631,33 +2620,34 @@
         if(b2) refreshLeadIcon(b2, 2, 14, true);
       }
 
-      /* ---------- home icon picker ---------- */
-      var IP_NAMES = { 1:"プレイヤー1（あか）", 2:"プレイヤー2（あお）", 3:"プレイヤー3", 4:"プレイヤー4" };
-      function renderIconPicker(){
-        var wrap = $("ipRows");
-        if(!wrap) return;
-        var h = "";
-        for(var p = 1; p <= 4; p++){
-          h += '<div class="ip-row"><div class="ip-who">' + IP_NAMES[p] + '</div><div class="ip-opts" role="group" aria-label="' + IP_NAMES[p] + 'のアイコン">';
-          ICON_TYPES.forEach(function(t){
-            var sel = playerIcons[p] === t;
-            h += '<button type="button" class="ip-opt' + (sel ? " sel" : "") + '" data-p="' + p + '" data-t="' + t + '" aria-pressed="' + (sel ? "true" : "false") + '" aria-label="' + ICON_LABELS[t] + '">' +
-              iconHTML(t, p, 36) + '<span class="ip-name">' + (t.indexOf("collab") === 0 ? "コラボ<br />" : "") + ICON_LABELS[t] + "</span></button>";
-          });
-          h += "</div></div>";
-        }
-        wrap.innerHTML = h;
-        wrap.querySelectorAll(".ip-opt").forEach(function(btn){
-          btn.addEventListener("click", function(){
-            playerIcons[parseInt(btn.getAttribute("data-p"), 10)] = btn.getAttribute("data-t");
-            savePlayerIcons();
-            renderIconPicker();
-            decoratePlayers();
-            netUpdateBar();
-            sfx("flip");
-          });
-        });
+      /* ---------- tap-to-cycle player icons ----------
+         There is no picker card: tapping a player's icon itself (the
+         home player bar, or the participant strip in 4-player games)
+         cycles that player to the next icon in ICON_TYPES order.
+         The choice is saved on the device and reflected everywhere
+         through decoratePlayers() / pIcon(). */
+      function cyclePlayerIcon(p){
+        var idx = ICON_TYPES.indexOf(playerIcons[p]);
+        playerIcons[p] = ICON_TYPES[(idx + 1) % ICON_TYPES.length];
+        savePlayerIcons();
+        decoratePlayers();
+        netUpdateBar();
+        sfx("flip");
       }
+      document.addEventListener("click", function(e){
+        var b = e.target && e.target.closest ? e.target.closest("[data-cycle-icon]") : null;
+        if(!b) return;
+        var p = parseInt(b.getAttribute("data-cycle-icon"), 10);
+        if(!(p >= 1 && p <= 4)) return;
+        cyclePlayerIcon(p);
+        /* decoratePlayers() rebuilds the home bar, so re-find the button
+           when the tapped one was replaced; a strip button survives. */
+        var nb = document.contains(b) ? b : document.querySelector('[data-cycle-icon="' + p + '"]');
+        if(nb){
+          nb.innerHTML = pIcon(p, parseInt(nb.getAttribute("data-size") || "24", 10));
+          nb.classList.remove("icon-pop"); void nb.offsetWidth; nb.classList.add("icon-pop");
+        }
+      });
 
       /* ---------- timer management ---------- */
       var pendingTimers = [];
@@ -5842,7 +5832,7 @@
 
       /* ================================================================
          4人ゲーム共通（1台パス＆プレイ／空き席はCPU）
-         - アイコンはホームの「プレイヤーアイコン」で変更可能（初期設定：1＝王冠オオカミ、2＝絆創膏オオカミ、3以降は色分け番号チップ）
+         - アイコンは表示されているアイコン自体をタップすると次の候補に切り替わる（初期設定：1＝王冠オオカミ、2＝絆創膏オオカミ、3以降は色分け番号チップ）
          - 手札のあるゲームは、手番のたびに受け渡し画面を挟んで手札を隠す
       ================================================================ */
       var P4_DEFS = ["あか", "あお", "プレイヤー3", "プレイヤー4"];
@@ -5891,7 +5881,7 @@
         var h = '<div class="p4-strip">';
         for(var p = 1; p <= 4; p++){
           h += '<div class="p4-chip' + (p === cur ? " active" : "") + (outs && outs[p] ? " out" : "") + '">' +
-            '<div class="pc-name">' + p4Icon(p, 24) + '<span>' + p4Esc(p4Name(st, p)) + '</span>' +
+            '<div class="pc-name"><button type="button" class="pc-iconbtn" data-cycle-icon="' + p + '" data-size="24" aria-label="' + p4Esc(p4Name(st, p)) + 'のアイコンを変える">' + p4Icon(p, 24) + '</button><span>' + p4Esc(p4Name(st, p)) + '</span>' +
             (p4IsCPU(st, p) ? '<span class="cpu-tag">CPU</span>' : '') + '</div>' +
             '<div class="pc-sub">' + (subs[p] || "") + '</div></div>';
         }
@@ -7369,7 +7359,6 @@
       refreshSensorUI();
 
       decoratePlayers();
-      renderIconPicker();
       renderRecords();
     </script>
   </body>
