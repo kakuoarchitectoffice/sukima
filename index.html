@@ -1521,7 +1521,7 @@
             <li>出てきた<b>6文字のコード</b>を相手に伝える</li>
             <li><b>相手</b>が「コードで入る」からコードを入力すれば接続完了！</li>
           </ol>
-          <p class="net-note">ゲームの内容は2台のスマホの間を暗号化して直接やり取りします（WebRTC）。相手を見つける時だけ公開リレーを使い、ゲーム内容はそこを通りません。アカウント登録は不要です。接続まで数十秒かかることがあります。</p>
+          <p class="net-note">ゲームの内容は2台のスマホの間を暗号化してやり取りします（WebRTC）。相手探しには公開リレーを使い、回線の相性で直接つながらないときは中継サーバーを通りますが、内容は暗号化されていて中継側では読めません。アカウント登録は不要です。接続まで数十秒かかることがあります。</p>
           <button class="btn-p1 net-big-btn" id="netCreate">部屋を作る（コード発行）</button>
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
           <div class="net-join" id="netJoinRow" style="display:none;">
@@ -2710,14 +2710,41 @@
         "https://esm.run/trystero@0.25.4",
         "https://unpkg.com/trystero@0.25.4?module"
       ];
-      /* 相手探しに使う公開リレーを複数指定して、発見を早める */
+      /* 相手探しに使う公開リレー。発見できなかった実測（同じブラウザの
+         2タブでも97秒間お互いを見つけられず）の主因はこちら：
+         Trystero 0.25 の設定キーは relayConfig.urls で、旧キー relayUrls は
+         無言で無視される。無視されると、ライブラリ既定の大きなリストから
+         appId のハッシュで選ばれた5件だけが使われ、その顔ぶれ次第では
+         書き込みを受け付けない・落ちているリレーに当たって発見が止まる。
+         relayConfig.urls を渡すと指定した全件に両側とも接続するので、
+         稼働中の主要リレーを広めに並べて「共通の生きているリレー」を
+         必ず持てるようにする。 */
       var TRYSTERO_RELAYS = [
         "wss://relay.damus.io",
         "wss://nos.lol",
-        "wss://relay.nostr.band",
+        "wss://relay.primal.net",
         "wss://relay.snort.social",
         "wss://nostr.mom",
-        "wss://relay.primal.net"
+        "wss://relay.nostr.band",
+        "wss://relay.nostr.net",
+        "wss://nostr-pub.wellorder.net",
+        "wss://offchain.pub",
+        "wss://relay.orangepill.dev"
+      ];
+      /* 中継（TURN）サーバー。Trystero 0.25 の既定は STUN だけで TURN が
+         入っていないため、直接つながらない回線同士（携帯キャリアの回線、
+         iPhone の Safari、自宅 Wi-Fi の相性など）では相手が見つかっても
+         接続エラーになっていた。直接つながらないときだけ、暗号化された
+         ゲームデータをこの公開 TURN が中継する（中継側は内容を読めない）。
+         freeturn.net は登録不要の公開 TURN（free / free）。
+         openrelay.metered.ca は Open Relay Project の公開 TURN。 */
+      var TRYSTERO_TURN_SERVERS = [
+        { urls: "turn:freeturn.net:3478", username: "free", credential: "free" },
+        { urls: "turn:freeturn.net:3478?transport=tcp", username: "free", credential: "free" },
+        { urls: "turns:freeturn.net:5349", username: "free", credential: "free" },
+        { urls: "turn:openrelay.metered.ca:80", username: "openrelayproject", credential: "openrelayproject" },
+        { urls: "turn:openrelay.metered.ca:443", username: "openrelayproject", credential: "openrelayproject" },
+        { urls: "turns:openrelay.metered.ca:443?transport=tcp", username: "openrelayproject", credential: "openrelayproject" }
       ];
       var trysteroJoinRoom = null;
       var trysteroLoading = null;
@@ -2749,7 +2776,7 @@
          コードから自動で決まる文字列を内部的に使う（作る側・入る側で
          同じコードから同じ値になる）。 */
       function netRoomPassword(code){ return "sukima-room-" + code; }
-      var Net = { room:null, action:null, sendFn:null, isHost:false, myPlayer:0, code:"", password:"", connected:false, connecting:false, peerId:null, mode:"", session:0 };
+      var Net = { room:null, action:null, sendFn:null, isHost:false, myPlayer:0, code:"", password:"", connected:false, connecting:false, peerId:null, mode:"", session:0, autoRetries:0, discoveryRetries:0, lastJoinAt:0 };
       var NetH = {};
       function netSend(obj){
         if(!Net.connected || !Net.sendFn) return;
@@ -2806,6 +2833,8 @@
       function netTeardown(msg, isErr){
         waitHide();
         netShowRetry(false);
+        if(netAutoRetryTimer){ clearTimeout(netAutoRetryTimer); netAutoRetryTimer = null; }
+        Net.autoRetries = 0; Net.discoveryRetries = 0;
         Net.session++;
         Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.peerId=null; Net.mode="";
         Net.sendFn=null; Net.action=null;
@@ -2889,6 +2918,8 @@
           if(Net.connected){ return; } /* 2人専用：3人目は無視 */
           Net.peerId = peerId || null;
           Net.connected = true; Net.connecting = false;
+          Net.autoRetries = 0; Net.discoveryRetries = 0;
+          if(netAutoRetryTimer){ clearTimeout(netAutoRetryTimer); netAutoRetryTimer = null; }
           waitHide();
           netShowRetry(false);
           netUpdateBar(); applyOnlineLocks();
@@ -2912,27 +2943,55 @@
         try{ room.onPeerLeave = onLeave; }catch(e){}
       }
       function netJoinTrysteroRoom(){
-        var config = { appId: TRYSTERO_APP_ID, password: Net.password, relayUrls: TRYSTERO_RELAYS };
+        /* relayConfig.urls が 0.25 の正しいキー（relayUrls は無視される）。
+           turnConfig で TURN 中継を足し、直接つながらない回線同士でも
+           接続できるようにする。 */
+        var config = {
+          appId: TRYSTERO_APP_ID,
+          password: Net.password,
+          relayConfig: { urls: TRYSTERO_RELAYS, redundancy: TRYSTERO_RELAYS.length },
+          turnConfig: TRYSTERO_TURN_SERVERS
+        };
         var room;
         try{
           room = trysteroJoinRoom(config, "room-" + Net.code, {
-            onJoinError: function(info){
-              if(Net.connecting && !Net.connected){
-                waitStepTo("接続でエラーがありました");
-                netSetStatus("接続でエラーがありました。「再接続する」を押して、もう一度試してみてね。", true);
-                netShowRetry(true);
-              }
-            }
+            handshakeTimeoutMs: 20000,
+            onJoinError: function(info){ netOnJoinError(info); }
           });
         }catch(e){
           room = trysteroJoinRoom(config, "room-" + Net.code);
         }
         netSetupRoom(room);
       }
+      /* 相手は見つかったのに回線がつながらなかったとき（onJoinError）。
+         エラーになった部屋は同じ相手と再挑戦しない作りなので、部屋を
+         作り直して自動で最大2回まで再挑戦する。それでもダメなら理由を
+         出して手動の「再接続する」ボタンに切り替える。 */
+      var netAutoRetryTimer = null;
+      function netOnJoinError(info){
+        if(!Net.connecting || Net.connected) return;
+        if(netAutoRetryTimer) return; /* 同時に複数回スケジュールしない */
+        if(Net.autoRetries < 2){
+          Net.autoRetries++;
+          waitStepTo("中継サーバー経由で再挑戦しています");
+          netSetStatus("相手は見つかりましたが、回線が直接つながりませんでした。中継サーバー経由で自動で再挑戦しています…（" + Net.autoRetries + "回目）", false);
+          var sid = Net.session;
+          netAutoRetryTimer = later(function(){
+            netAutoRetryTimer = null;
+            if(!Net.connecting || Net.connected || Net.session !== sid) return;
+            netRetryConnect();
+          }, 1600);
+        } else {
+          waitStepTo("接続でエラーがありました");
+          netSetStatus("接続でエラーがありました。2台とも Wi-Fi とモバイル回線を切り替えてみるか、「再接続する」を押して、もう一度試してみてね。", true);
+          netShowRetry(true);
+        }
+      }
       /* ライブラリの読み込み（先読み済みなら即完了）と部屋への参加。
          失敗したら待機パネルに状態を出し、「再接続する」ボタンを出す。 */
       function netConnectAndJoin(){
         var sid = Net.session;
+        Net.lastJoinAt = Date.now();
         netLoadTrystero().then(function(){
           if(!Net.connecting || Net.session !== sid) return; /* その間に切断・やり直し済み */
           netJoinTrysteroRoom();
@@ -2943,12 +3002,23 @@
           netShowRetry(true);
         });
       }
-      /* 相手がなかなか見つからないときの案内＋再接続ボタン（試行ごとに張り直す） */
+      /* 相手がなかなか見つからないときの案内＋再接続ボタン（試行ごとに張り直す）。
+         発見はリレー経由の一時的な通知（保存されない合図）のやり取りなので、
+         最初の合図が行き違いになると、そのまま待っても永遠に見つからない。
+         そこで最初のタイムアウトでは諦めず、部屋を作り直して合図を
+         出し直す（自動で1回）。それでも見つからなければ案内＋ボタン。 */
       function netArmWaitTimeout(){
         var sid = Net.session;
         var ms = Net.isHost ? 45000 : 30000;
         later(function(){
           if(Net.connected || !Net.connecting || Net.session !== sid) return;
+          if(Net.discoveryRetries < 1){
+            Net.discoveryRetries++;
+            waitStepTo("探し直しています");
+            netSetStatus(Net.isHost ? "まだ相手が来ていません。合図を出し直して、もう一度探しています…" : "まだ相手が見つかりません。合図を出し直して、もう一度探しています…", false);
+            netRetryConnect();
+            return;
+          }
           if(Net.isHost){
             netSetStatus("まだ相手が来ていません。コードを伝えたか、この画面を開いたまま待っているか確認してね。つながらないときは「再接続する」も試せます。", false);
           } else {
@@ -2958,9 +3028,23 @@
           netShowRetry(true);
         }, ms);
       }
+      /* 待ち中に画面が裏へ回ると、合図の再送タイマーがブラウザに止められて
+         発見が止まることがある。画面に戻ってきたら、間隔が空いていれば
+         その場で合図を出し直す。 */
+      document.addEventListener("visibilitychange", function(){
+        if(document.visibilityState !== "visible") return;
+        if(!Net.connecting || Net.connected) return;
+        if(!Net.mode || !Net.code) return;
+        if(Date.now() - Net.lastJoinAt < 10000) return;
+        if(Net.discoveryRetries >= 3) return;
+        Net.discoveryRetries++;
+        waitStepTo("探し直しています");
+        netRetryConnect();
+      });
       function netCreateRoom(){
         if(Net.room) netTeardown();
         netShowRetry(false);
+        Net.autoRetries = 0; Net.discoveryRetries = 0;
         Net.mode = "create";
         Net.session++;
         Net.code = netGenCode();
@@ -2980,6 +3064,7 @@
         if(code.length !== 6){ netSetStatus("コードは6文字で入力してね。", true); $("netCodeInput").focus(); return; }
         if(Net.room) netTeardown();
         netShowRetry(false);
+        Net.autoRetries = 0; Net.discoveryRetries = 0;
         Net.mode = "join";
         Net.session++;
         Net.code = code;
@@ -2995,6 +3080,7 @@
       function netRetryConnect(){
         var mode = Net.mode, code = Net.code;
         if(!mode || !code) return;
+        if(netAutoRetryTimer){ clearTimeout(netAutoRetryTimer); netAutoRetryTimer = null; }
         netShowRetry(false);
         Net.session++;
         if(Net.room){ try{ Net.room.leave(); }catch(e){} Net.room = null; }
@@ -6408,7 +6494,7 @@
           msg.textContent = "この環境ではコピーできません。コードをそのまま伝えてね。";
         }
       });
-      $("netRetry").addEventListener("click", netRetryConnect);
+      $("netRetry").addEventListener("click", function(){ Net.autoRetries = 0; Net.discoveryRetries = 0; netRetryConnect(); });
       $("netDisconnect").addEventListener("click", function(){
         netSend({t:"bye"});
         netTeardown("接続を切りました。1台で遊ぶモードです。");
