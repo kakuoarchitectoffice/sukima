@@ -6596,9 +6596,11 @@
       $("netCodeInput").addEventListener("keydown", function(e){ if(netEnterKey(e)) netJoinRoom(); });
       $("netCopy").addEventListener("click", function(){
         var msg = $("netCopyMsg");
-        var text = "SUKIMAの部屋コード：" + Net.code + "（このコードを入れてね）";
+        /* コピーするのは6文字のコードだけ（案内文やサイト名は付けない） */
+        var text = Net.code || "";
+        if(!text){ msg.textContent = "コードがまだありません。"; return; }
         if(navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(text).then(function(){ msg.textContent = "コピーしました。相手に送ってね。"; }, function(){ msg.textContent = "コピーできませんでした。コードをそのまま伝えてね。"; });
+          navigator.clipboard.writeText(text).then(function(){ msg.textContent = "コードをコピーしました"; }, function(){ msg.textContent = "コピーできませんでした。コードをそのまま伝えてね。"; });
         } else {
           msg.textContent = "この環境ではコピーできません。コードをそのまま伝えてね。";
         }
