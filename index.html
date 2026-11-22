@@ -391,9 +391,9 @@
       .overlay.show{display:flex;}
       .result-card{
         background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:14px;padding:28px 22px 22px;max-width:420px;width:100%;
-        text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.18);animation:pop .25s ease;max-height:88vh;overflow:auto;
+        text-align:center;box-shadow:0 16px 40px rgba(0,0,0,.18);animation:pop .5s cubic-bezier(.34,1.45,.64,1);max-height:88vh;overflow:auto;
       }
-      @keyframes pop{from{transform:scale(.96);opacity:0;}to{transform:scale(1);opacity:1;}}
+      @keyframes pop{0%{transform:scale(.82) translateY(14px);opacity:0;}55%{transform:scale(1.03) translateY(-2px);opacity:1;}100%{transform:scale(1) translateY(0);opacity:1;}}
       .result-card .r-heart{width:40px;height:40px;margin:0 auto 8px;display:block;}
       .result-card h3{font-size:21px;font-weight:700;margin:4px 0 10px;letter-spacing:.04em;}
       .result-card .r-body{font-size:14px;font-weight:400;line-height:1.85;color:var(--ink-soft);}
@@ -1311,6 +1311,65 @@
       .sugo-board, .pir-stage, .sev-table, .hand-row, .kb, .quiz-choices, .jk-choices,
       .wari-face, .box-arena, .swp-area, .sht-field{touch-action:none;}
       html.in-game, html.in-game body{overscroll-behavior:none;}
+
+      /* ---------- Dynamic UI（UIスタジオのパターン） ---------- */
+      /* オンライン待機パネル：活動リング（No.012）＋経過秒数＋接続ステップ＋向かい合うオオカミ */
+      .wait-panel{
+        display:none;margin-top:14px;text-align:center;background:var(--bg);
+        border:1px solid var(--line);border-radius:10px;padding:18px 12px 14px;
+      }
+      .wait-panel.show{display:block;animation:waitIn .45s cubic-bezier(.34,1.4,.64,1);}
+      @keyframes waitIn{from{opacity:0;transform:scale(.94) translateY(6px);}to{opacity:1;transform:none;}}
+      .wait-wolves{display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-bottom:12px;}
+      .wait-wolves .wolf{display:inline-flex;animation:waitBounce 1.1s ease-in-out infinite alternate;}
+      #waitWolf2 .wolf{animation-delay:.55s;}
+      @keyframes waitBounce{from{transform:translateY(0);}to{transform:translateY(-5px);}}
+      .wait-dots{display:flex;gap:4px;padding-bottom:11px;}
+      .wait-dots i{width:5px;height:5px;border-radius:50%;background:var(--ink-soft);animation:waitDot 1.2s ease-in-out infinite;}
+      .wait-dots i:nth-child(2){animation-delay:.18s;}
+      .wait-dots i:nth-child(3){animation-delay:.36s;}
+      @keyframes waitDot{0%,100%{opacity:.25;transform:translateY(0);}50%{opacity:1;transform:translateY(-3px);}}
+      .wait-ring-wrap{position:relative;width:92px;height:92px;margin:0 auto;}
+      .wait-ring{width:92px;height:92px;display:block;animation:waitSpin 1.7s linear infinite;}
+      @keyframes waitSpin{to{transform:rotate(360deg);}}
+      .wait-ring circle{fill:none;stroke-width:7;stroke-linecap:round;}
+      .wait-ring-bg{stroke:var(--line);}
+      .wait-ring-arc{stroke:var(--accent);stroke-dasharray:64 163;animation:waitArc 1.7s ease-in-out infinite;}
+      @keyframes waitArc{0%{stroke-dashoffset:0;}50%{stroke-dashoffset:-80;}100%{stroke-dashoffset:-227;}}
+      .wait-sec{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:2px;color:var(--ink);}
+      .wait-sec span{font-family:"Manrope",sans-serif;font-weight:800;font-size:28px;line-height:1;}
+      .wait-sec small{font-size:11px;font-weight:700;color:var(--ink-soft);}
+      .wait-step{margin-top:10px;font-size:14.5px;font-weight:700;letter-spacing:.05em;color:var(--ink);}
+      .wait-sub{margin-top:3px;font-size:11.5px;color:var(--ink-soft);line-height:1.6;}
+
+      /* コンボメーター：連打で育つコンボハート（No.024）＋ゲージ */
+      .combo-meter{
+        display:flex;align-items:center;gap:7px;margin-top:8px;padding:6px 10px;
+        background:var(--card);border:1px solid var(--line);border-radius:999px;
+        opacity:.45;transition:opacity .25s ease;
+      }
+      .combo-meter.on{opacity:1;border-color:var(--accent);}
+      .combo-heart{display:inline-flex;color:var(--accent);transition:transform .2s ease;}
+      .combo-heart svg{width:19px;height:19px;display:block;}
+      .combo-num{font-family:"Manrope",sans-serif;font-weight:800;font-size:19px;color:var(--ink);min-width:24px;text-align:right;line-height:1;}
+      .combo-label{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--ink-soft);}
+      .combo-bar{flex:1;height:8px;border-radius:99px;background:var(--line);overflow:hidden;}
+      .combo-fill{display:block;height:100%;width:0;border-radius:99px;background:var(--accent);transition:width .18s ease;}
+
+      /* 粒子バースト（No.005）の粒 */
+      .fx-particle{position:absolute;width:7px;height:7px;border-radius:50%;pointer-events:none;z-index:8;}
+
+      /* 合図（カウントダウン・GO!・K.O.など）のスプリングポップ */
+      .sig-pop{animation:sigPop .5s cubic-bezier(.34,1.56,.64,1);}
+      @keyframes sigPop{0%{transform:scale(.55);opacity:.35;}55%{transform:scale(1.12);opacity:1;}100%{transform:scale(1);opacity:1;}}
+
+      @media (prefers-reduced-motion: reduce){
+        .wait-panel.show{animation:none;}
+        .wait-wolves .wolf,.wait-dots i,.wait-ring,.wait-ring-arc{animation:none;}
+        .sig-pop{animation:none;}
+        .result-card{animation:none;}
+        .combo-meter,.combo-heart,.combo-fill{transition:none;}
+      }
     </style>
     <script>document.documentElement.classList.add("js");try{if(sessionStorage.getItem("sukima-gate-ok")==="1")document.documentElement.classList.add("unlocked");}catch(e){}</script>
   <link rel="apple-touch-icon" href="sukima-icon-touch.png">
@@ -1437,6 +1496,15 @@
             <small>コードとパスワードの両方を相手に伝えてね。相手が入るまでこの画面のままで待っててね。</small>
             <button id="netCopy" type="button">コードとパスワードをコピー</button>
             <div class="sub-text" id="netCopyMsg" style="margin-top:6px;"></div>
+          </div>
+          <div class="wait-panel" id="waitPanel" role="status">
+            <div class="wait-wolves"><span id="waitWolf1"></span><span class="wait-dots" aria-hidden="true"><i></i><i></i><i></i></span><span id="waitWolf2"></span></div>
+            <div class="wait-ring-wrap">
+              <svg class="wait-ring" viewBox="0 0 84 84" aria-hidden="true"><circle class="wait-ring-bg" cx="42" cy="42" r="36"></circle><circle class="wait-ring-arc" cx="42" cy="42" r="36"></circle></svg>
+              <div class="wait-sec"><span id="waitSec">0</span><small>秒</small></div>
+            </div>
+            <div class="wait-step" id="waitStep">接続を読み込んでいます</div>
+            <div class="wait-sub">初回は30秒ほどかかることがあります。そのまま待っててね</div>
           </div>
           <div class="net-status" id="netStatus">オンラインで遊べます。下のボタンで部屋を作るか、コードで入ってください（部屋に入るまでは1台モードの表示です）</div>
           <button class="net-disconnect" id="netDisconnect" type="button">接続を切る</button>
@@ -1786,6 +1854,7 @@
           <div class="z-label">プレイヤー2（あお）</div>
           <button class="big-btn btn-p2" id="tugBtn2">ひっぱれ！ タップ連打</button>
           <div class="tug-count" id="tugCount2"></div>
+          <div class="combo-meter" id="tugCombo2" aria-hidden="true"></div>
         </div>
 
         <div class="center-box">
@@ -1801,6 +1870,7 @@
           <div class="z-label">プレイヤー1（あか）</div>
           <button class="big-btn btn-p1" id="tugBtn1">ひっぱれ！ タップ連打</button>
           <div class="tug-count" id="tugCount1"></div>
+          <div class="combo-meter" id="tugCombo1" aria-hidden="true"></div>
         </div>
       </section>
 
@@ -2159,10 +2229,12 @@
         <div class="wani-fields" id="waniFields">
           <div class="wani-wrap" id="waniWrap2">
             <div class="wani-label" id="waniLabel2">プレイヤー2（あお）</div>
+            <div class="combo-meter" id="waniCombo2" aria-hidden="true" style="margin:0 0 8px;"></div>
             <div class="wani-field" id="waniField2" style="transform:rotate(180deg);"></div>
           </div>
           <div class="wani-wrap" id="waniWrap1">
             <div class="wani-label" id="waniLabel1">プレイヤー1（あか）</div>
+            <div class="combo-meter" id="waniCombo1" aria-hidden="true" style="margin:0 0 8px;"></div>
             <div class="wani-field" id="waniField1"></div>
           </div>
         </div>
@@ -2388,6 +2460,7 @@
             <div class="box-hp"><div class="box-hp-fill f2" id="boxHpFill2"></div><span class="box-hp-num" id="boxHpNum2">HP 20</span></div>
             <div class="box-st"><div class="box-st-fill" id="boxStFill2"></div></div>
             <div class="box-chance" id="boxChance2">チャンス！</div>
+            <div class="combo-meter" id="boxCombo2" aria-hidden="true"></div>
             <div class="box-btns">
               <button class="big-btn btn-p2 box-punch" id="boxPunch2" type="button">パンチ</button>
               <button class="box-guardbtn" id="boxGuard2" type="button">ガード<small>長押し</small></button>
@@ -2411,6 +2484,7 @@
             <div class="box-hp"><div class="box-hp-fill f1" id="boxHpFill1"></div><span class="box-hp-num" id="boxHpNum1">HP 20</span></div>
             <div class="box-st"><div class="box-st-fill" id="boxStFill1"></div></div>
             <div class="box-chance" id="boxChance1">チャンス！</div>
+            <div class="combo-meter" id="boxCombo1" aria-hidden="true"></div>
             <div class="box-btns">
               <button class="big-btn btn-p1 box-punch" id="boxPunch1" type="button">パンチ</button>
               <button class="box-guardbtn" id="boxGuard1" type="button">ガード<small>長押し</small></button>
@@ -2432,6 +2506,7 @@
           <div class="hud-box"><small>コンボ</small><span id="swpComboNow">—</span></div>
           <div class="hud-box"><small>のこり</small><span id="swpTimeNow">40</span>秒</div>
         </div>
+        <div class="combo-meter" id="swpCombo" aria-hidden="true" style="margin:0 0 10px;"></div>
         <div class="swp-area" id="swpArea">
           <svg class="swp-slash" aria-hidden="true"><polyline id="swpTrailLine" points="" /></svg>
           <div class="swp-big" id="swpBig"></div>
@@ -2457,10 +2532,12 @@
         <div class="sht-fields" id="shtFields">
           <div class="sht-wrap" id="shtWrap2">
             <div class="sht-label" id="shtLabel2">プレイヤー2（あお）</div>
+            <div class="combo-meter" id="shtCombo2" aria-hidden="true" style="margin:0 0 8px;"></div>
             <div class="sht-field" id="shtField2" style="transform:rotate(180deg);"></div>
           </div>
           <div class="sht-wrap" id="shtWrap1">
             <div class="sht-label" id="shtLabel1">プレイヤー1（あか）</div>
+            <div class="combo-meter" id="shtCombo1" aria-hidden="true" style="margin:0 0 8px;"></div>
             <div class="sht-field" id="shtField1"></div>
           </div>
         </div>
@@ -2614,6 +2691,34 @@
         try{ Net.sendFn(obj); }catch(e){}
       }
       function netSetStatus(msg, isErr){ var el=$("netStatus"); if(el){ el.textContent=msg; el.className="net-status"+(isErr?" err":""); } }
+      /* ---------- オンライン待機パネル（活動リング＋経過秒数＋接続ステップ） ----------
+         接続の読み込み中〜相手の参加待ちの間だけオンライン欄に出す。
+         接続が完了（onJoin）または切断（netTeardown）で消える。 */
+      var waitUi = { iv:null, t0:0 };
+      function waitShow(step){
+        var p = $("waitPanel"); if(!p) return;
+        var w1 = $("waitWolf1"), w2 = $("waitWolf2");
+        if(w1) w1.innerHTML = wolf(1, "wolf-36");
+        if(w2) w2.innerHTML = wolf(2, "wolf-36");
+        if(step) $("waitStep").textContent = step;
+        p.classList.add("show");
+        if(!waitUi.iv){
+          waitUi.t0 = Date.now();
+          $("waitSec").textContent = "0";
+          waitUi.iv = setInterval(function(){
+            var el = $("waitSec");
+            if(el) el.textContent = String(Math.floor((Date.now() - waitUi.t0) / 1000));
+          }, 250);
+        }
+      }
+      function waitStepTo(step){
+        var s = $("waitStep"), p = $("waitPanel");
+        if(s && p && p.classList.contains("show")) s.textContent = step;
+      }
+      function waitHide(){
+        var p = $("waitPanel"); if(p) p.classList.remove("show");
+        if(waitUi.iv){ clearInterval(waitUi.iv); waitUi.iv = null; }
+      }
       function netUpdateBar(){
         /* オンライン接続が確立したときだけ、1人1台向けレイアウト（body.online）へ切り替える */
         document.body.classList.toggle("online", !!Net.connected);
@@ -2642,6 +2747,7 @@
         return v.trim();
       }
       function netTeardown(msg, isErr){
+        waitHide();
         Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.peerId=null;
         Net.sendFn=null; Net.action=null;
         if(Net.room){ try{ Net.room.leave(); }catch(e){} Net.room=null; }
@@ -2724,6 +2830,7 @@
           if(Net.connected){ return; } /* 2人専用：3人目は無視 */
           Net.peerId = peerId || null;
           Net.connected = true; Net.connecting = false;
+          waitHide();
           netUpdateBar(); applyOnlineLocks();
           if(Net.isHost) netSetStatus("相手がつながりました！ 下のゲームを選ぶと、相手の画面も同じゲームに進みます。");
           else { netSetStatus("部屋につながりました！ ゲームを選ぶと相手と一緒に遊べます。"); netSend({t:"hello"}); }
@@ -2766,16 +2873,19 @@
         if(Net.room) netTeardown();
         Net.password = pw;
         netSetStatus("オンライン接続を読み込んでいます…（初回は30秒ほどかかることがあります）");
+        waitShow("接続を読み込んでいます");
         netLoadTrystero().then(function(){
           Net.code = netGenCode(); Net.isHost = true; Net.myPlayer = 1; Net.connecting = true;
           $("netCodeText").textContent = Net.code;
           $("netPassText").textContent = Net.password;
           $("netCodeBox").classList.add("show");
           netSetStatus("部屋を作りました。相手がコードとパスワードを入れて入るのを待っています…（数十秒かかることがあります）");
+          waitStepTo("相手の参加を待っています");
           netUpdateBar();
           netJoinTrysteroRoom();
           later(function(){ if(!Net.connected && Net.connecting) netSetStatus("まだ相手が来ていません。コードとパスワードを伝えたか、この画面を開いたまま待っているか確認してね。", false); }, 45000);
         }).catch(function(){
+          waitHide();
           netSetStatus("オンライン接続の読み込みに失敗しました。通信環境を確認して、ページを開き直してみてね。", true);
         });
       }
@@ -2787,12 +2897,15 @@
         if(Net.room) netTeardown();
         Net.password = pw;
         netSetStatus("オンライン接続を読み込んでいます…（初回は30秒ほどかかることがあります）");
+        waitShow("接続を読み込んでいます");
         netLoadTrystero().then(function(){
           Net.code = code; Net.isHost = false; Net.myPlayer = 2; Net.connecting = true;
           netSetStatus("部屋を探して接続しています…（数十秒かかることがあります）"); netUpdateBar();
+          waitStepTo("相手を探しています");
           netJoinTrysteroRoom();
           later(function(){ if(!Net.connected && Net.connecting) netSetStatus("まだつながっていません。コードとパスワードが合っているか、相手がこの画面で待っているか確認してね。", true); }, 30000);
         }).catch(function(){
+          waitHide();
           netSetStatus("オンライン接続の読み込みに失敗しました。通信環境を確認して、ページを開き直してみてね。", true);
         });
       }
@@ -2984,6 +3097,72 @@
       });
       $("resultHome").addEventListener("click", function(){ go("home"); });
 
+      /* ---------- Dynamic UI helpers（UIスタジオのパターン） ----------
+         ・fxBurst：ヒット時の粒子バースト（No.005）。節目では大きく弾ける
+         ・comboSet / comboHit：連打で育つコンボハート＋ゲージ（No.024）
+         ・sigPop：合図や結果見出しのスプリング出現
+         得点計算には一切触れず、見た目の演出だけを担当する。 */
+      var REDUCED_MOTION = !!(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches);
+      var COMBO_HEART = '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 20.5S4.8 16 3.2 12.2C1.9 9.1 4 5.9 7.2 5.9c1.9 0 3.4 1 4.2 2.4.3.6 1 .6 1.3 0 .8-1.4 2.3-2.4 4.2-2.4 3.2 0 5.3 3.2 4 6.3C19.2 16 12 20.5 12 20.5z"/></svg>';
+      function comboInit(id){
+        var el = $(id); if(!el || el._built) return;
+        el._built = true; el._cv = 0;
+        el.innerHTML = '<span class="combo-heart">' + COMBO_HEART + '</span><span class="combo-num">0</span><span class="combo-label">コンボ</span><span class="combo-bar"><span class="combo-fill"></span></span>';
+      }
+      function comboSet(id, n){
+        var el = $(id); if(!el) return;
+        comboInit(id);
+        if(el._cv === n) return;
+        el._cv = n;
+        el.classList.toggle("on", n >= 2);
+        var num = el.querySelector(".combo-num");
+        num.textContent = n;
+        el.querySelector(".combo-fill").style.width = (n <= 0 ? 0 : (((n - 1) % 10) + 1) * 10) + "%";
+        var heart = el.querySelector(".combo-heart");
+        if(heart) heart.style.transform = "scale(" + (1 + Math.min(0.5, n * 0.035)).toFixed(2) + ")";
+        if(n > 0 && !REDUCED_MOTION && num.animate){
+          num.animate([{ transform:"scale(1.4)" }, { transform:"scale(1)" }], { duration:280, easing:"cubic-bezier(.34,1.56,.64,1)" });
+        }
+      }
+      function fxBurst(host, x, y, big){
+        if(REDUCED_MOTION || !host) return;
+        var colors = ["#2e4a3f", "#86a391", "#1b1b18", "#b98a1d"];
+        var n = big ? 16 : 7;
+        for(var i = 0; i < n; i++){
+          var s = document.createElement("span");
+          s.className = "fx-particle";
+          s.style.background = colors[i % colors.length];
+          if(big){ s.style.width = "8px"; s.style.height = "8px"; }
+          s.style.left = (x - 4) + "px"; s.style.top = (y - 4) + "px";
+          host.appendChild(s);
+          var ang = (Math.PI * 2 * i) / n + Math.random() * 0.6;
+          var dist = (big ? 36 : 17) + Math.random() * (big ? 54 : 24);
+          if(s.animate) s.animate([
+            { transform:"translate(0,0) scale(1)", opacity:1 },
+            { transform:"translate(" + (Math.cos(ang) * dist).toFixed(1) + "px," + (Math.sin(ang) * dist).toFixed(1) + "px) scale(.35)", opacity:0 }
+          ], { duration: big ? 580 : 400, easing:"ease-out" });
+          (function(el, d){ setTimeout(function(){ if(el.parentNode) el.parentNode.removeChild(el); }, d); })(s, big ? 620 : 440);
+        }
+      }
+      function comboHit(id, n, host, x, y, step){
+        comboSet(id, n);
+        step = step || 10;
+        if(n > 0 && n % step === 0){
+          sfx("sparkle");
+          if(host) fxBurst(host, x, y, true);
+          var el = $(id);
+          if(el && !REDUCED_MOTION && el.animate) el.animate([{ transform:"scale(1.05)" }, { transform:"scale(1)" }], { duration:340, easing:"cubic-bezier(.34,1.56,.64,1)" });
+        } else if(host){
+          fxBurst(host, x, y, false);
+        }
+      }
+      function sigPop(el){
+        if(!el || REDUCED_MOTION) return;
+        el.classList.remove("sig-pop");
+        void el.offsetWidth;
+        el.classList.add("sig-pop");
+      }
+
       function heartLives(n){
         var s = "";
         for(var i=0;i<5;i++) s += (i < n ? "♥" : "♡");
@@ -2993,7 +3172,7 @@
       /* ================================================================
          1. 連打つなひき
       ================================================================ */
-      var tug = { pos:50, active:false, over:false, c1:0, c2:0 };
+      var tug = { pos:50, active:false, over:false, c1:0, c2:0, streak:{1:0, 2:0} };
       function tugUpdate(){
         $("tugKnot").style.left = tug.pos + "%";
         $("tugCount1").textContent = tug.c1 > 0 ? tug.c1 + "連打！" : "";
@@ -3017,6 +3196,14 @@
         if(!tug.active || tug.over) return;
         if(Net.connected && !remote) netSend({t:"tugTap", p:p});
         if(p===1){ tug.pos -= 3.1; tug.c1++; } else { tug.pos += 3.1; tug.c2++; }
+        tug.streak[p]++; tug.streak[p === 1 ? 2 : 1] = 0;
+        comboSet("tugCombo" + p, tug.streak[p]);
+        comboSet("tugCombo" + (p === 1 ? 2 : 1), 0);
+        if(tug.streak[p] > 0 && tug.streak[p] % 10 === 0){
+          sfx("sparkle");
+          var trk = document.querySelector(".tug-track");
+          if(trk) fxBurst(trk, trk.clientWidth * tug.pos / 100, trk.clientHeight / 2, true);
+        }
         if(tug.pos < 0) tug.pos = 0;
         if(tug.pos > 100) tug.pos = 100;
         tugUpdate();
@@ -3024,7 +3211,8 @@
         else if(tug.pos >= 99.5) tugWin(2);
       }
       function tugInit(){
-        tug.pos = 50; tug.active = false; tug.over = false; tug.c1 = 0; tug.c2 = 0;
+        tug.pos = 50; tug.active = false; tug.over = false; tug.c1 = 0; tug.c2 = 0; tug.streak = {1:0, 2:0};
+        comboSet("tugCombo1", 0); comboSet("tugCombo2", 0);
         tugUpdate();
         $("tugBtn1").disabled = true; $("tugBtn2").disabled = true;
         if(Net.connected && !Net.isHost){
@@ -3038,9 +3226,11 @@
           if(currentGame !== "tug") return;
           if(i < 3){
             $("tugStatus").textContent = seq[i];
+            sigPop($("tugStatus"));
             i++; later(step, 650);
           } else {
             $("tugStatus").textContent = seq[3];
+            sigPop($("tugStatus"));
             $("tugBtn1").disabled = Net.connected && Net.myPlayer !== 1;
             $("tugBtn2").disabled = Net.connected && Net.myPlayer !== 2;
             tug.active = true;
@@ -3056,6 +3246,7 @@
       NetH.tugGo = function(){
         if(currentGame !== "tug" || tug.over) return;
         $("tugStatus").textContent = "スタート！";
+        sigPop($("tugStatus"));
         tug.active = true;
         $("tugBtn1").disabled = Net.myPlayer !== 1;
         $("tugBtn2").disabled = Net.myPlayer !== 2;
@@ -3086,6 +3277,7 @@
           if(currentGame !== "haya" || haya.phase !== "wait") return;
           haya.phase = "go"; haya.goTime = performance.now();
           $("hayaDisplay").textContent = "GO!";
+          sigPop($("hayaDisplay"));
           $("hayaDisplay").style.color = "var(--green)";
           $("hayaState1").textContent = "いまだ！タップ！";
           $("hayaState2").textContent = "いまだ！タップ！";
@@ -3162,6 +3354,7 @@
         if(currentGame !== "haya") return;
         haya.phase = "go"; haya.goTime = performance.now();
         $("hayaDisplay").textContent = "GO!"; $("hayaDisplay").style.color = "var(--green)";
+        sigPop($("hayaDisplay"));
         $("hayaState1").textContent = "いまだ！タップ！"; $("hayaState2").textContent = "いまだ！タップ！";
         $("hayaSub").textContent = "先にタップした方の勝ち！";
       };
@@ -4916,7 +5109,14 @@
         return '<svg viewBox="0 0 64 46" aria-hidden="true"><circle cx="20" cy="10" r="7.5" fill="' + fill + '"/><circle cx="44" cy="10" r="7.5" fill="' + fill + '"/><circle cx="20" cy="10" r="3.2" fill="#fff"/><circle cx="44" cy="10" r="3.2" fill="#fff"/><circle cx="20" cy="10.5" r="1.7" fill="#1b1b18"/><circle cx="44" cy="10.5" r="1.7" fill="#1b1b18"/><rect x="6" y="12" width="52" height="27" rx="13" fill="' + fill + '"/><circle cx="24" cy="23" r="2.1" fill="rgba(0,0,0,.32)"/><circle cx="40" cy="23" r="2.1" fill="rgba(0,0,0,.32)"/><path d="M15 33.5l4 5.5 4-5.5 4 5.5 4-5.5 4 5.5 4-5.5 4 5.5 4-5.5" stroke="' + tooth + '" stroke-width="2.4" fill="none" stroke-linejoin="round" stroke-linecap="round"/></svg>';
       }
       var WANI_PTS = [1, 3, -2];
-      var wani = { playing:false, over:false, scores:{1:0,2:0}, timeLeft:40, lastTs:0, spawnAcc:[0,0], fields:[], nextId:0, online:false };
+      var wani = { playing:false, over:false, scores:{1:0,2:0}, combo:{1:0,2:0}, timeLeft:40, lastTs:0, spawnAcc:[0,0], fields:[], nextId:0, online:false };
+      /* ヒットのたびにコンボを育てる（黒ワニを叩くとリセット）。得点計算は変えない */
+      function waniComboFx(p, pts, f, holeIdx){
+        if(pts > 0) wani.combo[p]++; else wani.combo[p] = 0;
+        var hole = wani.fields[f][holeIdx];
+        var mid = wani.online ? "waniCombo1" : "waniCombo" + p;
+        comboHit(mid, wani.combo[p], hole.el, hole.el.clientWidth / 2, hole.el.clientHeight / 2);
+      }
       function waniBuildField(container){
         var holes = [];
         container.innerHTML = "";
@@ -4995,6 +5195,7 @@
         hole.croc.claimed = true;
         wani.scores[p2] = Math.max(0, wani.scores[p2] + pts);
         waniPop(f, holeIdx, pts);
+        waniComboFx(p2, pts, f, holeIdx);
         waniHideCroc(f, holeIdx);
         waniHud();
       }
@@ -5008,6 +5209,7 @@
             wani.scores[p] = Math.max(0, wani.scores[p] + pts);
             netSend({t:"waniScore", s1:wani.scores[1], s2:wani.scores[2], id:id, p:p, pts:pts});
             waniPop(0, i, pts);
+            waniComboFx(p, pts, 0, i);
             waniHideCroc(0, i);
             waniHud();
             return;
@@ -5058,7 +5260,8 @@
         if(Net.connected && !Net.isHost && !remote) return;
         if(Net.connected && Net.isHost && !remote) netSend({t:"waniStart", dur:40});
         wani.online = !!Net.connected;
-        wani.scores = {1:0, 2:0}; wani.timeLeft = 40; wani.lastTs = 0; wani.spawnAcc = [0.3, 0.55];
+        wani.scores = {1:0, 2:0}; wani.combo = {1:0, 2:0}; wani.timeLeft = 40; wani.lastTs = 0; wani.spawnAcc = [0.3, 0.55];
+        comboSet("waniCombo1", 0); comboSet("waniCombo2", 0);
         wani.over = false; wani.playing = true;
         $("waniWrap2").style.display = wani.online ? "none" : "";
         $("waniFields").classList.toggle("single", wani.online);
@@ -5075,7 +5278,8 @@
           wani.fields = [waniBuildField($("waniField1")), waniBuildField($("waniField2"))];
         }
         wani.playing = false; wani.over = false;
-        wani.scores = {1:0, 2:0}; wani.timeLeft = 40;
+        wani.scores = {1:0, 2:0}; wani.combo = {1:0, 2:0}; wani.timeLeft = 40;
+        comboSet("waniCombo1", 0); comboSet("waniCombo2", 0);
         wani.online = !!Net.connected;
         $("waniWrap2").style.display = wani.online ? "none" : "";
         $("waniFields").classList.toggle("single", wani.online);
@@ -5102,7 +5306,7 @@
         for(var i=0;i<9;i++){
           var hole = wani.fields[0][i];
           if(hole.croc && hole.croc.id === m.id){
-            if(!Net.isHost){ waniPop(0, i, m.pts); }
+            if(!Net.isHost){ waniPop(0, i, m.pts); waniComboFx(m.p, m.pts, 0, i); }
             waniHideCroc(0, i);
             break;
           }
@@ -7665,7 +7869,7 @@
       ================================================================ */
       var BOX_HP = 20, BOX_COST = 34;
       var box = { phase:"idle", hp:{1:BOX_HP, 2:BOX_HP}, st:{1:100, 2:100}, guard:{1:false, 2:false},
-        busy:{1:false, 2:false}, chance:{1:0, 2:0}, nextChance:{1:0, 2:0}, lastTs:0 };
+        busy:{1:false, 2:false}, chance:{1:0, 2:0}, nextChance:{1:0, 2:0}, combo:{1:0, 2:0}, lastTs:0 };
       function boxGloveSvg(p){
         var fill = p === 1 ? "#2b2b26" : "#2e4a3f";
         var cuff = p === 1 ? "#6f6f68" : "#86a391";
@@ -7738,10 +7942,14 @@
         if(box.guard[def]){
           sfx("guard");
           boxPop(px, py, "ガード！", "guard");
+          box.combo[atk] = 0; comboSet("boxCombo" + atk, 0);
           return;
         }
         var dmg = crit ? 3 : 1;
         box.hp[def] = Math.max(0, box.hp[def] - dmg);
+        box.combo[atk]++; box.combo[def] = 0;
+        comboHit("boxCombo" + atk, box.combo[atk], $("boxArena"), px, py, 5);
+        comboSet("boxCombo" + def, 0);
         sfx(crit ? "crit" : "punch");
         fEl.classList.remove("hit"); void fEl.offsetWidth; fEl.classList.add("hit");
         boxPop(px, py, crit ? "クリティカル！ -" + dmg : "-" + dmg, crit ? "crit" : "");
@@ -7772,6 +7980,7 @@
         if(box.phase === "count" || box.phase === "run") return;
         box.hp = {1:BOX_HP, 2:BOX_HP}; box.st = {1:100, 2:100};
         box.guard = {1:false, 2:false}; box.busy = {1:false, 2:false};
+        box.combo = {1:0, 2:0}; comboSet("boxCombo1", 0); comboSet("boxCombo2", 0);
         box.chance = {1:0, 2:0};
         var now = performance.now();
         box.nextChance = {1: now + 2600 + Math.random() * 1500, 2: now + 3600 + Math.random() * 1500};
@@ -7789,11 +7998,12 @@
         boxHud();
         var n = 3;
         $("boxStatus").textContent = n;
+        sigPop($("boxStatus"));
         sfx("count");
         var cd = every(function(){
           n--;
-          if(n > 0){ $("boxStatus").textContent = n; sfx("count"); }
-          else if(n === 0){ $("boxStatus").textContent = "ファイト！"; sfx("go"); }
+          if(n > 0){ $("boxStatus").textContent = n; sigPop($("boxStatus")); sfx("count"); }
+          else if(n === 0){ $("boxStatus").textContent = "ファイト！"; sigPop($("boxStatus")); sfx("go"); }
           else {
             clearInterval(cd);
             box.phase = "run"; box.lastTs = 0;
@@ -7812,6 +8022,7 @@
         stage.classList.remove("shake"); void stage.offsetWidth; stage.classList.add("shake");
         var status = $("boxStatus");
         status.textContent = "K.O.！";
+        sigPop(status);
         status.classList.add("ko");
         sfx("ko");
         if(winner === 1) records.boxing.p1++; else records.boxing.p2++;
@@ -7828,6 +8039,7 @@
         box.phase = "idle";
         box.hp = {1:BOX_HP, 2:BOX_HP}; box.st = {1:100, 2:100};
         box.guard = {1:false, 2:false}; box.busy = {1:false, 2:false}; box.chance = {1:0, 2:0};
+        box.combo = {1:0, 2:0}; comboSet("boxCombo1", 0); comboSet("boxCombo2", 0);
         [1, 2].forEach(function(p){
           $("boxFighter" + p).classList.remove("ko", "hit", "guarding");
           $("boxStars" + p).classList.remove("on");
@@ -7894,6 +8106,7 @@
         $("swpScoreNow").textContent = swp.score;
         $("swpComboNow").textContent = swp.combo > 1 ? swp.combo + "コンボ" : "—";
         $("swpTimeNow").textContent = Math.max(0, Math.ceil(swp.timeLeft));
+        comboSet("swpCombo", swp.combo);
       }
       function swpSetControls(){ $("swpStart").style.display = swp.phase === "idle" ? "" : "none"; }
       function swpDrawTrail(){
@@ -7959,6 +8172,7 @@
         swp.score += pts;
         sfx(it.kind === "gold" ? "sparkle" : "slash");
         swpPop(it.x, it.y, "+" + pts, it.kind === "gold" ? "gold" : "");
+        comboHit("swpCombo", swp.combo, area, it.x, it.y);
         for(var s = -1; s <= 1; s += 2){
           var h = document.createElement("div");
           h.className = "swp-half";
@@ -8047,11 +8261,12 @@
         $("swpStatus").textContent = "よーい…";
         var n = 3;
         $("swpBig").textContent = n;
+        sigPop($("swpBig"));
         sfx("count");
         var cd = every(function(){
           n--;
-          if(n > 0){ $("swpBig").textContent = n; sfx("count"); }
-          else if(n === 0){ $("swpBig").textContent = "GO!"; sfx("go"); }
+          if(n > 0){ $("swpBig").textContent = n; sigPop($("swpBig")); sfx("count"); }
+          else if(n === 0){ $("swpBig").textContent = "GO!"; sigPop($("swpBig")); sfx("go"); }
           else { clearInterval(cd); swpBeginRun(); }
         }, 620);
       }
@@ -8066,6 +8281,7 @@
         swp.scores[swp.turn] = swp.score;
         sfx("stop");
         $("swpBig").textContent = "終了！";
+        sigPop($("swpBig"));
         swp.timeLeft = 0;
         swpRender(); swpHud(); swpSetControls();
         if(swp.turn === 1){
@@ -8129,6 +8345,7 @@
       }
       function shtLabels(){
         [1, 2].forEach(function(p){
+          comboSet("shtCombo" + p, sht.combo[p]);
           var c = sht.combo[p];
           $("shtLabel" + p).innerHTML = wolf(p, "wolf-24") + "<span>プレイヤー" + p + "（" + (p === 1 ? "あか" : "あお") + "）</span>" +
             '<span class="sht-combo">' + (c >= 4 ? "コンボ ×" + shtMult(p) : c >= 2 ? "コンボ " + c : "") + "</span>";
@@ -8228,6 +8445,7 @@
               shtPop(f, t.cx, t.cy, "-20", "neg");
             } else {
               sht.combo[p]++;
+              if(sht.combo[p] % 10 === 0){ sfx("sparkle"); fxBurst(field, t.cx, t.cy, true); }
               var pts = t.pts * shtMult(p);
               sht.scores[p] += pts;
               sfx(t.kind === "gold" ? "sparkle" : "pop");
