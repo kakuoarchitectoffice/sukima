@@ -447,6 +447,7 @@
       .net-steps b{color:var(--ink);font-weight:700;}
       .net-note{font-size:11.5px !important;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:10px 12px;}
       .net-label{display:block;font-size:12px;font-weight:700;margin:12px 0 6px;letter-spacing:.04em;}
+      .net-join-hint{font-size:11.5px;color:var(--ink-soft);line-height:1.6;margin:0;}
       .net-pass{
         width:100%;font-family:inherit;font-weight:400;font-size:15.5px;border:1px solid var(--line-strong);border-radius:8px;
         padding:12px;background:var(--bg);color:var(--ink);min-height:50px;
@@ -1282,6 +1283,7 @@
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
           <div class="net-join" id="netJoinRow" style="display:none;">
             <input class="net-pass" id="netCodeInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" maxlength="6" placeholder="コード6文字" aria-label="ルームコード" />
+            <p class="net-join-hint">パスワードは日本語でも入力できます（4文字以上・部屋を作った人と同じものを入れてね）</p>
             <input class="net-pass pw" id="netPassJoin" type="password" autocomplete="off" placeholder="パスワード" aria-label="部屋のパスワード（入る側）" />
             <button class="net-big-btn" id="netJoin" style="background:var(--p2);margin-top:0;">この部屋に入る</button>
           </div>
@@ -1292,7 +1294,7 @@
             <button id="netCopy" type="button">コードとパスワードをコピー</button>
             <div class="sub-text" id="netCopyMsg" style="margin-top:6px;"></div>
           </div>
-          <div class="net-status" id="netStatus">今はオフライン（1台で遊ぶモード）です</div>
+          <div class="net-status" id="netStatus">オンラインで遊べます。下のボタンで部屋を作るか、コードで入ってください（部屋に入るまでは1台モードの表示です）</div>
           <button class="net-disconnect" id="netDisconnect" type="button">接続を切る</button>
         </div>
 
@@ -2498,7 +2500,7 @@
         if(pw.length < 4){ netSetStatus("パスワードは4文字以上で決めてね（相手と共有する合言葉です）。", true); $("netPassCreate").focus(); return; }
         if(Net.room) netTeardown();
         Net.password = pw;
-        netSetStatus("オンライン接続を読み込んでいます…");
+        netSetStatus("オンライン接続を読み込んでいます…（初回は30秒ほどかかることがあります）");
         netLoadTrystero().then(function(){
           Net.code = netGenCode(); Net.isHost = true; Net.myPlayer = 1; Net.connecting = true;
           $("netCodeText").textContent = Net.code;
@@ -2519,7 +2521,7 @@
         if(pw.length < 4){ netSetStatus("パスワードを入力してね（部屋を作った人から聞いた合言葉です）。", true); $("netPassJoin").focus(); return; }
         if(Net.room) netTeardown();
         Net.password = pw;
-        netSetStatus("オンライン接続を読み込んでいます…");
+        netSetStatus("オンライン接続を読み込んでいます…（初回は30秒ほどかかることがあります）");
         netLoadTrystero().then(function(){
           Net.code = code; Net.isHost = false; Net.myPlayer = 2; Net.connecting = true;
           netSetStatus("部屋を探して接続しています…（数十秒かかることがあります）"); netUpdateBar();
