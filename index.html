@@ -442,6 +442,12 @@
       }
       .net-disconnect{display:none;margin:12px auto 0;}
       .net-disconnect.show{display:block;}
+      .net-retry{
+        display:none;margin:12px auto 0;border-radius:999px;font-weight:700;font-size:13.5px;
+        padding:10px 24px;color:#fff;background:var(--accent);border:1px solid var(--accent);min-height:44px;
+      }
+      .net-retry.show{display:block;}
+      @media (prefers-color-scheme: dark){ .net-retry{color:#161615;} }
       .opp-locked{opacity:.55;}
       .net-steps{margin:0 0 12px;padding:0 0 0 20px;font-size:12.5px;font-weight:400;color:var(--ink-soft);line-height:1.95;}
       .net-steps b{color:var(--ink);font-weight:700;}
@@ -456,10 +462,6 @@
       @media (prefers-color-scheme: dark){ .net-big-btn{color:#161615;} .btn-p1.net-big-btn{color:#161615;} }
       .net-join{flex-direction:column;}
       .net-join .net-pass{letter-spacing:.18em;text-transform:uppercase;text-align:center;font-weight:700;font-family:"Manrope",sans-serif;}
-      .net-join .net-pass.pw{text-transform:none;letter-spacing:0;text-align:left;font-weight:400;font-family:inherit;}
-      .net-code .pw{font-size:14px;font-weight:500;color:var(--ink);margin-top:4px;}
-      .net-code .pw span{color:var(--accent);font-weight:700;}
-      @media (prefers-color-scheme: dark){ .net-code .pw span{color:var(--accent);} }
 
       /* ---------- Janken ---------- */
       .jk-choices{display:flex;gap:8px;}
@@ -1475,26 +1477,21 @@
         <div class="online-card">
           <h3>オンラインで遊ぶ（2台のスマホで）</h3>
           <ol class="net-steps">
-            <li><b>部屋を作る人</b>が、下でパスワードを決めて「部屋を作る」を押す</li>
-            <li>出てきた<b>6文字のコード</b>と<b>パスワード</b>を相手に伝える</li>
-            <li><b>相手</b>が「コードで入る」から両方を入力すれば接続完了！</li>
+            <li><b>部屋を作る人</b>が、下の「部屋を作る」を押す</li>
+            <li>出てきた<b>6文字のコード</b>を相手に伝える</li>
+            <li><b>相手</b>が「コードで入る」からコードを入力すれば接続完了！</li>
           </ol>
           <p class="net-note">ゲームの内容は2台のスマホの間を暗号化して直接やり取りします（WebRTC）。相手を見つける時だけ公開リレーを使い、ゲーム内容はそこを通りません。アカウント登録は不要です。接続まで数十秒かかることがあります。</p>
-          <label class="net-label" for="netPassCreate">部屋を作る：パスワードを決めてね（4文字以上・日本語でもOK）</label>
-          <input class="net-pass" id="netPassCreate" type="password" autocomplete="off" placeholder="例：ふたりだけの合言葉" aria-label="部屋のパスワード（作る側）" />
           <button class="btn-p1 net-big-btn" id="netCreate">部屋を作る（コード発行）</button>
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
           <div class="net-join" id="netJoinRow" style="display:none;">
             <input class="net-pass" id="netCodeInput" type="text" inputmode="text" autocomplete="off" autocapitalize="characters" maxlength="6" placeholder="コード6文字" aria-label="ルームコード" />
-            <p class="net-join-hint">パスワードは日本語でも入力できます（4文字以上・部屋を作った人と同じものを入れてね）</p>
-            <input class="net-pass pw" id="netPassJoin" type="password" autocomplete="off" placeholder="パスワード" aria-label="部屋のパスワード（入る側）" />
             <button class="net-big-btn" id="netJoin" style="background:var(--p2);margin-top:0;">この部屋に入る</button>
           </div>
           <div class="net-code" id="netCodeBox">
             <div class="code" id="netCodeText">------</div>
-            <div class="pw">パスワード：<span id="netPassText"></span></div>
-            <small>コードとパスワードの両方を相手に伝えてね。相手が入るまでこの画面のままで待っててね。</small>
-            <button id="netCopy" type="button">コードとパスワードをコピー</button>
+            <small>このコードだけを相手に伝えてね。相手が入るまでこの画面のままで待っててね。</small>
+            <button id="netCopy" type="button">コードをコピー</button>
             <div class="sub-text" id="netCopyMsg" style="margin-top:6px;"></div>
           </div>
           <div class="wait-panel" id="waitPanel" role="status">
@@ -1507,6 +1504,7 @@
             <div class="wait-sub">初回は30秒ほどかかることがあります。そのまま待っててね</div>
           </div>
           <div class="net-status" id="netStatus">オンラインで遊べます。下のボタンで部屋を作るか、コードで入ってください（部屋に入るまでは1台モードの表示です）</div>
+          <button class="net-retry" id="netRetry" type="button">再接続する</button>
           <button class="net-disconnect" id="netDisconnect" type="button">接続を切る</button>
         </div>
 
@@ -2656,22 +2654,43 @@
          Game data travels directly between the two browsers over an encrypted
          WebRTC data channel; public Nostr relays are used only to introduce the
          two peers. No account, no API key, no game data on any server. Rooms are
-         gated by a 6-char code plus a shared password (the password keys the
-         encrypted signalling exchange). Loaded lazily as an ES module from a
-         public CDN only when the user starts an online session. */
+         joined with a 6-char code only: the encryption password Trystero needs
+         is derived from the code internally (same code -> same value on both
+         sides), so the user never types or shares a password. The library is
+         preloaded in the background once the online card is on screen, so
+         pressing the button does not wait for the download. */
       var TRYSTERO_APP_ID = "futari-minigame-katupuru-2026";
+      /* 応答の速いCDNから順に試す。1か所が遅い・落ちていても、タイムアウトで
+         次の候補へ切り替えるので、遅いCDNに当たって待たされ続けない。 */
       var TRYSTERO_CDNS = [
+        "https://cdn.jsdelivr.net/npm/trystero@0.25.4/+esm",
+        "https://esm.sh/trystero@0.25.4",
         "https://esm.run/trystero@0.25.4",
-        "https://cdn.jsdelivr.net/npm/trystero@0.25.4/+esm"
+        "https://unpkg.com/trystero@0.25.4?module"
+      ];
+      /* 相手探しに使う公開リレーを複数指定して、発見を早める */
+      var TRYSTERO_RELAYS = [
+        "wss://relay.damus.io",
+        "wss://nos.lol",
+        "wss://relay.nostr.band",
+        "wss://relay.snort.social",
+        "wss://nostr.mom",
+        "wss://relay.primal.net"
       ];
       var trysteroJoinRoom = null;
       var trysteroLoading = null;
+      function netImportWithTimeout(url, ms){
+        return Promise.race([
+          import(url),
+          new Promise(function(_, reject){ setTimeout(function(){ reject(new Error("cdn timeout")); }, ms); })
+        ]);
+      }
       function netLoadTrystero(){
         if(trysteroJoinRoom) return Promise.resolve(trysteroJoinRoom);
         if(trysteroLoading) return trysteroLoading;
         var chain = Promise.reject(new Error("start"));
         TRYSTERO_CDNS.forEach(function(url){
-          chain = chain.catch(function(){ return import(url); });
+          chain = chain.catch(function(){ return netImportWithTimeout(url, 9000); });
         });
         trysteroLoading = chain.then(function(mod){
           if(!mod || typeof mod.joinRoom !== "function") throw new Error("bad module");
@@ -2684,13 +2703,18 @@
         });
         return trysteroLoading;
       }
-      var Net = { room:null, action:null, sendFn:null, isHost:false, myPlayer:0, code:"", password:"", connected:false, connecting:false, peerId:null };
+      /* ユーザーが触るのは6文字のコードだけ。暗号化に必要なパスワードは
+         コードから自動で決まる文字列を内部的に使う（作る側・入る側で
+         同じコードから同じ値になる）。 */
+      function netRoomPassword(code){ return "sukima-room-" + code; }
+      var Net = { room:null, action:null, sendFn:null, isHost:false, myPlayer:0, code:"", password:"", connected:false, connecting:false, peerId:null, mode:"", session:0 };
       var NetH = {};
       function netSend(obj){
         if(!Net.connected || !Net.sendFn) return;
         try{ Net.sendFn(obj); }catch(e){}
       }
       function netSetStatus(msg, isErr){ var el=$("netStatus"); if(el){ el.textContent=msg; el.className="net-status"+(isErr?" err":""); } }
+      function netShowRetry(show){ var b=$("netRetry"); if(b) b.className = "net-retry" + (show ? " show" : ""); }
       /* ---------- オンライン待機パネル（活動リング＋経過秒数＋接続ステップ） ----------
          接続の読み込み中〜相手の参加待ちの間だけオンライン欄に出す。
          接続が完了（onJoin）または切断（netTeardown）で消える。 */
@@ -2737,18 +2761,11 @@
         var syBtn=$("syncStart"); if(syBtn){ syBtn.textContent = guest ? "ホストのスタート待ち" : "スタート"; }
       }
       function netGenCode(){ var chars="ABCDEFGHJKMNPQRSTUVWXYZ23456789"; var out=""; for(var i=0;i<6;i++) out+=chars.charAt(Math.floor(Math.random()*chars.length)); return out; }
-      /* 合言葉は日本語（ひらがな・カタカナ・漢字）も使える。作る側・入る側で
-         まったく同じ文字列として扱うため、両方で同じ正規化を通す：
-         NFKCで半角カナ→全角カナ・全角英数→半角・結合文字の合成をそろえ、
-         前後の空白（全角スペース含む）を取り除く。 */
-      function netNormPw(s){
-        var v = String(s == null ? "" : s);
-        try{ v = v.normalize("NFKC"); }catch(e){}
-        return v.trim();
-      }
       function netTeardown(msg, isErr){
         waitHide();
-        Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.peerId=null;
+        netShowRetry(false);
+        Net.session++;
+        Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.peerId=null; Net.mode="";
         Net.sendFn=null; Net.action=null;
         if(Net.room){ try{ Net.room.leave(); }catch(e){} Net.room=null; }
         var cb=$("netCodeBox"); if(cb) cb.classList.remove("show");
@@ -2831,6 +2848,7 @@
           Net.peerId = peerId || null;
           Net.connected = true; Net.connecting = false;
           waitHide();
+          netShowRetry(false);
           netUpdateBar(); applyOnlineLocks();
           if(Net.isHost) netSetStatus("相手がつながりました！ 下のゲームを選ぶと、相手の画面も同じゲームに進みます。");
           else { netSetStatus("部屋につながりました！ ゲームを選ぶと相手と一緒に遊べます。"); netSend({t:"hello"}); }
@@ -2852,13 +2870,15 @@
         try{ room.onPeerLeave = onLeave; }catch(e){}
       }
       function netJoinTrysteroRoom(){
-        var config = { appId: TRYSTERO_APP_ID, password: Net.password };
+        var config = { appId: TRYSTERO_APP_ID, password: Net.password, relayUrls: TRYSTERO_RELAYS };
         var room;
         try{
           room = trysteroJoinRoom(config, "room-" + Net.code, {
             onJoinError: function(info){
               if(Net.connecting && !Net.connected){
-                netSetStatus("接続でエラーがありました。パスワードが相手と合っているか確認して、試し直してみてね。", true);
+                waitStepTo("接続でエラーがありました");
+                netSetStatus("接続でエラーがありました。「再接続する」を押して、もう一度試してみてね。", true);
+                netShowRetry(true);
               }
             }
           });
@@ -2867,47 +2887,93 @@
         }
         netSetupRoom(room);
       }
-      function netCreateRoom(){
-        var pw = netNormPw($("netPassCreate").value);
-        if(pw.length < 4){ netSetStatus("パスワードは4文字以上で決めてね（相手と共有する合言葉です）。", true); $("netPassCreate").focus(); return; }
-        if(Net.room) netTeardown();
-        Net.password = pw;
-        netSetStatus("オンライン接続を読み込んでいます…（初回は30秒ほどかかることがあります）");
-        waitShow("接続を読み込んでいます");
+      /* ライブラリの読み込み（先読み済みなら即完了）と部屋への参加。
+         失敗したら待機パネルに状態を出し、「再接続する」ボタンを出す。 */
+      function netConnectAndJoin(){
+        var sid = Net.session;
         netLoadTrystero().then(function(){
-          Net.code = netGenCode(); Net.isHost = true; Net.myPlayer = 1; Net.connecting = true;
-          $("netCodeText").textContent = Net.code;
-          $("netPassText").textContent = Net.password;
-          $("netCodeBox").classList.add("show");
-          netSetStatus("部屋を作りました。相手がコードとパスワードを入れて入るのを待っています…（数十秒かかることがあります）");
-          waitStepTo("相手の参加を待っています");
-          netUpdateBar();
+          if(!Net.connecting || Net.session !== sid) return; /* その間に切断・やり直し済み */
           netJoinTrysteroRoom();
-          later(function(){ if(!Net.connected && Net.connecting) netSetStatus("まだ相手が来ていません。コードとパスワードを伝えたか、この画面を開いたまま待っているか確認してね。", false); }, 45000);
         }).catch(function(){
-          waitHide();
-          netSetStatus("オンライン接続の読み込みに失敗しました。通信環境を確認して、ページを開き直してみてね。", true);
+          if(!Net.connecting || Net.session !== sid) return;
+          waitStepTo("読み込みに失敗しました");
+          netSetStatus("オンライン接続の読み込みに失敗しました。通信環境を確認して、「再接続する」を押してみてね。", true);
+          netShowRetry(true);
         });
+      }
+      /* 相手がなかなか見つからないときの案内＋再接続ボタン（試行ごとに張り直す） */
+      function netArmWaitTimeout(){
+        var sid = Net.session;
+        var ms = Net.isHost ? 45000 : 30000;
+        later(function(){
+          if(Net.connected || !Net.connecting || Net.session !== sid) return;
+          if(Net.isHost){
+            netSetStatus("まだ相手が来ていません。コードを伝えたか、この画面を開いたまま待っているか確認してね。つながらないときは「再接続する」も試せます。", false);
+          } else {
+            waitStepTo("相手が見つかりません");
+            netSetStatus("まだつながっていません。コードが合っているか、相手が部屋を開いたまま待っているか確認してね。「再接続する」も試せます。", true);
+          }
+          netShowRetry(true);
+        }, ms);
+      }
+      function netCreateRoom(){
+        if(Net.room) netTeardown();
+        netShowRetry(false);
+        Net.mode = "create";
+        Net.session++;
+        Net.code = netGenCode();
+        Net.password = netRoomPassword(Net.code);
+        Net.isHost = true; Net.myPlayer = 1; Net.connecting = true;
+        /* コードは接続の完了を待たずにすぐ表示する（接続処理は裏で並行して進む） */
+        $("netCodeText").textContent = Net.code;
+        $("netCodeBox").classList.add("show");
+        netSetStatus("部屋を作りました。コードを相手に伝えて、入ってくるのを待っています…");
+        waitShow("相手の参加を待っています");
+        netUpdateBar();
+        netConnectAndJoin();
+        netArmWaitTimeout();
       }
       function netJoinRoom(){
         var code = ($("netCodeInput").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
-        if(code.length !== 6){ netSetStatus("コードは6文字で入力してね。", true); return; }
-        var pw = netNormPw($("netPassJoin").value);
-        if(pw.length < 4){ netSetStatus("パスワードを入力してね（部屋を作った人から聞いた合言葉です）。", true); $("netPassJoin").focus(); return; }
+        if(code.length !== 6){ netSetStatus("コードは6文字で入力してね。", true); $("netCodeInput").focus(); return; }
         if(Net.room) netTeardown();
-        Net.password = pw;
-        netSetStatus("オンライン接続を読み込んでいます…（初回は30秒ほどかかることがあります）");
-        waitShow("接続を読み込んでいます");
-        netLoadTrystero().then(function(){
-          Net.code = code; Net.isHost = false; Net.myPlayer = 2; Net.connecting = true;
-          netSetStatus("部屋を探して接続しています…（数十秒かかることがあります）"); netUpdateBar();
-          waitStepTo("相手を探しています");
-          netJoinTrysteroRoom();
-          later(function(){ if(!Net.connected && Net.connecting) netSetStatus("まだつながっていません。コードとパスワードが合っているか、相手がこの画面で待っているか確認してね。", true); }, 30000);
-        }).catch(function(){
-          waitHide();
-          netSetStatus("オンライン接続の読み込みに失敗しました。通信環境を確認して、ページを開き直してみてね。", true);
-        });
+        netShowRetry(false);
+        Net.mode = "join";
+        Net.session++;
+        Net.code = code;
+        Net.password = netRoomPassword(code);
+        Net.isHost = false; Net.myPlayer = 2; Net.connecting = true;
+        netSetStatus("部屋を探して接続しています…");
+        waitShow("相手を探しています");
+        netUpdateBar();
+        netConnectAndJoin();
+        netArmWaitTimeout();
+      }
+      /* 「再接続する」：今の部屋を離れて、同じコードのまま最初から接続をやり直す */
+      function netRetryConnect(){
+        var mode = Net.mode, code = Net.code;
+        if(!mode || !code) return;
+        netShowRetry(false);
+        Net.session++;
+        if(Net.room){ try{ Net.room.leave(); }catch(e){} Net.room = null; }
+        Net.connected = false; Net.connecting = true; Net.peerId = null;
+        Net.sendFn = null; Net.action = null;
+        Net.code = code;
+        Net.password = netRoomPassword(code);
+        if(mode === "create"){
+          Net.isHost = true; Net.myPlayer = 1;
+          $("netCodeText").textContent = Net.code;
+          $("netCodeBox").classList.add("show");
+          netSetStatus("再接続しています。コードを相手に伝えて、入ってくるのを待っています…");
+          waitShow("相手の参加を待っています");
+        } else {
+          Net.isHost = false; Net.myPlayer = 2;
+          netSetStatus("再接続しています。部屋を探しています…");
+          waitShow("相手を探しています");
+        }
+        netUpdateBar();
+        netConnectAndJoin();
+        netArmWaitTimeout();
       }
 
       /* ---------- records (in-memory for this session) ---------- */
@@ -6293,19 +6359,44 @@
       $("netCodeInput").addEventListener("keydown", function(e){ if(netEnterKey(e)) netJoinRoom(); });
       $("netCopy").addEventListener("click", function(){
         var msg = $("netCopyMsg");
-        var text = "SUKIMAの部屋コード：" + Net.code + " ／ パスワード：" + Net.password;
+        var text = "SUKIMAの部屋コード：" + Net.code + "（このコードを入れてね）";
         if(navigator.clipboard && navigator.clipboard.writeText){
-          navigator.clipboard.writeText(text).then(function(){ msg.textContent = "コピーしました。相手に送ってね。"; }, function(){ msg.textContent = "コピーできませんでした。コードとパスワードをそのまま伝えてね。"; });
+          navigator.clipboard.writeText(text).then(function(){ msg.textContent = "コピーしました。相手に送ってね。"; }, function(){ msg.textContent = "コピーできませんでした。コードをそのまま伝えてね。"; });
         } else {
-          msg.textContent = "この環境ではコピーできません。コードとパスワードをそのまま伝えてね。";
+          msg.textContent = "この環境ではコピーできません。コードをそのまま伝えてね。";
         }
       });
-      $("netPassJoin").addEventListener("keydown", function(e){ if(netEnterKey(e)) netJoinRoom(); });
-      $("netPassCreate").addEventListener("keydown", function(e){ if(netEnterKey(e)) netCreateRoom(); });
+      $("netRetry").addEventListener("click", netRetryConnect);
       $("netDisconnect").addEventListener("click", function(){
         netSend({t:"bye"});
         netTeardown("接続を切りました。1台で遊ぶモードです。");
       });
+      /* 接続ライブラリの先読み：オンライン欄が見えた時点（と、保険として
+         ページ読み込み後）で裏側で読み込みを始める。ボタンを押したときには
+         読み込み済みになっていて、待ち時間がほぼなくなる。失敗しても
+         ボタンを押したときに自動で読み直す。 */
+      (function(){
+        var preStarted = false;
+        function netPreload(){
+          if(preStarted) return;
+          preStarted = true;
+          netLoadTrystero().catch(function(){});
+        }
+        var card = document.querySelector(".online-card");
+        if(card && "IntersectionObserver" in window){
+          try{
+            var io = new IntersectionObserver(function(entries){
+              for(var i = 0; i < entries.length; i++){
+                if(entries[i].isIntersecting){ netPreload(); io.disconnect(); break; }
+              }
+            }, { rootMargin: "240px" });
+            io.observe(card);
+          }catch(e){}
+        }
+        if(document.readyState === "complete") setTimeout(netPreload, 1200);
+        else window.addEventListener("load", function(){ setTimeout(netPreload, 800); });
+        setTimeout(netPreload, 4000);
+      })();
 
       /* ================================================================
          4人ゲーム共通（1台パス＆プレイ／空き席はCPU）
