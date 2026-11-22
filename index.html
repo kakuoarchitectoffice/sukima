@@ -944,6 +944,116 @@
         .brand-mark .bm-half{transition:none;}
         .js .game-card.in{animation:none;}
       }
+
+      /* ================================================================
+         オンライン対戦レイアウト（1人1台・接続確立時のみ body.online）
+         - 相手の情報は上部に小さく、自分の操作は下部に大きく
+         - オフライン（1台で遊ぶ）ときは一切効かない
+         ================================================================ */
+      body.online .app{padding-left:12px;padding-right:12px;}
+      body.online .howto{display:none;}
+      body.online .game-head{margin-bottom:8px;}
+      /* 盤ゲーム：盤を画面幅いっぱいに、手番表示は上部にコンパクトに */
+      body.online[data-game="chess"] .app, body.online[data-game="checkers"] .app,
+      body.online[data-game="mancala"] .app, body.online[data-game="reversi"] .app,
+      body.online[data-game="connect4"] .app, body.online[data-game="gomoku"] .app,
+      body.online[data-game="memory"] .app, body.online[data-game="sugoroku"] .app{max-width:720px;}
+      body.online[data-game="chess"] .board-card, body.online[data-game="checkers"] .board-card,
+      body.online[data-game="mancala"] .board-card, body.online[data-game="reversi"] .board-card,
+      body.online[data-game="connect4"] .board-card, body.online[data-game="gomoku"] .board-card,
+      body.online[data-game="memory"] .board-card, body.online[data-game="sugoroku"] .board-card{padding:9px;}
+      body.online .turn-banner{padding:8px 10px;font-size:13px;margin-bottom:9px;}
+      body.online .turn-banner small{display:inline;font-size:11.5px;margin:0 0 0 8px;}
+      body.online[data-game="chess"] .ch-cell, body.online[data-game="checkers"] .ch-cell{font-size:clamp(18px,7vw,34px);}
+      body.online[data-game="mancala"] .man-pit{min-height:66px;}
+      body.online[data-game="mancala"] .man-pit .n{font-size:22px;}
+      /* 神経衰弱（カード系）：スコアは上部に小さく、カードは大きく */
+      body.online[data-game="memory"] #scr-memory .board-card{display:flex;flex-direction:column;}
+      body.online[data-game="memory"] .mem-grid{order:2;gap:9px;}
+      body.online[data-game="memory"] .mem-card{font-size:30px;}
+      body.online[data-game="memory"] .score-row{order:1;margin:0 0 10px;}
+      body.online[data-game="memory"] .status-text{order:3;}
+      /* ゾーン型（クイズ／すごろく／じゃんけん／サイコロ）：相手ゾーンを上部に小さく、自分のゾーンを下部に大きく */
+      body.online #scr-quiz.active, body.online #scr-sugoroku.active,
+      body.online #scr-janken.active, body.online #scr-dice.active{display:flex;flex-direction:column;}
+      body.online #scr-quiz .zone.flip, body.online #scr-sugoroku .zone.flip,
+      body.online #scr-janken .zone.flip, body.online #scr-dice .zone.flip{transform:none;}
+      body.online.me-p1 #scr-quiz .zone.p2, body.online.me-p1 #scr-sugoroku .zone.p2,
+      body.online.me-p1 #scr-janken .zone.p2, body.online.me-p1 #scr-dice .zone.p2,
+      body.online.me-p2 #scr-quiz .zone.p1, body.online.me-p2 #scr-sugoroku .zone.p1,
+      body.online.me-p2 #scr-janken .zone.p1, body.online.me-p2 #scr-dice .zone.p1{
+        order:1;padding:8px 10px;margin-bottom:10px;
+      }
+      body.online.me-p1 #scr-quiz .zone.p2 .z-label, body.online.me-p1 #scr-sugoroku .zone.p2 .z-label,
+      body.online.me-p1 #scr-janken .zone.p2 .z-label, body.online.me-p1 #scr-dice .zone.p2 .z-label,
+      body.online.me-p2 #scr-quiz .zone.p1 .z-label, body.online.me-p2 #scr-sugoroku .zone.p1 .z-label,
+      body.online.me-p2 #scr-janken .zone.p1 .z-label, body.online.me-p2 #scr-dice .zone.p1 .z-label{margin-bottom:0;font-size:12px;}
+      /* 相手ゾーンの操作ボタン類は隠す（情報表示だけ残す） */
+      body.online.me-p1 #scr-quiz .zone.p2 button, body.online.me-p1 #scr-sugoroku .zone.p2 button,
+      body.online.me-p1 #scr-janken .zone.p2 .jk-choices, body.online.me-p1 #scr-dice .zone.p2 button,
+      body.online.me-p2 #scr-quiz .zone.p1 button, body.online.me-p2 #scr-sugoroku .zone.p1 button,
+      body.online.me-p2 #scr-janken .zone.p1 .jk-choices, body.online.me-p2 #scr-dice .zone.p1 button{display:none;}
+      body.online.me-p1 #scr-dice .zone.p2 .dice-face, body.online.me-p2 #scr-dice .zone.p1 .dice-face{transform:scale(.62);margin:-14px auto;}
+      body.online.me-p1 #scr-sugoroku .zone.p2 .sugo-dice-num, body.online.me-p2 #scr-sugoroku .zone.p1 .sugo-dice-num{font-size:22px;min-height:26px;}
+      body.online #scr-quiz .center-box, body.online #scr-janken .center-box, body.online #scr-dice .center-box{order:2;margin:0 0 12px;}
+      body.online #scr-sugoroku .board-card{order:2;}
+      body.online #scr-sugoroku .turn-banner{order:0;}
+      /* 自分のゾーン：下部に大きく、親指で押しやすく */
+      body.online.me-p1 #scr-quiz .zone.p1, body.online.me-p1 #scr-sugoroku .zone.p1,
+      body.online.me-p1 #scr-janken .zone.p1, body.online.me-p1 #scr-dice .zone.p1,
+      body.online.me-p2 #scr-quiz .zone.p2, body.online.me-p2 #scr-sugoroku .zone.p2,
+      body.online.me-p2 #scr-janken .zone.p2, body.online.me-p2 #scr-dice .zone.p2{order:3;padding:16px 14px 20px;}
+      body.online #scr-quiz .zone .big-btn{min-height:96px;font-size:24px;border-radius:12px;}
+      body.online #scr-sugoroku .zone .big-btn{min-height:76px;font-size:20px;border-radius:12px;}
+      body.online #scr-dice .zone .big-btn{min-height:72px;font-size:19px;}
+      body.online #scr-quiz .quiz-choice{min-height:58px;font-size:15.5px;}
+      body.online #scr-janken .jk-choice{min-height:64px;}
+      /* ---------- ババ抜き演出 ---------- */
+      #babHand .pcard{width:47px;height:66px;font-size:17px;}
+      #babHand .pcard .suit{font-size:16px;}
+      #babHand .pcard.joker{font-size:10.5px;}
+      .pcard.pair-glow{border-color:var(--accent);animation:babGlow 1.1s ease-in-out infinite;}
+      @keyframes babGlow{0%,100%{box-shadow:0 0 0 2px var(--accent),0 0 3px rgba(46,74,63,.3);}50%{box-shadow:0 0 0 2px var(--accent),0 0 17px rgba(46,74,63,.8);}}
+      @media (prefers-color-scheme: dark){ @keyframes babGlow{0%,100%{box-shadow:0 0 0 2px var(--accent),0 0 3px rgba(157,187,171,.3);}50%{box-shadow:0 0 0 2px var(--accent),0 0 17px rgba(157,187,171,.85);}} }
+      button.pcard.pair-glow{cursor:pointer;transition:transform .15s ease;}
+      button.pcard.pair-glow:hover{transform:translateY(-7px);}
+      button.pcard.pair-glow:active{transform:translateY(-7px);}
+      .pcard.fly-away{animation:babFly .55s ease-in forwards;z-index:5;}
+      @keyframes babFly{0%{transform:translateY(0) rotate(0deg);opacity:1;}100%{transform:translateY(-88px) rotate(330deg) scale(.65);opacity:0;}}
+      #babBacks.fan{flex-wrap:nowrap;gap:0;padding:30px 6px 8px;min-height:102px;align-items:flex-end;overflow:visible;}
+      #babBacks.fan .pcard{margin-left:var(--fan-ov,-15px);transform-origin:50% 92%;transition:transform .18s ease,filter .18s ease;}
+      #babBacks.fan .pcard:first-child{margin-left:0;}
+      #babBacks.fan button.pcard:hover{filter:brightness(1.13);}
+      .pcard.flip-in{animation:babFlipIn .5s ease;}
+      @keyframes babFlipIn{from{transform:rotateY(88deg) scale(1.06);}to{transform:rotateY(0deg) scale(1);}}
+      .bab-dark{position:fixed;inset:0;background:rgba(10,10,8,.62);opacity:0;pointer-events:none;transition:opacity .18s ease;z-index:45;display:flex;align-items:center;justify-content:center;}
+      .bab-dark.show{opacity:1;}
+      .bab-dark .bab-joker-note{color:#f5f4f0;font-size:21px;font-weight:700;letter-spacing:.16em;}
+      .bab-shake{animation:babShake .4s ease;}
+      @keyframes babShake{0%,100%{transform:translateX(0);}20%{transform:translateX(-5px);}45%{transform:translateX(4px);}70%{transform:translateX(-3px);}88%{transform:translateX(2px);}}
+      .bab-confetti{position:fixed;inset:0;pointer-events:none;z-index:44;overflow:hidden;}
+      .bab-confetti i{position:absolute;top:-16px;display:block;border-radius:2px;animation-name:babConfettiFall;animation-timing-function:linear;animation-fill-mode:forwards;}
+      @keyframes babConfettiFall{to{transform:translate(var(--dx,0px),106vh) rotate(var(--rot,540deg));}}
+      .bab-zoom{position:fixed;inset:0;background:rgba(22,22,20,.55);display:none;z-index:60;align-items:center;justify-content:center;}
+      .bab-zoom.show{display:flex;}
+      .bab-zoom .zcard{text-align:center;animation:babZoomIn .7s cubic-bezier(.2,1.35,.4,1);}
+      .bab-zoom .pcard{width:132px;height:184px;font-size:19px;border-radius:12px;box-shadow:0 18px 44px rgba(0,0,0,.35);}
+      .bab-zoom .pcard .suit{font-size:30px;}
+      .bab-zoom .zcap{color:#f5f4f0;font-size:16.5px;font-weight:700;letter-spacing:.08em;margin-top:16px;}
+      @keyframes babZoomIn{from{transform:scale(.3) rotate(-9deg);opacity:0;}to{transform:scale(1) rotate(0deg);opacity:1;}}
+      @media (prefers-reduced-motion: reduce){
+        .pcard.pair-glow{animation:none;box-shadow:0 0 0 2px var(--accent);}
+        .pcard.fly-away{animation:none;}
+        .pcard.flip-in{animation:none;}
+        .bab-shake{animation:none;}
+        .bab-zoom .zcard{animation:none;}
+      }
+      /* ワニたたき：オンラインは共有フィールド1つを大きく（横画面ルールはそのまま活かす） */
+      @media (orientation: portrait){
+        body.online[data-game="wani"] #waniFields.single .wani-hole{aspect-ratio:1.05;}
+        body.online[data-game="wani"] #waniFields.single .wani-field{gap:10px;}
+        body.online[data-game="wani"] .hc-hud{margin-bottom:10px;}
+      }
     </style>
     <script>document.documentElement.classList.add("js");try{if(sessionStorage.getItem("sukima-gate-ok")==="1")document.documentElement.classList.add("unlocked");}catch(e){}</script>
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -1053,7 +1163,7 @@
             <li><b>相手</b>が「コードで入る」から両方を入力すれば接続完了！</li>
           </ol>
           <p class="net-note">ゲームの内容は2台のスマホの間を暗号化して直接やり取りします（WebRTC）。相手を見つける時だけ公開リレーを使い、ゲーム内容はそこを通りません。アカウント登録は不要です。接続まで数十秒かかることがあります。</p>
-          <label class="net-label" for="netPassCreate">部屋を作る：パスワードを決めてね（4文字以上）</label>
+          <label class="net-label" for="netPassCreate">部屋を作る：パスワードを決めてね（4文字以上・日本語でもOK）</label>
           <input class="net-pass" id="netPassCreate" type="password" autocomplete="off" placeholder="例：ふたりだけの合言葉" aria-label="部屋のパスワード（作る側）" />
           <button class="btn-p1 net-big-btn" id="netCreate">部屋を作る（コード発行）</button>
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
@@ -1846,7 +1956,7 @@
       <!-- ============ 24. BABANUKI (ババ抜き) ============ -->
       <section class="screen" id="scr-baba">
         <div class="game-head"><button class="back-btn" data-home>‹ ホーム</button><h2>ババ抜き</h2><span class="spacer"></span></div>
-        <div class="howto">ジョーカー1枚入りの53枚を4人に配る定番ゲーム。配られた時点でそろっている<b>ペアは自動で捨てられます</b>。自分の番では<b>隣の人（次の席）の裏向きカードを1枚タップ</b>して引き、ペアができたら捨てます。手札が無くなった人から上がり。最後に<b>ジョーカーを持っていた人が負け</b>です。参加は<b>2〜4人</b>、空いた席は<b>CPU</b>が入り、1台を回して遊びます。</div>
+        <div class="howto">ジョーカー1枚入りの53枚を4人に配る定番ゲーム。手札の中で<b>ペアがそろうと2枚が光って</b>知らせます。<b>タップすると自分の手で捨てる</b>形で、自動では捨てません。自分の番では<b>隣の人（次の席）の裏向きカードを扇の中から1枚タップ</b>して引きます。手札が無くなった人から上がり。最後に<b>ジョーカーを持っていた人が負け</b>です。参加は<b>2〜4人</b>、空いた席は<b>CPU</b>が入り、1台を回して遊びます。</div>
         <div class="board-card" id="babSetup">
           <div class="net-label" style="margin-top:0;">遊ぶ人数（人間）</div>
           <div class="am-count-row" id="babCountRow"></div>
@@ -1871,6 +1981,9 @@
             <div class="sub-text" id="babHint" style="margin-top:8px;"></div>
           </div>
         </div>
+        <div class="bab-dark" id="babDark" aria-hidden="true"><span class="bab-joker-note">…ジョーカーだ</span></div>
+        <div class="bab-confetti" id="babConfetti" aria-hidden="true"></div>
+        <div class="bab-zoom" id="babZoom" aria-hidden="true"><div class="zcard"><span id="babZoomCard"></span><div class="zcap" id="babZoomCap"></div></div></div>
       </section>
 
       <!-- ============ 25. DAIFUGO (大富豪) ============ -->
@@ -1987,6 +2100,10 @@
       }
       function netSetStatus(msg, isErr){ var el=$("netStatus"); if(el){ el.textContent=msg; el.className="net-status"+(isErr?" err":""); } }
       function netUpdateBar(){
+        /* オンライン接続が確立したときだけ、1人1台向けレイアウト（body.online）へ切り替える */
+        document.body.classList.toggle("online", !!Net.connected);
+        document.body.classList.toggle("me-p1", !!Net.connected && Net.myPlayer === 1);
+        document.body.classList.toggle("me-p2", !!Net.connected && Net.myPlayer === 2);
         var bar=$("netBar"); if(!bar) return;
         if(Net.connected){ bar.className="net-bar show"; bar.innerHTML = wolf(Net.myPlayer, "wolf-24") + " オンライン対戦中：あなたは " + (Net.myPlayer===1 ? "あか（プレイヤー1）" : "あお（プレイヤー2）") + " です"; }
         else if(Net.connecting){ bar.className="net-bar show waiting"; bar.textContent= Net.isHost ? ("オンライン：相手の参加を待っています…（コード " + Net.code + "）") : "オンライン：接続中…"; }
@@ -2000,6 +2117,15 @@
         var syBtn=$("syncStart"); if(syBtn){ syBtn.textContent = guest ? "ホストのスタート待ち" : "スタート"; }
       }
       function netGenCode(){ var chars="ABCDEFGHJKMNPQRSTUVWXYZ23456789"; var out=""; for(var i=0;i<6;i++) out+=chars.charAt(Math.floor(Math.random()*chars.length)); return out; }
+      /* 合言葉は日本語（ひらがな・カタカナ・漢字）も使える。作る側・入る側で
+         まったく同じ文字列として扱うため、両方で同じ正規化を通す：
+         NFKCで半角カナ→全角カナ・全角英数→半角・結合文字の合成をそろえ、
+         前後の空白（全角スペース含む）を取り除く。 */
+      function netNormPw(s){
+        var v = String(s == null ? "" : s);
+        try{ v = v.normalize("NFKC"); }catch(e){}
+        return v.trim();
+      }
       function netTeardown(msg, isErr){
         Net.connected=false; Net.connecting=false; Net.myPlayer=0; Net.isHost=false; Net.peerId=null;
         Net.sendFn=null; Net.action=null;
@@ -2120,7 +2246,7 @@
         netSetupRoom(room);
       }
       function netCreateRoom(){
-        var pw = ($("netPassCreate").value || "").trim();
+        var pw = netNormPw($("netPassCreate").value);
         if(pw.length < 4){ netSetStatus("パスワードは4文字以上で決めてね（相手と共有する合言葉です）。", true); $("netPassCreate").focus(); return; }
         if(Net.room) netTeardown();
         Net.password = pw;
@@ -2141,7 +2267,7 @@
       function netJoinRoom(){
         var code = ($("netCodeInput").value || "").trim().toUpperCase().replace(/[^A-Z0-9]/g, "");
         if(code.length !== 6){ netSetStatus("コードは6文字で入力してね。", true); return; }
-        var pw = ($("netPassJoin").value || "").trim();
+        var pw = netNormPw($("netPassJoin").value);
         if(pw.length < 4){ netSetStatus("パスワードを入力してね（部屋を作った人から聞いた合言葉です）。", true); $("netPassJoin").focus(); return; }
         if(Net.room) netTeardown();
         Net.password = pw;
@@ -2255,6 +2381,7 @@
         hidePass();
         if(!fromRemote) netSend({t:"nav", game:name});
         currentGame = name;
+        document.body.setAttribute("data-game", name);
         var screens = document.querySelectorAll(".screen");
         for(var i=0;i<screens.length;i++) screens[i].classList.remove("active");
         $("scr-" + name).classList.add("active");
@@ -5381,7 +5508,9 @@
         r.style.display = show ? "flex" : "none";
         if(show) $("netCodeInput").focus();
       });
-      $("netCodeInput").addEventListener("keydown", function(e){ if(e.key === "Enter") netJoinRoom(); });
+      /* 日本語入力の変換確定Enterでは送信しない（isComposing / keyCode 229 を除外） */
+      function netEnterKey(e){ return e.key === "Enter" && !e.isComposing && e.keyCode !== 229; }
+      $("netCodeInput").addEventListener("keydown", function(e){ if(netEnterKey(e)) netJoinRoom(); });
       $("netCopy").addEventListener("click", function(){
         var msg = $("netCopyMsg");
         var text = "SUKIMAの部屋コード：" + Net.code + " ／ パスワード：" + Net.password;
@@ -5391,8 +5520,8 @@
           msg.textContent = "この環境ではコピーできません。コードとパスワードをそのまま伝えてね。";
         }
       });
-      $("netPassJoin").addEventListener("keydown", function(e){ if(e.key === "Enter") netJoinRoom(); });
-      $("netPassCreate").addEventListener("keydown", function(e){ if(e.key === "Enter") netCreateRoom(); });
+      $("netPassJoin").addEventListener("keydown", function(e){ if(netEnterKey(e)) netJoinRoom(); });
+      $("netPassCreate").addEventListener("keydown", function(e){ if(netEnterKey(e)) netCreateRoom(); });
       $("netDisconnect").addEventListener("click", function(){
         netSend({t:"bye"});
         netTeardown("接続を切りました。1台で遊ぶモードです。");
@@ -5470,6 +5599,8 @@
       /* ---------- 受け渡し画面 ---------- */
       var passCb = null;
       function showPass(st, p, cb){
+        /* オンライン対戦中は各自が自分の端末を見るので、受け渡し画面は出さない */
+        if(Net.connected){ if(cb) cb(); return; }
         $("passIcon").innerHTML = p4Icon(p, 52);
         $("passTitle").textContent = "次は " + p4Name(st, p) + " さんの番です";
         $("passBody").textContent = "スマホを " + p4Name(st, p) + " さんに渡してね。ボタンを押すと手札が見られます（他の人には見えません）。";
@@ -5703,27 +5834,40 @@
 
       /* ================================================================
          24. ババ抜き
+         ペアは自動で捨てない：そろった2枚が光り、タップで自分の手で捨てる。
+         引くときは隣の手札を扇形に広げ、選んだカードが浮いてからめくれる。
+         ジョーカーを引いた本人にだけ、暗転＋小揺れ＋「…ジョーカーだ」を見せる。
       ================================================================ */
       var bab = { humans:2, names:["あか", "あお", "プレイヤー3", "プレイヤー4"],
         hands:{}, out:{}, finishOrder:[], turn:1, target:0, over:false,
-        lastP:0, revealed:false, phase:"draw", msg:"", drawn:null, drawnPaired:false };
-      function babDropPairs(p){
-        var h = bab.hands[p];
-        var byRank = {};
-        var keep = [];
-        h.forEach(function(c){
-          if(c.s === -1){ keep.push(c); return; }
-          (byRank[c.r] = byRank[c.r] || []).push(c);
-        });
-        Object.keys(byRank).forEach(function(r){
-          var arr = byRank[r];
-          if(arr.length % 2 === 1) keep.push(arr[0]);
-        });
-        bab.hands[p] = keep;
-        sortHandStd(bab.hands[p]);
+        lastP:0, revealed:false, phase:"draw", msg:"", drawn:null,
+        anim:false, afterDiscard:"draw", pickIdx:-1, flipIdx:-1, loser:0 };
+      function babPairRanks(p){
+        var counts = {}, ranks = [];
+        bab.hands[p].forEach(function(c){ if(c.s >= 0) counts[c.r] = (counts[c.r] || 0) + 1; });
+        Object.keys(counts).forEach(function(r){ if(counts[r] >= 2) ranks.push(parseInt(r, 10)); });
+        return ranks;
+      }
+      function babHasPairs(p){ return babPairRanks(p).length > 0; }
+      function babConfetti(){
+        if(window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        var box = $("babConfetti"); if(!box) return;
+        var colors = ["#1b1b18", "#2e4a3f", "#b98a1d", "#c9c5ba", "#86a391"];
+        var html = "";
+        for(var i = 0; i < 28; i++){
+          var w = (5 + Math.random() * 5).toFixed(0), h = (8 + Math.random() * 6).toFixed(0);
+          html += '<i style="left:' + (Math.random() * 100).toFixed(1) + '%;width:' + w + 'px;height:' + h + 'px;background:' +
+            colors[i % colors.length] + ';--dx:' + (Math.random() * 120 - 60).toFixed(0) + 'px;--rot:' + (Math.random() * 720 - 360).toFixed(0) +
+            'deg;animation-duration:' + (1.1 + Math.random() * 0.9).toFixed(2) + 's;animation-delay:' + (Math.random() * 0.25).toFixed(2) + 's;"></i>';
+        }
+        box.innerHTML = html;
+        later(function(){ box.innerHTML = ""; }, 2600);
       }
       function babMarkOut(p){
-        if(bab.hands[p].length === 0 && bab.finishOrder.indexOf(p) < 0) bab.finishOrder.push(p);
+        if(bab.hands[p].length === 0 && bab.finishOrder.indexOf(p) < 0){
+          bab.finishOrder.push(p);
+          babConfetti();
+        }
       }
       function babActivePlayers(){
         var a = [];
@@ -5742,13 +5886,30 @@
         if(order[0] === 1) records.baba.p1++;
         else if(order[0] === 2) records.baba.p2++;
         bab.msg = "ゲーム終了！";
+        babRender();
+        /* フィニッシュ演出：残ったジョーカーを大きくズームして見せてから結果へ */
+        $("babZoomCard").innerHTML = cardFaceHtml({ s:-1, r:0 }, "");
+        $("babZoomCap").textContent = p4Name(bab, bab.loser) + " さんにジョーカーが残った…";
+        $("babZoom").classList.add("show");
         later(function(){
+          $("babZoom").classList.remove("show");
           showResult("ババ抜き 結果",
             p4RankList(bab, order, labels) + '<p style="margin-top:8px;">最後にジョーカーを持っていた ' + p4Esc(p4Name(bab, bab.loser)) + ' さんの負けです。</p>',
             function(){ babStartGame(); },
             (order[0] === 1 || order[0] === 2) ? order[0] : null);
-        }, 800);
+        }, 2100);
         return true;
+      }
+      function babFaceInner(c){
+        if(c.s === -1) return '<span>JOKER</span><span class="suit">★</span>';
+        return '<span>' + RANK_LABEL[c.r] + '</span><span class="suit">' + SUIT_MARK[c.s] + '</span>';
+      }
+      function babCardCls(c, cls){
+        return 'pcard' + (c.s === -1 ? ' joker' : (isRedCard(c) ? ' red' : '')) + (cls ? ' ' + cls : '');
+      }
+      function babFanStyle(i, n){
+        var mid = (n - 1) / 2, d = i - mid;
+        return 'transform:rotate(' + (d * 3.2).toFixed(1) + 'deg) translateY(' + (Math.abs(d) * 1.4).toFixed(1) + 'px);z-index:' + i + ';';
       }
       function babRender(){
         var subs = {}, outs = {};
@@ -5761,57 +5922,190 @@
         $("babStrip").innerHTML = p4Strip(bab, bab.over ? 0 : bab.turn, subs, outs);
         $("babStatus").textContent = bab.msg;
         var p = bab.turn, q = bab.target;
-        var bh = "";
+        var backsEl = $("babBacks");
+        var bh = "", fan = false;
         if(!bab.over && bab.phase === "draw" && !p4IsCPU(bab, p) && bab.revealed){
+          /* 引く相手の手札は裏向きの扇形。タップで選ぶ */
+          fan = true;
           $("babBacksLabel").textContent = p4Name(bab, q) + " の手札（タップで1枚引く）";
-          bab.hands[q].forEach(function(c, i){
-            bh += '<button type="button" class="pcard back" data-bab="' + i + '" aria-label="裏向きのカード">S</button>';
-          });
+          var n = bab.hands[q].length;
+          backsEl.style.setProperty("--fan-ov", n >= 12 ? "-22px" : n >= 9 ? "-18px" : "-15px");
+          for(var i = 0; i < n; i++){
+            if(bab.flipIdx === i){
+              bh += '<span class="' + babCardCls(bab.hands[q][i], "flip-in") + '" style="' + babFanStyle(i, n) + '">' + babFaceInner(bab.hands[q][i]) + '</span>';
+            } else if(bab.anim){
+              var st = babFanStyle(i, n);
+              if(i === bab.pickIdx) st = 'transform:rotate(0deg) translateY(-19px) scale(1.07);z-index:30;';
+              bh += '<button type="button" class="pcard back fan-card" style="' + st + '" disabled aria-label="裏向きのカード">S</button>';
+            } else {
+              bh += '<button type="button" class="pcard back fan-card" data-bab="' + i + '" style="' + babFanStyle(i, n) + '" aria-label="裏向きのカード">S</button>';
+            }
+          }
         } else if(!bab.over){
           $("babBacksLabel").textContent = p4Name(bab, q) + " の手札（" + bab.hands[q].length + "枚）";
           bab.hands[q].forEach(function(){ bh += cardBackHtml(); });
         } else {
           $("babBacksLabel").textContent = "手札";
         }
-        $("babBacks").innerHTML = bh;
-        $("babBacks").querySelectorAll("[data-bab]").forEach(function(btn){
-          btn.addEventListener("click", function(){ babDraw(parseInt(btn.getAttribute("data-bab"), 10)); });
+        backsEl.innerHTML = bh;
+        backsEl.className = fan ? "hand-row fan" : "hand-row";
+        if(!fan) backsEl.style.removeProperty("--fan-ov");
+        backsEl.querySelectorAll("[data-bab]").forEach(function(btn){
+          btn.addEventListener("click", function(){ babPick(parseInt(btn.getAttribute("data-bab"), 10)); });
         });
         $("babHandLabel").textContent = bab.over ? "手札" : (p4Name(bab, p) + " の手札");
         var hh = "";
         if(!bab.over && (p4IsCPU(bab, p) || !bab.revealed)){
           bab.hands[p].forEach(function(){ hh += cardBackHtml(); });
         } else if(!bab.over){
-          bab.hands[p].forEach(function(c){
-            hh += cardFaceHtml(c, (bab.phase === "confirm" && bab.drawn === c) ? "drawn" : "");
+          var pairRanks = bab.phase === "discard" ? babPairRanks(p) : [];
+          bab.hands[p].forEach(function(c, ix){
+            var isPair = c.s >= 0 && pairRanks.indexOf(c.r) >= 0;
+            var cls = (bab.drawn === c && bab.phase !== "draw") ? "drawn" : "";
+            if(isPair && !bab.anim){
+              hh += '<button type="button" class="' + babCardCls(c, "pair-glow") + '" data-babrank="' + c.r + '" data-babidx="' + ix + '" aria-label="ペアのカード（タップで捨てる）">' + babFaceInner(c) + '</button>';
+            } else if(isPair && bab.anim){
+              hh += '<button type="button" class="' + babCardCls(c, "pair-glow") + '" data-babidx="' + ix + '" disabled>' + babFaceInner(c) + '</button>';
+            } else {
+              hh += '<span class="' + babCardCls(c, cls) + '" data-babidx="' + ix + '">' + babFaceInner(c) + '</span>';
+            }
           });
         }
         $("babHand").innerHTML = hh;
+        $("babHand").querySelectorAll("[data-babrank]").forEach(function(btn){
+          btn.addEventListener("click", function(){ babDiscardTap(parseInt(btn.getAttribute("data-babrank"), 10)); });
+        });
         var ok = $("babOkBtn");
         if(!bab.over && bab.phase === "confirm" && !p4IsCPU(bab, p)){
           ok.style.display = "";
-          $("babHint").textContent = bab.drawnPaired ? "ペアになって捨てました！" : "引いたカードは枠つきで表示しています";
+          $("babHint").textContent = "引いたカードは枠つきで表示しています";
         } else {
           ok.style.display = "none";
-          $("babHint").textContent = (!bab.over && bab.phase === "draw" && !p4IsCPU(bab, p) && bab.revealed) ? "隣の人の裏向きカードを1枚タップして引いてね" : "";
+          if(bab.over) $("babHint").textContent = "";
+          else if(bab.phase === "discard" && !p4IsCPU(bab, p) && bab.revealed) $("babHint").textContent = "光っているペアをタップすると、2枚がくるっと飛んでいくよ";
+          else if(bab.phase === "draw" && !p4IsCPU(bab, p) && bab.revealed) $("babHint").textContent = "隣の人の扇の中から、裏向きカードを1枚タップして引いてね";
+          else $("babHint").textContent = "";
         }
       }
-      function babDraw(i){
-        if(bab.over || bab.phase !== "draw") return;
+      /* ジョーカーを引いた本人だけに分かる演出（この画面を見ているのが本人だけのタイミングで出す） */
+      function babJokerFx(){
+        var d = $("babDark");
+        d.classList.add("show");
+        var play = $("babPlay");
+        play.classList.remove("bab-shake");
+        void play.offsetWidth;
+        play.classList.add("bab-shake");
+        try{ if(navigator.vibrate) navigator.vibrate(70); }catch(e){}
+        later(function(){ d.classList.remove("show"); }, 1300);
+      }
+      function babAfterDraw(){
+        var p = bab.turn, q = bab.target;
+        babMarkOut(q);
+        bab.msg = p4Name(bab, p) + " は " + p4Name(bab, q) + " から1枚引いた";
+        if(bab.hands[q].length === 0) bab.msg += " → " + p4Name(bab, q) + " は手札が無くなって上がり！";
+        if(babCheckEnd()){ babRender(); return; }
+        if(babHasPairs(p)){
+          bab.phase = "discard";
+          bab.afterDiscard = "confirm";
+          bab.msg += "。ペアができた！光っている2枚をタップして捨ててね";
+        } else {
+          bab.phase = "confirm";
+        }
+        babRender();
+        if(p4IsCPU(bab, p)){
+          if(bab.phase === "discard") later(babCpuDiscardStep, 850);
+          else later(babAdvance, 950);
+        }
+      }
+      function babDrawResolve(i){
         var p = bab.turn, q = bab.target;
         if(i < 0 || i >= bab.hands[q].length) return;
         var c = bab.hands[q].splice(i, 1)[0];
         bab.hands[p].push(c);
-        babDropPairs(p);
+        sortHandStd(bab.hands[p]);
         bab.drawn = c;
-        bab.drawnPaired = bab.hands[p].indexOf(c) < 0;
-        babMarkOut(p);
-        babMarkOut(q);
-        bab.phase = "confirm";
-        bab.msg = p4Name(bab, p) + " は " + p4Name(bab, q) + " から1枚引いた" + (bab.drawnPaired ? "（ペアで捨てた！）" : "");
-        if(bab.hands[p].length === 0) bab.msg += " → 手札が無くなって上がり！";
+        babAfterDraw();
+      }
+      /* 人間の引く操作：選んだカードが浮き上がり、間を置いてめくれてから手札へ */
+      function babPick(i){
+        if(bab.over || bab.phase !== "draw" || bab.anim) return;
+        if(p4IsCPU(bab, bab.turn) || !bab.revealed) return;
+        var q = bab.target;
+        if(i < 0 || i >= bab.hands[q].length) return;
+        bab.anim = true;
+        bab.pickIdx = i;
         babRender();
-        if(p4IsCPU(bab, p)) later(babAdvance, 950);
+        var isJoker = bab.hands[q][i].s === -1;
+        later(function(){
+          bab.flipIdx = i;
+          bab.pickIdx = -1;
+          babRender();
+          if(isJoker) babJokerFx();
+          later(function(){
+            bab.flipIdx = -1;
+            bab.anim = false;
+            babDrawResolve(i);
+          }, isJoker ? 1450 : 780);
+        }, 620);
+      }
+      /* ペアをタップして捨てる：2枚がくるっと回って飛んでいく */
+      function babDiscardTap(rank){
+        if(bab.over || bab.phase !== "discard" || bab.anim) return;
+        if(p4IsCPU(bab, bab.turn) || !bab.revealed) return;
+        var p = bab.turn;
+        var idxs = [];
+        bab.hands[p].forEach(function(c, ix){ if(c.r === rank && idxs.length < 2) idxs.push(ix); });
+        if(idxs.length < 2) return;
+        bab.anim = true;
+        var handEl = $("babHand");
+        idxs.forEach(function(ix){
+          var el = handEl.querySelector('[data-babidx="' + ix + '"]');
+          if(el) el.classList.add("fly-away");
+        });
+        later(function(){
+          idxs.sort(function(a, b){ return b - a; }).forEach(function(ix){ bab.hands[p].splice(ix, 1); });
+          bab.anim = false;
+          babAfterDiscard(p, false);
+        }, 580);
+      }
+      function babCpuDiscardStep(){
+        if(bab.over) return;
+        var p = bab.turn;
+        var ranks = babPairRanks(p);
+        if(!ranks.length){ babAfterDiscard(p, true); return; }
+        var rank = ranks[0], removed = 0;
+        bab.hands[p] = bab.hands[p].filter(function(c){
+          if(c.r === rank && removed < 2){ removed++; return false; }
+          return true;
+        });
+        babAfterDiscard(p, true);
+      }
+      /* ペアを捨て終わったあとの共通処理（p＝捨てた人、cpu＝CPUかどうか） */
+      function babAfterDiscard(p, cpu){
+        bab.msg = p4Name(bab, p) + " はペアを捨てた";
+        var wasOut = bab.finishOrder.indexOf(p) >= 0;
+        babMarkOut(p);
+        if(bab.hands[p].length === 0 && !wasOut) bab.msg += " → 手札が無くなって上がり！";
+        if(babCheckEnd()){ babRender(); return; }
+        if(babHasPairs(p)){
+          babRender();
+          if(cpu) later(babCpuDiscardStep, 750);
+          return;
+        }
+        if(bab.hands[p].length === 0){
+          babRender();
+          later(babAdvance, 1000);
+          return;
+        }
+        bab.phase = bab.afterDiscard;
+        if(bab.phase === "draw"){
+          bab.msg = p4Name(bab, p) + " の番。" + p4Name(bab, bab.target) + " から1枚引く";
+          babRender();
+          if(cpu) later(babCpuDraw, 900);
+        } else {
+          babRender();
+          if(cpu) later(babAdvance, 850);
+        }
       }
       function babAdvance(){
         if(bab.over) return;
@@ -5823,7 +6117,7 @@
       function babCpuDraw(){
         if(bab.over) return;
         var q = bab.target;
-        babDraw(Math.floor(Math.random() * bab.hands[q].length));
+        babDrawResolve(Math.floor(Math.random() * bab.hands[q].length));
       }
       function babTurn(){
         if(bab.over) return;
@@ -5833,15 +6127,26 @@
         var q = p;
         do { q = q % 4 + 1; } while(bab.hands[q].length === 0);
         bab.target = q;
-        bab.phase = "draw";
         bab.drawn = null;
         bab.revealed = false;
+        bab.anim = false;
+        bab.pickIdx = -1;
+        bab.flipIdx = -1;
         var prev = bab.lastP;
         bab.lastP = p;
-        bab.msg = p4Name(bab, p) + " の番。" + p4Name(bab, q) + " から1枚引く";
+        if(babHasPairs(p)){
+          /* 配られた直後・前のターンから残ったペアは、まず自分で捨ててから引く */
+          bab.phase = "discard";
+          bab.afterDiscard = "draw";
+          bab.msg = p4Name(bab, p) + " の番。まず光っているペアをタップして捨ててね";
+        } else {
+          bab.phase = "draw";
+          bab.msg = p4Name(bab, p) + " の番。" + p4Name(bab, q) + " から1枚引く";
+        }
         babRender();
         if(p4IsCPU(bab, p)){
-          later(babCpuDraw, 1050);
+          if(bab.phase === "discard") later(babCpuDiscardStep, 1000);
+          else later(babCpuDraw, 1050);
         } else if(p === prev){
           bab.revealed = true;
           babRender();
@@ -5855,19 +6160,12 @@
         bab.hands = { 1:[], 2:[], 3:[], 4:[] };
         bab.finishOrder = [];
         bab.over = false; bab.lastP = 0; bab.turn = 1; bab.loser = 0;
+        bab.anim = false; bab.pickIdx = -1; bab.flipIdx = -1; bab.drawn = null;
         deck.forEach(function(c, i){ bab.hands[i % 4 + 1].push(c); });
-        for(var p = 1; p <= 4; p++){ babDropPairs(p); babMarkOut(p); }
-        if(babCheckEnd()){
-          $("babSetup").style.display = "none";
-          $("babPlay").style.display = "";
-          babRender();
-          return;
-        }
-        var guard = 0;
-        while(bab.hands[bab.turn].length === 0 && guard++ < 8) bab.turn = bab.turn % 4 + 1;
+        /* ペアは自動で捨てない：各プレイヤーが自分の番に光ったペアを自分で捨てる */
+        for(var p = 1; p <= 4; p++) sortHandStd(bab.hands[p]);
         $("babSetup").style.display = "none";
         $("babPlay").style.display = "";
-        bab.msg = "ペアは自動で捨てました";
         babTurn();
       }
       function babaInit(){
