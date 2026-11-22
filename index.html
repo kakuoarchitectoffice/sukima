@@ -1072,6 +1072,8 @@
       }
       .marquee-track{display:flex;width:max-content;animation:marqueeMove 48s linear infinite;}
       .marquee:hover .marquee-track{animation-play-state:paused;}
+      /* 画面に見えていない間（スクロール外／タブが裏側）はアニメーションを止める */
+      .marquee.offscreen .marquee-track{animation-play-state:paused;}
       .mq-half{display:flex;align-items:center;gap:30px;padding-right:30px;}
       .mq-half span{
         font-size:12.5px;font-weight:500;letter-spacing:.18em;color:var(--ink-soft);white-space:nowrap;
@@ -1374,6 +1376,44 @@
       }
     </style>
     <script>document.documentElement.classList.add("js");try{if(sessionStorage.getItem("sukima-gate-ok")==="1")document.documentElement.classList.add("unlocked");}catch(e){}</script>
+    <script>
+      /* 起動ウォッチドッグ：ページの読み込み・初期化が6秒たっても終わらない
+         場合に「読み込みに時間がかかっています」と再読み込みボタンを出す。
+         ホーム画面アプリ（スタンドアローン表示）で読み込みが固まったとき、
+         ユーザーが自分で復帰できるようにするための保険。初期化が終わると
+         メインスクリプトの末尾が __sukimaBootOk() を呼び、タイマーは解除
+         される（表示が出ていた場合は消える）。スタイルはインラインで完結
+         させ、本体CSSが読めていない状態でも表示できるようにしてある。 */
+      (function(){
+        var done = false, el = null;
+        window.__sukimaBootOk = function(){
+          done = true;
+          if(el && el.parentNode) el.parentNode.removeChild(el);
+          el = null;
+        };
+        setTimeout(function(){
+          if(done) return;
+          var show = function(){
+            if(done || el || !document.body) return;
+            var dark = false;
+            try{ dark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches; }catch(e){}
+            el = document.createElement("div");
+            el.setAttribute("role", "alert");
+            el.style.cssText = "position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:" + (dark ? "#161615" : "#f5f4f0") + ";";
+            el.innerHTML = '<div style="max-width:320px;text-align:center;font-family:\'Noto Sans JP\',\'Hiragino Sans\',sans-serif;color:' + (dark ? "#f2f1ec" : "#1b1b18") + ';">'
+              + '<p style="margin:0 0 10px;font-size:16px;font-weight:700;line-height:1.7;">読み込みに時間がかかっています</p>'
+              + '<p style="margin:0 0 20px;font-size:13px;line-height:1.8;color:' + (dark ? "#a6a69e" : "#6f6f68") + ';">通信や端末の状態で止まってしまったかもしれません。再読み込みすると直ることが多いです。</p>'
+              + '<button type="button" id="sukimaBootReload" style="appearance:none;-webkit-appearance:none;border:0;border-radius:10px;background:#2e4a3f;color:#ffffff;font-family:inherit;font-size:15px;font-weight:700;padding:13px 28px;cursor:pointer;">再読み込み</button>'
+              + '</div>';
+            document.body.appendChild(el);
+            var btn = document.getElementById("sukimaBootReload");
+            if(btn) btn.addEventListener("click", function(){ location.reload(); });
+          };
+          if(document.body) show();
+          else document.addEventListener("DOMContentLoaded", show);
+        }, 6000);
+      })();
+    </script>
   <link rel="apple-touch-icon" href="sukima-icon-touch.png">
 <link rel="icon" type="image/png" sizes="192x192" href="sukima-icon-192.png">
 <link rel="icon" type="image/png" sizes="512x512" href="sukima-icon-512.png">
@@ -2656,9 +2696,11 @@
          two peers. No account, no API key, no game data on any server. Rooms are
          joined with a 6-char code only: the encryption password Trystero needs
          is derived from the code internally (same code -> same value on both
-         sides), so the user never types or shares a password. The library is
-         preloaded in the background once the online card is on screen, so
-         pressing the button does not wait for the download. */
+         sides), so the user never types or shares a password. To keep page
+         startup light, the library is NOT loaded at page open: loading is
+         deferred until the user first touches the online card, or until the
+         page has been shown for 15s and the device is idle. The fast CDN
+         order above keeps the actual connect quick either way. */
       var TRYSTERO_APP_ID = "futari-minigame-katupuru-2026";
       /* 応答の速いCDNから順に試す。1か所が遅い・落ちていても、タイムアウトで
          次の候補へ切り替えるので、遅いCDNに当たって待たされ続けない。 */
@@ -6371,10 +6413,13 @@
         netSend({t:"bye"});
         netTeardown("接続を切りました。1台で遊ぶモードです。");
       });
-      /* 接続ライブラリの先読み：オンライン欄が見えた時点（と、保険として
-         ページ読み込み後）で裏側で読み込みを始める。ボタンを押したときには
-         読み込み済みになっていて、待ち時間がほぼなくなる。失敗しても
-         ボタンを押したときに自動で読み直す。 */
+      /* 接続ライブラリの先読みは、起動を軽くするため遅らせる。
+         ページを開いた直後は通信も接続処理も走らせない。先読みが始まるのは
+         (1) オンライン欄をタップ／操作したとき（そのまま接続操作へ進める）、
+         (2) ページ表示から15秒以上たって端末が暇なとき（requestIdleCallback）、
+         のどちらか早い方。先読みが間に合わなくても、ボタンを押したときに
+         その場で読み込むので接続はそのまま行える。接続自体の速さはCDNの
+         優先順とコード即時表示で維持する。 */
       (function(){
         var preStarted = false;
         function netPreload(){
@@ -6383,19 +6428,23 @@
           netLoadTrystero().catch(function(){});
         }
         var card = document.querySelector(".online-card");
-        if(card && "IntersectionObserver" in window){
-          try{
-            var io = new IntersectionObserver(function(entries){
-              for(var i = 0; i < entries.length; i++){
-                if(entries[i].isIntersecting){ netPreload(); io.disconnect(); break; }
-              }
-            }, { rootMargin: "240px" });
-            io.observe(card);
-          }catch(e){}
+        if(card){
+          card.addEventListener("pointerdown", netPreload, { passive: true });
+          card.addEventListener("focusin", netPreload);
+          card.addEventListener("click", netPreload);
         }
-        if(document.readyState === "complete") setTimeout(netPreload, 1200);
-        else window.addEventListener("load", function(){ setTimeout(netPreload, 800); });
-        setTimeout(netPreload, 4000);
+        var idleArm = function(){
+          setTimeout(function(){
+            if("requestIdleCallback" in window){
+              try{ requestIdleCallback(function(){ netPreload(); }, { timeout: 8000 }); }
+              catch(e){ netPreload(); }
+            } else {
+              netPreload();
+            }
+          }, 15000);
+        };
+        if(document.readyState === "complete") idleArm();
+        else window.addEventListener("load", idleArm);
       })();
 
       /* ================================================================
@@ -8618,8 +8667,29 @@
         $("shtField" + (f + 1)).addEventListener("pointerdown", function(e){ e.preventDefault(); shtTap(f, e); });
       });
 
+      /* マーキー帯は画面に見えている間だけ動かす。スクロールで見えなく
+         なったときと、タブ／アプリが裏側に回ったときは止めて軽くする。 */
+      (function(){
+        var mq = document.querySelector(".marquee");
+        if(!mq) return;
+        var inView = true;
+        function apply(){ mq.classList.toggle("offscreen", !inView || document.hidden); }
+        if("IntersectionObserver" in window){
+          try{
+            var mio = new IntersectionObserver(function(entries){
+              for(var i = 0; i < entries.length; i++){ inView = entries[i].isIntersecting; }
+              apply();
+            });
+            mio.observe(mq);
+          }catch(e){}
+        }
+        document.addEventListener("visibilitychange", apply);
+      })();
+
       decoratePlayers();
       renderRecords();
+      /* 初期化が最後まで終わったので、起動ウォッチドッグ（6秒）を解除する */
+      if(window.__sukimaBootOk) window.__sukimaBootOk();
     </script>
   </body>
 </html>
