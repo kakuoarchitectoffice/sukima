@@ -585,6 +585,25 @@
       @media (prefers-color-scheme: dark){ .quiz-choice.right{color:#161615;} }
       .quiz-choice.wrong{background:#b3553f;border-color:#b3553f;color:#fff;opacity:1;}
 
+      /* ---------- Kansai dialect judge ---------- */
+      .kansai-phrase{
+        font-size:23px;font-weight:800;line-height:1.65;min-height:98px;text-align:center;letter-spacing:.03em;
+        background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:20px 14px;color:var(--ink);
+        display:flex;align-items:center;justify-content:center;
+      }
+      .kansai-btns{display:flex;gap:10px;margin-top:12px;}
+      .kansai-btns .big-btn{flex:1;width:auto;}
+      .kansai-btns .big-btn:disabled{opacity:.35;}
+      .kansai-verdict{display:none;margin-top:12px;border-radius:8px;padding:14px 16px;text-align:center;border:1px solid var(--line);}
+      .kansai-verdict.show{display:block;animation:fadeIn .25s ease;}
+      .kansai-verdict.good{background:var(--accent-soft);border-color:var(--accent);}
+      .kansai-verdict .kv-head{font-size:20px;font-weight:800;letter-spacing:.06em;}
+      .kansai-verdict .kv-truth{font-size:15px;font-weight:700;margin-top:3px;color:var(--accent);}
+      .kansai-verdict .kv-note{font-size:13px;line-height:1.85;color:var(--ink-soft);margin-top:7px;text-align:left;}
+      body.online[data-game="kansai"] .app{max-width:720px;}
+      body.online[data-game="kansai"] .board-card{padding:9px;}
+      body.online[data-game="kansai"] .kansai-btns .big-btn{min-height:84px;font-size:20px;border-radius:12px;}
+
       /* ---------- Mojiate ---------- */
       .moji-rows{display:flex;flex-direction:column;gap:5px;align-items:center;margin-bottom:6px;min-height:20px;}
       .moji-row{display:flex;gap:5px;}
@@ -1550,13 +1569,13 @@
           <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 44 52"><defs><clipPath id="bmTop"><rect x="0" y="0" width="44" height="24"/></clipPath><clipPath id="bmBot"><rect x="0" y="28" width="44" height="24"/></clipPath></defs><g font-family="Manrope, sans-serif" font-weight="800" font-size="46" fill="var(--ink)"><g class="bm-half bm-top"><text x="22" y="40" text-anchor="middle" clip-path="url(#bmTop)">S</text></g><g class="bm-half bm-bot"><text x="22" y="40" text-anchor="middle" clip-path="url(#bmBot)">S</text></g></g></svg></div>
           <h1 aria-label="SUKIMA"><span class="brand-logo" aria-hidden="true"><span class="bl">S</span><span class="bl">U</span><span class="bl">K</span><span class="bl">I</span><span class="bl">M</span><span class="bl bl-a">A</span></span></h1>
           <p class="brand-tagline">時間と空間のすきまに生まれる、小さな遊びの集まり</p>
-          <p class="home-desc">スマホ1台をふたりで囲んでも、離れていてもオンラインでも遊べます。<br />チェスやマンカラなどの本格ボードゲームから、じゃんけんやサイコロ、ワニたたき、お会計を決める遊び、4人で囲むトランプゲーム、端末を振ったり傾けたりして遊ぶゲームまで、全30ゲーム。ガチで戦う？ それとも息を合わせて協力する？</p>
+          <p class="home-desc">スマホ1台をふたりで囲んでも、離れていてもオンラインでも遊べます。<br />チェスやマンカラなどの本格ボードゲームから、じゃんけんやサイコロ、ワニたたき、お会計を決める遊び、4人で囲むトランプゲーム、端末を振ったり傾けたりして遊ぶゲームまで、全31ゲーム。ガチで戦う？ それとも息を合わせて協力する？</p>
         </div>
 
         <div class="marquee" aria-hidden="true">
           <div class="marquee-track">
-            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>ボクシング対決</span><span class="mq-sep"></span><span>シューティングマニア</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span><span>スワイプ早斬り</span><span class="mq-sep"></span></div>
-            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>ボクシング対決</span><span class="mq-sep"></span><span>シューティングマニア</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span><span>スワイプ早斬り</span><span class="mq-sep"></span></div>
+            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>それ関西弁やなぁ</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>ボクシング対決</span><span class="mq-sep"></span><span>シューティングマニア</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span><span>スワイプ早斬り</span><span class="mq-sep"></span></div>
+            <div class="mq-half"><span>連打つなひき</span><span class="mq-sep"></span><span>早押しバトル</span><span class="mq-sep"></span><span>タイミングストップ対決</span><span class="mq-sep"></span><span>じゃんけんバトル</span><span class="mq-sep"></span><span>サイコロバトル</span><span class="mq-sep"></span><span>シンクロタップ</span><span class="mq-sep"></span><span>ハートキャッチ</span><span class="mq-sep"></span><span>ぴったりタイマー</span><span class="mq-sep"></span><span>リバーシ＋</span><span class="mq-sep"></span><span>四目並べドロップ</span><span class="mq-sep"></span><span>五目並べ</span><span class="mq-sep"></span><span>チェス</span><span class="mq-sep"></span><span>チェッカー</span><span class="mq-sep"></span><span>マンカラ</span><span class="mq-sep"></span><span>神経衰弱</span><span class="mq-sep"></span><span>すごろくレース</span><span class="mq-sep"></span><span>クイズバトル</span><span class="mq-sep"></span><span>もじ当て</span><span class="mq-sep"></span><span>それ関西弁やなぁ</span><span class="mq-sep"></span><span>ワニたたきパニック</span><span class="mq-sep"></span><span>ボクシング対決</span><span class="mq-sep"></span><span>シューティングマニア</span><span class="mq-sep"></span><span>お会計ルーレット割り勘</span><span class="mq-sep"></span><span>あみだくじ</span><span class="mq-sep"></span><span>ドキドキ海賊タル</span><span class="mq-sep"></span><span>お題ガチャ</span><span class="mq-sep"></span><span>7並べ</span><span class="mq-sep"></span><span>ババ抜き</span><span class="mq-sep"></span><span>大富豪</span><span class="mq-sep"></span><span>シェイク対決</span><span class="mq-sep"></span><span>傾けボール</span><span class="mq-sep"></span><span>スワイプ早斬り</span><span class="mq-sep"></span></div>
           </div>
         </div>
 
@@ -1573,7 +1592,7 @@
             <li>出てきた<b>4文字のコード</b>を相手に伝える</li>
             <li><b>相手</b>が「コードで入る」からコードを入力すれば接続完了！</li>
           </ol>
-          <p class="sub-text" style="margin:0 0 10px;">全30ゲームすべてオンライン対応です。部屋には最大4人まで入れます（7並べ・ババ抜き・大富豪は人数分の対戦、2人用ゲームでは3人目以降は見学になります）。オンライン中は、自分の操作ボタンだけが大きく表示されます。</p>
+          <p class="sub-text" style="margin:0 0 10px;">全31ゲームすべてオンライン対応です。部屋には最大4人まで入れます（7並べ・ババ抜き・大富豪は人数分の対戦、2人用ゲームでは3人目以降は見学になります）。オンライン中は、自分の操作ボタンだけが大きく表示されます。</p>
           <p class="net-note">ゲームの内容は、対戦ゲーム専用サービス「Playroom Kit」のサーバーを経由して相手のスマホへ届きます。直接つなぐ方式と中継する方式を自動で切り替えるため、回線の相性を問わずつながりやすい仕組みです。流れるのは対戦の操作情報だけで、個人情報は送りません。アカウント登録は不要です。接続まで少し時間がかかることがあります。</p>
           <button class="btn-p1 net-big-btn" id="netCreate">部屋を作る（コード発行）</button>
           <button class="btn-main net-big-btn" id="netShowJoin" type="button">コードで入る場合はこちら</button>
@@ -1853,6 +1872,16 @@
             <h3>もじ当て</h3>
             <p>ひらがな4文字の単語を当てるワード当て。交互に予想して、文字と位置のヒントで絞り込もう。（1台専用）</p>
             <span class="record" id="rec-moji">まだ対戦なし</span>
+          </span>
+          <span class="go">あそぶ ›</span>
+        </button>
+
+        <button class="game-card" data-go="kansai">
+          <span class="icon c5"><svg viewBox="0 0 24 24" fill="none"><path d="M4 4.5h13.5a2.5 2.5 0 0 1 2.5 2.5v6a2.5 2.5 0 0 1-2.5 2.5H10l-4.2 3.6c-.4.3-1 .1-1-.5V7a2.5 2.5 0 0 1-.8-2.5z" fill="#2e4a3f"/><path d="M8.2 8.2c.8-.4 1.8-.3 2.5.3.9.8.9 2.1 0 3-.7.7-1.9.8-2.7.2M14.6 7.6l2.2 4.8M17.9 7.6l-2.2 4.8" stroke="#f5f4f0" stroke-width="1.5" stroke-linecap="round"/></svg></span>
+          <span class="gc-body">
+            <h3>それ関西弁やなぁ</h3>
+            <p>出てきたフレーズが関西弁かどうかを判定するゲーム。ひっかけは標準語だけやない、博多弁・名古屋弁・東北弁みたいな「関西とちゃう方言」も混ざってるで。交互に答えて全10問、正解数で勝負！</p>
+            <span class="record" id="rec-kansai">まだ対戦なし</span>
           </span>
           <span class="go">あそぶ ›</span>
         </button>
@@ -2311,6 +2340,32 @@
           <div class="status-text" id="mojiStatus">4文字の言葉を予想してね</div>
           <div class="moji-cur" id="mojiCur"></div>
           <div class="kb" id="mojiKb"></div>
+        </div>
+      </section>
+
+      <!-- ============ 31. KANSAI DIALECT JUDGE ============ -->
+      <section class="screen" id="scr-kansai">
+        <div class="game-head"><button class="back-btn" data-home>‹ ホーム</button><h2>それ関西弁やなぁ</h2><span class="spacer"></span></div>
+        <div class="howto">出てきたフレーズが<b>関西弁かどうか</b>を判定するゲーム。自分の番に<b>「関西弁や！」</b>か<b>「ちゃう！」</b>で答えてね。ひっかけは標準語だけやない、<b>博多弁・名古屋弁・東北弁</b>みたいな「関西とちゃう方言」も混ざってるで。答えたあとは解説で答え合わせ。交互に答えて全<b>10問</b>、正解数で勝負！</div>
+        <div class="turn-banner p1" id="kansaiTurn">じゅんび中</div>
+        <div class="board-card">
+          <div class="quiz-meta"><span id="kansaiQNum">第1問 ／ 10</span><span id="kansaiPhase">じゅんび中</span></div>
+          <div class="kansai-phrase" id="kansaiPhrase">スタートを押してね</div>
+          <div class="kansai-verdict" id="kansaiVerdict">
+            <div class="kv-head" id="kansaiKvHead"></div>
+            <div class="kv-truth" id="kansaiKvTruth"></div>
+            <div class="kv-note" id="kansaiKvNote"></div>
+          </div>
+          <div class="kansai-btns">
+            <button class="big-btn btn-green" id="kansaiYes" type="button" disabled>関西弁や！</button>
+            <button class="big-btn btn-main" id="kansaiNo" type="button" disabled>ちゃう！</button>
+          </div>
+          <div class="score-row">
+            <span class="score-chip p1">あか <span id="kansaiScore1">0</span>点</span>
+            <span class="score-chip p2">あお <span id="kansaiScore2">0</span>点</span>
+          </div>
+          <div class="status-text" id="kansaiStatus" style="margin-top:8px;">全10問、正解数で勝負！</div>
+          <button class="big-btn btn-green" id="kansaiStart" style="margin-top:10px;">スタート</button>
         </div>
       </section>
 
@@ -3013,7 +3068,7 @@
           case "hello": return {t:"hello", v:Math.round(netNum(m.v, 0, 9999, 0))};
           case "bye": case "retry": case "tugGo": case "hcStart": return {t:m.t};
           case "nav": {
-            var games = ["home","tug","haya","timing","sync","heart","ptimer","reversi","connect4","gomoku","janken","dice","chess","checkers","mancala","memory","sugoroku","quiz","moji","wani","pirate","warikan","amida","sevens","baba","daifugo","shake","tilt","boxing","swipe","shoot"];
+            var games = ["home","tug","haya","timing","sync","heart","ptimer","reversi","connect4","gomoku","janken","dice","chess","checkers","mancala","memory","sugoroku","quiz","moji","kansai","wani","pirate","warikan","amida","sevens","baba","daifugo","shake","tilt","boxing","swipe","shoot"];
             return games.indexOf(m.game) >= 0 ? {t:"nav", game:m.game} : null;
           }
           case "chMove": return {t:"chMove", p:netPlayer(m.p), from:Math.round(netNum(m.from, 0, 63, -1)), to:Math.round(netNum(m.to, 0, 63, -1)), promo:Math.round(netNum(m.promo, 0, 4, 0))};
@@ -3057,6 +3112,8 @@
           case "memFlip": return {t:"memFlip", i:Math.round(netNum(m.i, 0, 15, -1))};
           case "mojiStart": return {t:"mojiStart", ai:Math.round(netNum(m.ai, 0, 999, 0))};
           case "mojiGuess": return {t:"mojiGuess", w:String(m.w == null ? "" : m.w).slice(0, 6)};
+          case "kansaiStart": return {t:"kansaiStart", order:netIntList(m.order, 10, 0, 999, 0)};
+          case "kansaiAns": return {t:"kansaiAns", v:m.v ? 1 : 0};
           case "pirStart": return {t:"pirStart", bad:Math.round(netNum(m.bad, 0, 11, 0))};
           case "pirStab": return {t:"pirStab", i:Math.round(netNum(m.i, 0, 11, -1))};
           case "wariStart": {
@@ -3431,6 +3488,7 @@
         sugoroku:{ p1:0, p2:0 },
         quiz:   { p1:0, p2:0 },
         moji:   { p1:0, p2:0 },
+        kansai: { p1:0, p2:0 },
         wani:   { p1:0, p2:0 },
         pirate: { p1:0, p2:0 },
         sevens: { p1:0, p2:0 },
@@ -3465,6 +3523,7 @@
         var rsg=$("rec-sugoroku"); if(rsg) rsg.innerHTML = versusText(records.sugoroku);
         var rqz=$("rec-quiz"); if(rqz) rqz.innerHTML = versusText(records.quiz);
         var rmj=$("rec-moji"); if(rmj) rmj.innerHTML = versusText(records.moji);
+        var rkn=$("rec-kansai"); if(rkn) rkn.innerHTML = versusText(records.kansai);
         var rwn=$("rec-wani"); if(rwn) rwn.innerHTML = versusText(records.wani);
         var rpr=$("rec-pirate"); if(rpr) rpr.innerHTML = versusText(records.pirate);
         var rsv=$("rec-sevens"); if(rsv) rsv.innerHTML = versusText(records.sevens);
@@ -5637,6 +5696,164 @@
         mojiRender();
       };
       NetH.mojiGuess = function(m){ if(currentGame === "moji" && m.w) mojiApplyGuess(m.w); };
+
+      /* ================================================================
+         31. それ関西弁やなぁ（関西弁かどうか判定・交互回答）
+         フレーズが関西弁なら「関西弁や！」、標準語や他地域の方言なら
+         「ちゃう！」で答える。関西弁5問＋それ以外5問の全10問。
+      ================================================================ */
+      var KANSAI_Q = [
+        {t:"めっちゃ好きやねん", k:true, note:"「めっちゃ（とても）」＋「やねん（なんだよ）」は代表的な関西弁。標準語では「すごく好きなんだよ」。"},
+        {t:"なんでやねん！", k:true, note:"ツッコミの決めゼリフとして有名な関西弁。「なんでだよ！」という意味。"},
+        {t:"ほんまに助かったわ", k:true, note:"「ほんま」は「本当」の関西弁。関西では日常的に使われる。"},
+        {t:"それ、ちゃうちゃう", k:true, note:"「ちゃう」は「違う」の関西弁。2回重ねて否定するのも関西らしい言い方。"},
+        {t:"あかん、もう無理やわ", k:true, note:"「あかん」は「だめ・いけない」の関西弁。「やわ」は関西の語尾。"},
+        {t:"ええ感じやん、これ", k:true, note:"「ええ」は「いい」の関西弁。「やん」は同意を求める関西の語尾。"},
+        {t:"おおきに、ありがとさん", k:true, note:"「おおきに」は「ありがとう」の意味の関西弁。特に京都・大阪で使われる。"},
+        {t:"かまへん、気にせんで", k:true, note:"「かまへん」は「構わない」の関西弁。「〜せんで」は「〜しなくて」の関西の言い方。"},
+        {t:"ほな、また明日な", k:true, note:"「ほな」は「それじゃあ」の関西弁。別れ際によく使われる。"},
+        {t:"知らんけど", k:true, note:"文の最後に付けて断言をぼかす、関西弁らしい言い回し。"},
+        {t:"机の上、直しといてな", k:true, note:"関西弁で「直す（なおす）」は「片付ける・しまう」の意味。標準語の「修理する」とは違う使い方。"},
+        {t:"うち、明日は休みやねん", k:true, note:"自分のことを「うち」と言うのは、関西でよく見られる一人称（主に女性が使う）。"},
+        {t:"このシャツ、さらやで", k:true, note:"「さら」は「新品・新しいもの」を表す関西弁。「さらっぴん」とも言う。"},
+        {t:"しんどいわぁ、今日は", k:true, note:"「しんどい」は「疲れた・つらい」の意味で、関西発祥とされる言葉。今では全国に広まっている。"},
+        {t:"すごく嬉しいです", k:false, note:"これは標準語。「すごく」は全国共通の表現で、関西弁ではない。"},
+        {t:"ばり嬉しいっちゃん", k:false, note:"これは博多弁（福岡）。「ばり」は「とても」、「〜っちゃん」は博多弁の語尾。"},
+        {t:"でらうまいがや", k:false, note:"これは名古屋弁（愛知）。「でら」は「とても」、「がや」は名古屋弁の語尾。"},
+        {t:"それでいいんだべ？", k:false, note:"「〜だべ」は東北弁の語尾。関西弁ではない。"},
+        {t:"じゃけん、そうなんよ", k:false, note:"「じゃけん（だから）」は広島弁をはじめ中国地方の方言。関西弁ではない。"},
+        {t:"なんくるないさー", k:false, note:"これは沖縄の言葉。「なんとかなるさ」という意味で、関西弁ではない。"},
+        {t:"なまらすごいっしょ", k:false, note:"「なまら（とても）」と「〜っしょ」は北海道弁。関西弁ではない。"},
+        {t:"明日は晴れるでしょう", k:false, note:"これは標準語。天気予報などで使われる、丁寧で全国共通の表現。"},
+        {t:"はんかくさいこと言うな", k:false, note:"「はんかくさい」は「ばかばかしい・愚かな」の意味の北海道弁。関西弁ではない。"},
+        {t:"やっぱりそうずら？", k:false, note:"「〜ずら」は静岡・長野などで使われる推量の方言。関西弁ではない。"},
+        {t:"好いとうやけん、待っとって", k:false, note:"「好いとう（好きだ）」「〜やけん（だから）」は博多弁など九州の方言。関西弁ではない。"},
+        {t:"ありがとうございます", k:false, note:"これは標準語の丁寧な言い方。関西で感謝を表す方言は「おおきに」など。"}
+      ];
+      var KANSAI_TOTAL = 10;
+      var kansai = { order:[], qn:0, turn:1, s1:0, s2:0, phase:"idle", cur:-1 };
+      function kansaiScores(){
+        $("kansaiScore1").textContent = kansai.s1;
+        $("kansaiScore2").textContent = kansai.s2;
+      }
+      function kansaiRenderTurn(){
+        var b = $("kansaiTurn");
+        if(kansai.phase === "idle"){
+          b.className = "turn-banner p1";
+          b.innerHTML = "じゅんび中<small>スタートを押してね</small>";
+          return;
+        }
+        b.className = "turn-banner p" + kansai.turn;
+        b.innerHTML = wolf(kansai.turn, "wolf-24") + " " + (kansai.turn === 1 ? "あか" : "あお") + "の番です<small>関西弁かどうか判定してね</small>";
+      }
+      function kansaiSetBtns(){
+        var can = kansai.phase === "ask" && (!Net.connected || Net.myPlayer === kansai.turn);
+        $("kansaiYes").disabled = !can;
+        $("kansaiNo").disabled = !can;
+      }
+      function kansaiShuffle(a){
+        for(var i = a.length - 1; i > 0; i--){
+          var j = Math.floor(Math.random() * (i + 1));
+          var t = a[i]; a[i] = a[j]; a[j] = t;
+        }
+        return a;
+      }
+      function kansaiBuildOrder(){
+        var yes = [], no = [];
+        KANSAI_Q.forEach(function(q, i){ (q.k ? yes : no).push(i); });
+        return kansaiShuffle(kansaiShuffle(yes).slice(0, 5).concat(kansaiShuffle(no).slice(0, 5)));
+      }
+      function kansaiStartGame(){
+        if(Net.connected && !Net.isHost) return;
+        var order = kansaiBuildOrder();
+        if(Net.connected) netSend({t:"kansaiStart", order:order});
+        kansaiBegin(order);
+      }
+      function kansaiBegin(order){
+        kansai.order = order.slice(0, KANSAI_TOTAL);
+        kansai.qn = 0; kansai.s1 = 0; kansai.s2 = 0;
+        $("kansaiStart").style.display = "none";
+        sfx("go");
+        kansaiNext();
+      }
+      function kansaiNext(){
+        if(kansai.qn >= KANSAI_TOTAL){ kansaiFinish(); return; }
+        kansai.cur = kansai.order[kansai.qn];
+        kansai.qn++;
+        kansai.turn = (kansai.qn % 2 === 1) ? 1 : 2;
+        kansai.phase = "ask";
+        var q = KANSAI_Q[kansai.cur];
+        $("kansaiQNum").textContent = "第" + kansai.qn + "問 ／ " + KANSAI_TOTAL;
+        $("kansaiPhase").textContent = (kansai.turn === 1 ? "あか" : "あお") + "の番";
+        $("kansaiPhrase").textContent = "「" + q.t + "」";
+        $("kansaiVerdict").className = "kansai-verdict";
+        $("kansaiStatus").textContent = "これは関西弁やと思う？";
+        kansaiScores(); kansaiRenderTurn(); kansaiSetBtns();
+      }
+      function kansaiAnswer(v){
+        if(kansai.phase !== "ask") return;
+        if(Net.connected && Net.myPlayer !== kansai.turn) return;
+        if(Net.connected) netSend({t:"kansaiAns", v:v ? 1 : 0});
+        kansaiApply(v);
+      }
+      function kansaiApply(v){
+        if(kansai.phase !== "ask" || kansai.cur < 0) return;
+        kansai.phase = "judge";
+        var q = KANSAI_Q[kansai.cur];
+        var correct = (v === q.k);
+        if(correct){
+          if(kansai.turn === 1) kansai.s1++; else kansai.s2++;
+          sfx("pair");
+        } else sfx("miss");
+        var vd = $("kansaiVerdict");
+        vd.className = "kansai-verdict show" + (correct ? " good" : "");
+        $("kansaiKvHead").textContent = correct ? "正解！" : "残念…はずれ！";
+        $("kansaiKvTruth").textContent = q.k ? "これは関西弁や！" : "これは関西弁とちゃう！";
+        $("kansaiKvNote").textContent = q.note;
+        $("kansaiPhase").textContent = correct ? "正解！" : "不正解";
+        $("kansaiStatus").textContent = (kansai.turn === 1 ? "あか" : "あお") + (correct ? "が正解！ ＋1点" : "は不正解…");
+        sigPop($("kansaiKvHead"));
+        kansaiScores(); kansaiSetBtns();
+        later(function(){
+          if(currentGame === "kansai" && kansai.phase === "judge") kansaiNext();
+        }, 3600);
+      }
+      function kansaiFinish(){
+        kansai.phase = "idle";
+        var w = kansai.s1 === kansai.s2 ? 0 : (kansai.s1 > kansai.s2 ? 1 : 2);
+        if(w === 1) records.kansai.p1++; else if(w === 2) records.kansai.p2++;
+        $("kansaiPhase").textContent = "全" + KANSAI_TOTAL + "問 終了！";
+        var st = $("kansaiStart");
+        st.style.display = ""; st.textContent = "もう一度スタート"; st.disabled = false;
+        kansaiRenderTurn(); kansaiSetBtns();
+        showResult(
+          w === 0 ? "引き分け！" : (w === 1 ? "あか（プレイヤー1）の勝ち！" : "あお（プレイヤー2）の勝ち！"),
+          "最終スコアは あか <b>" + kansai.s1 + "点</b> ／ あお <b>" + kansai.s2 + "点</b> でした。" +
+          (w ? "<br />通算成績は あか " + records.kansai.p1 + "勝 ／ あお " + records.kansai.p2 + "勝" : ""),
+          kansaiInit, w
+        );
+      }
+      function kansaiInit(){
+        kansai.phase = "idle"; kansai.cur = -1; kansai.qn = 0; kansai.s1 = 0; kansai.s2 = 0; kansai.turn = 1;
+        $("kansaiQNum").textContent = "第1問 ／ " + KANSAI_TOTAL;
+        $("kansaiPhase").textContent = "じゅんび中";
+        $("kansaiPhrase").textContent = (Net.connected && !Net.isHost) ? "ホストがスタートするのを待ってね" : "スタートを押してね";
+        $("kansaiVerdict").className = "kansai-verdict";
+        $("kansaiStatus").textContent = "全10問、正解数で勝負！";
+        var st = $("kansaiStart");
+        st.style.display = ""; st.textContent = "スタート";
+        st.disabled = !!(Net.connected && !Net.isHost);
+        kansaiScores(); kansaiRenderTurn(); kansaiSetBtns();
+      }
+      inits.kansai = kansaiInit;
+      $("kansaiStart").addEventListener("click", kansaiStartGame);
+      $("kansaiYes").addEventListener("click", function(){ kansaiAnswer(true); });
+      $("kansaiNo").addEventListener("click", function(){ kansaiAnswer(false); });
+      NetH.kansaiStart = function(m){
+        if(currentGame !== "kansai" || !m.order || m.order.length < KANSAI_TOTAL) return;
+        kansaiBegin(m.order);
+      };
+      NetH.kansaiAns = function(m){ if(currentGame === "kansai") kansaiApply(!!m.v); };
 
       /* ================================================================
          19. ワニたたきパニック（1台=上下2フィールド対戦／オンライン=取り合い）
